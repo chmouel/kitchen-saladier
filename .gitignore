@@ -1,0 +1,14 @@
+build
+dist
+MANIFEST
+AUTHORS
+ChangeLog
+.gerrit
+.testrepository
+.tox
+.venv
+*.egg
+*.egg-info
+*.pyc
+cover/
+.unit-test
