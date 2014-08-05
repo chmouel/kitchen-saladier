@@ -1,5 +1,23 @@
-===============================
+================
 kitchen-saladier
-===============================
+================
 
-A saladier of things with a REST API!
+http://en.wiktionary.org/wiki/saladier - *A salad bowl, a mixing bowl*
+
+Sitting between the product server and the different CIs the saladier
+is central to the **kitchen-island** project.
+
+The Saladier is the service that collect results of deployment for the
+different products that has been certified on the different CI and
+gives the authorization for the final deployment according to
+different set of rules.
+
+Setup
+-----
+
+``TBD``
+
+Usage
+-----
+
+``TBD``
