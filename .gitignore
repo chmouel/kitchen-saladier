@@ -49,3 +49,7 @@ ChangeLog
 # Editors
 *~
 .*.swp
+
+
+# Local ignores
+etc/saladier/saladier.conf.sample
