@@ -1,0 +1,7 @@
+[run]
+branch = True
+source = kitchen-saladier
+omit = kitchen-saladier/tests/*,kitchen-saladier/openstack/*
+
+[report]
+ignore-errors = True
