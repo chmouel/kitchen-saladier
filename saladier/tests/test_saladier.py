@@ -13,16 +13,16 @@
 # under the License.
 
 """
-test_kitchen-saladier
+test_saladier
 ----------------------------------
 
-Tests for `kitchen-saladier` module.
+Tests for `saladier` module.
 """
 
-from kitchen-saladier.tests import base
+from saladier.tests import base
 
 
-class TestKitchen-saladier(base.TestCase):
+class TestSaladier(base.TestCase):
 
     def test_something(self):
         pass

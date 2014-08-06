@@ -2,4 +2,4 @@
 kitchen-saladier
 ===============================
 
-TODO
+A saladier of things with a REST API!
