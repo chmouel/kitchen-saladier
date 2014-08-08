@@ -12,16 +12,13 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-import pecan
+from saladier.tests.api import v1
 
 
-class TestController(object):
-    @pecan.expose('json')
-    def index(self):
-        return dict(foo='bar')
+class TestSample(v1.FunctionalTest):
+    def setUp(self):
+            super(TestSample, self).setUp()
 
-
-class V1Controller(object):
-    """Version 1 API controller root."""
-
-    test = TestController()
+    def test_all_foo(self):
+        data = self.get_json('/test/')
+        self.assertIn('foo', data)
