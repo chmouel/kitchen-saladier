@@ -23,6 +23,8 @@ from paste import deploy
 import pecan
 
 from saladier.api import config as api_config
+from saladier.api import hooks
+from saladier.api import middleware
 from saladier.openstack.common import log
 
 LOG = log.getLogger(__name__)
@@ -44,7 +46,10 @@ def get_pecan_config():
     return pecan.configuration.conf_from_file(filename)
 
 
-def setup_app(pecan_config=None):
+def setup_app(pecan_config=None, extra_hooks=None):
+    app_hooks = [hooks.ConfigHook()]
+    if extra_hooks:
+        app_hooks.extend(extra_hooks)
 
     if not pecan_config:
         pecan_config = get_pecan_config()
@@ -55,11 +60,29 @@ def setup_app(pecan_config=None):
         pecan_config.app.root,
         static_root=pecan_config.app.static_root,
         template_path=pecan_config.app.template_path,
-        debug=True,
+        debug=CONF.debug,
+        force_canonical=getattr(pecan_config.app, 'force_canonical', True),
+        hooks=app_hooks,
+        wrap_app=middleware.ParsableErrorMiddleware,
         guess_content_type_from_ext=False
     )
 
     return app
+
+
+class VersionSelectorApplication(object):
+    def __init__(self):
+        pc = get_pecan_config()
+        pc.app.debug = True
+
+        def not_found(environ, start_response):
+            start_response('404 Not Found', [])
+            return []
+
+        self.v1 = setup_app(pecan_config=pc)
+
+    def __call__(self, environ, start_response):
+        return self.v1(environ, start_response)
 
 
 def get_server_cls(host):
@@ -113,21 +136,6 @@ def build_server():
                  {'host': host, 'port': port}))
 
     return srv
-
-
-class VersionSelectorApplication(object):
-    def __init__(self):
-        pc = get_pecan_config()
-        pc.app.debug = True
-
-        def not_found(environ, start_response):
-            start_response('404 Not Found', [])
-            return []
-
-        self.v1 = setup_app(pecan_config=pc)
-
-    def __call__(self, environ, start_response):
-        return self.v1(environ, start_response)
 
 
 def app_factory(global_config, **local_conf):
