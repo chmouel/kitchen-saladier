@@ -40,6 +40,10 @@ CONF = cfg.CONF
 CONF.register_opts(auth_opts)
 
 
+class APIPasteNotFound(Exception):
+    pass
+
+
 def get_pecan_config():
     # Set up the pecan configuration
     filename = api_config.__file__.replace('.pyc', '.py')
@@ -108,7 +112,7 @@ def load_app():
     cfg_file = cfg.CONF.api_paste_config
     LOG.info("WSGI config requested: %s" % cfg_file)
     if not os.path.exists(cfg_file):
-        raise Exception('api_paste_config file not found')
+        raise APIPasteNotFound('api_paste_config file not found')
     LOG.info("Full WSGI config used: %s" % os.path.abspath(cfg_file))
     return deploy.loadapp("config:" + os.path.abspath(cfg_file))
 
