@@ -88,12 +88,14 @@ class ParsableErrorMiddleware(object):
                 state['headers'].append(('Content-Type', 'application/xml'))
             else:
                 try:
-                    fault = json.loads('\n'.join(app_iter))
+                    fault = json.loads(
+                        '\n'.join([x.decode() for x in app_iter]))
                     if error is not None and 'faultstring' in fault:
                         fault['faultstring'] = error
-                    body = [json.dumps({'error_message': fault})]
+                    body = [json.dumps({'error_message': fault}).encode()]
                 except ValueError as err:
-                    body = [json.dumps({'error_message': '\n'.join(app_iter)})]
+                    error = '\n'.join([x.decode() for x in app_iter])
+                    body = [json.dumps({'error_message': error}).encode()]
                 state['headers'].append(('Content-Type', 'application/json'))
             state['headers'].append(('Content-Length', str(len(body[0]))))
         else:
