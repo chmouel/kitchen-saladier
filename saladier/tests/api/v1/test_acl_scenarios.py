@@ -19,8 +19,8 @@
 import datetime
 import json
 
-import six
-import testtools
+from keystonemiddleware import auth_token
+import mock
 import webtest
 
 from saladier.api import app
@@ -95,12 +95,12 @@ class TestAPIACL(v1.FunctionalTest):
         self.CONF.set_override("api_paste_config", file_name)
         self.assertRaises(app.APIPasteNotFound, app.load_app)
 
-    @testtools.skipIf(six.PY3, reason="Skip on py3 until lp:1372484 is sorted")
+    @mock.patch.object(auth_token, '_MiniResp', v1.FixedMiniResp)
     def test_non_authenticated(self):
         response = self.get_json('/meters', expect_errors=True)
         self.assertEqual(401, response.status_int)
 
-    @testtools.skipIf(six.PY3, reason="Skip on py3 until lp:1372484 is sorted")
+    @mock.patch.object(auth_token, '_MiniResp', v1.FixedMiniResp)
     def test_authenticated_wrong_role(self):
         response = self.get_json('/',
                                  expect_errors=True,

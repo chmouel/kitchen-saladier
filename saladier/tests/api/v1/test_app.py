@@ -17,8 +17,8 @@
 # under the License.
 """Test basic saladier-api app
 """
-import six
-import testtools
+from keystonemiddleware import auth_token
+import mock
 
 from saladier.tests.api import v1
 
@@ -31,8 +31,8 @@ class TestPecanApp(v1.FunctionalTest):
         self.assertEqual('application/json', response.content_type)
 
 
-@testtools.skipIf(six.PY3, reason="Skip on py3 until lp:1372484 is fixed")
 class TestApiMiddleware(v1.FunctionalTest):
+    @mock.patch.object(auth_token, '_MiniResp', v1.FixedMiniResp)
     def test_json_parsable_error_middleware_404(self):
         response = self.get_json('/invalid_path',
                                  expect_errors=True,
@@ -74,6 +74,7 @@ class TestApiMiddleware(v1.FunctionalTest):
         self.assertEqual("application/json", response.content_type)
         self.assertTrue(response.json['error_message'])
 
+    @mock.patch.object(auth_token, '_MiniResp', v1.FixedMiniResp)
     def test_xml_parsable_error_middleware_404(self):
         response = self.get_json('/invalid_path',
                                  expect_errors=True,

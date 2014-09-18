@@ -74,17 +74,22 @@ class ParsableErrorMiddleware(object):
                == 'application/xml'):
                 try:
                     # simple check xml is valid
-                    fault = etree.fromstring('\n'.join(app_iter))
+                    faultstr = '\n'.join(
+                        [x.decode() for x in app_iter])
+                    fault = etree.fromstring(faultstr)
                     # Add the translated error to the xml data
                     if error is not None:
                         for fault_string in fault.findall('faultstring'):
                             fault_string.text = error
-                    body = ['<error_message>' + etree.tostring(fault)
-                            + '</error_message>']
+                    body_str = ('<error_message>' +
+                                etree.tostring(fault).decode() +
+                                '</error_message>')
+                    body = [body_str.encode()]
                 except etree.XMLSyntaxError as err:
                     LOG.error('Error parsing HTTP response: %s' % err)
-                    body = ['<error_message>%s' % state['status_code']
-                            + '</error_message>']
+                    body_str = ('<error_message>%s</error_message>' %
+                                state['status_code'])
+                    body = [body_str.encode()]
                 state['headers'].append(('Content-Type', 'application/xml'))
             else:
                 try:

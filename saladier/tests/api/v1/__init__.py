@@ -20,3 +20,15 @@ from saladier.tests import api
 
 class FunctionalTest(api.FunctionalTest):
     PATH_PREFIX = '/v1'
+
+
+# We have to do this due of lp:1372484 bug when this will be fixed we
+# can remove that mock.
+class FixedMiniResp(object):
+    def __init__(self, error_message, env, headers=[]):
+        if env['REQUEST_METHOD'] == 'HEAD':
+            self.body = ['']
+        else:
+            self.body = [error_message.encode()]
+        self.headers = list(headers)
+        self.headers.append(('Content-type', 'text/plain'))
