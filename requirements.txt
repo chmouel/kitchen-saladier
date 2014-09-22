@@ -5,3 +5,5 @@ pecan>=0.4.5
 PasteDeploy>=1.5.0
 netaddr>=0.7.6
 keystonemiddleware>=1.0.0
+
+lxml>=2.3
