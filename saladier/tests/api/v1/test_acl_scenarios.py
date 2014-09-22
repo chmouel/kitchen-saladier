@@ -90,6 +90,11 @@ class TestAPIACL(v1.FunctionalTest):
         self.CONF.set_override("api_paste_config", file_name)
         return webtest.TestApp(app.load_app())
 
+    def test_not_found_app_config(self):
+        file_name = self.path_get('/NOTFOUND')
+        self.CONF.set_override("api_paste_config", file_name)
+        self.assertRaises(app.APIPasteNotFound, app.load_app)
+
     @testtools.skipIf(six.PY3, reason="Skip on py3 until lp:1372484 is sorted")
     def test_non_authenticated(self):
         response = self.get_json('/meters', expect_errors=True)
