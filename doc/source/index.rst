@@ -14,7 +14,7 @@ Contents:
    readme
    architecture
    api
-   contributing
+   development
 
 Indices and tables
 ==================
