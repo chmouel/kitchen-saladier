@@ -65,3 +65,80 @@ up having multiple validation and when the product has been validated
 at least a certain amount of times (TBD at product configuration
 setup) it could notified the Operation team that operate the customers
 of the Jenkins.
+
+==========
+Data model
+==========
+
+The data model of the Control server is described below:
+
+.. graphviz::
+
+   digraph structs {
+     node [shape=plaintext]
+
+       CUSTOMER_PRODUCTS [label=<
+       <table border="0" cellborder="1" cellspacing="0" align="left">
+       <tr><td BGCOLOR="Lavender">CUSTOMER_PRODUCTS</td></tr>
+       <tr><td PORT="CUSTOMER_ID">Customer ID</td></tr>
+       <tr><td PORT="PRODUCT_ID">Product ID</td></tr>
+       </table>>];
+
+       CUSTOMERS [label=<
+       <table border="0" cellborder="1" cellspacing="0" align="left">
+       <tr><td BGCOLOR="Lavender">CUSTOMERS</td></tr>
+       <tr><td PORT="CUSTOMER_ID">Customer ID</td></tr>
+       <tr><td PORT="Name">Name</td></tr>
+       </table>>];
+
+       PRODUCTS [label=<
+       <table border="0" cellborder="1" cellspacing="0" align="left">
+       <tr><td BGCOLOR="Lavender">PRODUCTS</td></tr>
+       <tr><td PORT="PRODUCT_ID">Product ID</td></tr>
+       <tr><td PORT="Name">Name</td></tr>
+       <tr><td PORT="Team">Team</td></tr>
+       <tr><td PORT="Contact_email">Contact email</td></tr>
+       </table>>];
+
+       PRODUCT_VERSIONS_PLATFORMS [label=<
+       <table border="0" cellborder="1" cellspacing="0" align="left">
+       <tr><td BGCOLOR="Lavender">PRODUCT_VERSIONS_PLATFORMS </td></tr>
+       <tr><td PORT="Platform_ID">Platform ID</td></tr>
+       <tr><td PORT="PRODUCT_VERSION_ID">Product version ID</td></tr>
+       </table>>];
+
+       PLATFORMS [label=<
+       <table border="0" cellborder="1" cellspacing="0" align="left">
+       <tr><td BGCOLOR="Lavender">PLATFORMS</td></tr>
+       <tr><td PORT="PLATFORM_ID">Platform ID</td></tr>
+       <tr><td PORT="Customer_ID">Customer ID</td></tr>
+       <tr><td PORT="Location">Location</td></tr>
+       <tr><td PORT="Notes">Contact email</td></tr>
+       </table>>];
+
+       PRODUCT_VERSIONS [label=<
+       <table border="0" cellborder="1" cellspacing="0" align="left">
+       <tr><td BGCOLOR="Lavender">PRODUCT_VERSIONS</td></tr>
+       <tr><td PORT="PRODUCT_VERSION_ID">Product version ID</td></tr>
+       <tr><td PORT="Product_ID">Product ID</td></tr>
+       <tr><td PORT="Version">Version</td></tr>
+       </table>>];
+
+       ACCESS [label=<
+       <table border="0" cellborder="1" cellspacing="0" align="left">
+       <tr><td BGCOLOR="Lavender">ACCESS</td></tr>
+       <tr><td PORT="Platform_ID">Platform ID</td></tr>
+       <tr><td PORT="Url">Url</td></tr>
+       <tr><td PORT="SSH Key">SSH Key</td></tr>
+       <tr><td PORT="Username">Username</td></tr>
+       <tr><td PORT="Password">Password</td></tr>
+       </table>>];
+
+       CUSTOMER_PRODUCTS:CUSTOMER_ID -> CUSTOMERS:CUSTOMER_ID[label = "N .. N"];
+       CUSTOMER_PRODUCTS:PRODUCT_ID -> PRODUCTS:PRODUCT_ID[label = "N .. N"];
+       PRODUCT_VERSIONS_PLATFORMS:PLATFORM_ID -> PLATFORMS:PLATFORM_ID[label = "N .. N"];
+       PRODUCT_VERSIONS_PLATFORMS:PRODUCT_VERSION_ID -> PRODUCT_VERSIONS:PRODUCT_VERSION_ID[label = "N .. N"];
+       ACCESS:Platform_ID -> PLATFORMS:PLATFORM_ID[label = "N .. 1"];
+       PLATFORMS:Customer_ID -> CUSTOMERS:CUSTOMER_ID[label = "N .. 1"];
+       PRODUCT_VERSIONS:Product_ID -> PRODUCTS:PRODUCT_ID[label = "N .. 1"];
+   }
