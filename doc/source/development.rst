@@ -103,3 +103,32 @@ Now you can use it to query the saladier to whatever URL.
    $ curl -H "x-auth-token: $TOKEN" http://localhost:8777/
 
 You development setup is done ! Congratulations :) !
+
+Unit Testing
+------------
+
+The unit tests is by default tighted to the database so you need to have a mysql
+database running locally with the user root being able to access to the saladier
+database without password.
+
+We have added a docker based container for our CI to make things very
+easy. We have as well added a run_tests.sh to make it easy to launch those, 
+This is the manual steps that the run_tests.sh script is doing
+
+- Install docker on your laptop, for example on fedora::
+
+    yum -y install docker-io
+
+- Install `fig` with ::
+
+    pip install -U fig
+
+- Go to `tools/containers` inside the saladier repository and just type::
+
+    fig run unittests
+
+It will setup a mysql and mount your saladier code as volume to launch the
+unittests with mysql. The first time should take a bit of time to construct the
+images but after that it should quick as the light :)
+
+ This is currently only run on py2

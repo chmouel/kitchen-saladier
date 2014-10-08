@@ -20,6 +20,8 @@ from sqlalchemy.orm import exc
 
 
 class TestAPI(saladier.tests.db.BaseTestDb):
+    def setUp(self):
+        super(TestAPI, self).setUp()
 
     def test_create_product(self):
         self.db_api.create_product(self.session, name="name1", team="team1",

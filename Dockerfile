@@ -11,7 +11,7 @@ EXPOSE 8777
 
 RUN useradd -s /bin/bash -G adm,wheel,systemd-journal -m saladier
 RUN yum -y groupinstall 'Development Tools'
-RUN yum -y install openssl python-keystoneclient python-virtualenv libxslt-devel
+RUN yum -y install openssl python-keystoneclient python-virtualenv libxslt-devel mysql
 RUN virtualenv /virtualenv 
 RUN chown -R saladier: /virtualenv
 RUN mkdir -p /code
@@ -23,7 +23,3 @@ USER saladier
 WORKDIR /code
 
 RUN /virtualenv/bin/pip install -U -r requirements.txt -r test-requirements.txt
-
-ENV VIRTUAL_ENV /virtualenv
-ENV PATH /virtualenv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-
