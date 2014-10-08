@@ -16,7 +16,6 @@
 
 from __future__ import absolute_import
 
-from oslo.db.sqlalchemy import models
 import sqlalchemy
 from sqlalchemy.ext import declarative
 from sqlalchemy import orm
@@ -25,7 +24,7 @@ from sqlalchemy import orm
 BASE = declarative.declarative_base()
 
 
-class Product(BASE, models.ModelBase):
+class Product(BASE):
     __tablename__ = "products"
 
     id = sqlalchemy.Column(sqlalchemy.Integer, nullable=False,
@@ -40,7 +39,7 @@ class Product(BASE, models.ModelBase):
             self.name, self.team, self.contact)
 
 
-class ProductVersion(BASE, models.ModelBase):
+class ProductVersion(BASE):
     __tablename__ = "product_versions"
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
@@ -56,7 +55,7 @@ class ProductVersion(BASE, models.ModelBase):
             self.product_id, self.version)
 
 
-class Customer(BASE, models.ModelBase):
+class Customer(BASE):
     __tablename__ = "customers"
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
@@ -66,7 +65,7 @@ class Customer(BASE, models.ModelBase):
         return "<Customer(name='%s')>" % self.name
 
 
-class Platform(BASE, models.ModelBase):
+class Platform(BASE):
     __tablename__ = "platforms"
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
@@ -83,7 +82,7 @@ class Platform(BASE, models.ModelBase):
             self.location, self.email, self.customer_id)
 
 
-class Access(BASE, models.ModelBase):
+class Access(BASE):
     __tablename__ = "accesses"
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
