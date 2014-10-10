@@ -44,7 +44,6 @@ saladier:
   ports:
     - "8777:8777"
 
-
 unittests:
   build: ../../
   environment:
@@ -56,3 +55,15 @@ unittests:
   volumes:
     - ../../:/code
   command: ./tools/container/unittests/start.sh
+
+functional:
+  build: ../../
+  environment:
+    SALADIER_USER_PASSWORD: password
+  user: root
+  links:
+    - saladier
+    - keystonemaster
+  volumes:
+    - ../../:/code
+  command: ./tools/container/functional/start.sh

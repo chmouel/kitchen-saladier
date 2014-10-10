@@ -12,7 +12,10 @@ else
     source .tox/run_tests/bin/activate
 fi
 
-pushd tools/container/ >/dev/null && fig run --rm unittests && popd >/dev/null
+pushd tools/container/ >/dev/null && {
+    fig run --rm unittests
+    fig run --rm functional
+} && popd >/dev/null
 
 # stupid testr
 chown -R $USER: .testrepository/
