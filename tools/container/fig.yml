@@ -27,6 +27,7 @@ keystonemaster:
 
 saladier:
   build: ../../
+  user: root
   links:
     - keystonemaster
 

@@ -38,8 +38,17 @@ while true; do
     fi
 done
 
-sed -e "s,http://localhost:35357,http://${KEYSTONEMASTER_PORT_35357_TCP_ADDR}:35357," \
-    -e "s,admin_password.*,admin_password = ${SALADIER_USER_PASSWORD}," \
-        etc/saladier/saladier.conf.sample > saladier.conf.sample
+cat <<EOF>/tmp/saladier.conf
+[DEFAULT]
+api_paste_config=/code/etc/saladier/api_paste.ini
+debug=True
 
-exec saladier-api --config-file saladier.conf.sample
+[keystone_authtoken]
+signing_dir = /tmp/saladier-signing-dir
+admin_tenant_name = service
+admin_password = ${SALADIER_USER_PASSWORD}
+admin_user = saladier
+identity_uri = http://${KEYSTONEMASTER_PORT_35357_TCP_ADDR}:35357
+EOF
+
+exec saladier-api --config-file /tmp/saladier.conf
