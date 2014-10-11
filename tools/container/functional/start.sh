@@ -15,9 +15,9 @@ function check_up() {
 }
 
 check_up saladier ${SALADIER_PORT_8777_TCP_ADDR} 8777
-check_up keystone ${KEYSTONEMASTER_PORT_35357_TCP_ADDR} 35357
+check_up keystone ${KEYSTONE_PORT_35357_TCP_ADDR} 35357
 
-TOKEN=$(curl -s -X POST http://${KEYSTONEMASTER_PORT_35357_TCP_ADDR}:35357/v2.0/tokens -H "Content-Type: application/json" \
+TOKEN=$(curl -s -X POST http://${KEYSTONE_PORT_35357_TCP_ADDR}:35357/v2.0/tokens -H "Content-Type: application/json" \
              -d '{"auth": {"tenantName": "service", "passwordCredentials": {"username": "saladier", "password": "password"}}}' |
             python -c 'import sys, json; print json.load(sys.stdin)["access"]["token"]["id"]')
 

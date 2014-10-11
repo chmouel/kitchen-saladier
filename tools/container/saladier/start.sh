@@ -3,8 +3,8 @@ set -xe
 
 pip install -e .
 
-export SERVICE_ENDPOINT="http://${KEYSTONEMASTER_PORT_35357_TCP_ADDR}:35357/v2.0"
-export SERVICE_TOKEN=${KEYSTONEMASTER_ENV_KEYSTONE_ADMIN_TOKEN}
+export SERVICE_ENDPOINT="http://${KEYSTONE_PORT_35357_TCP_ADDR}:35357/v2.0"
+export SERVICE_TOKEN=${KEYSTONE_ENV_KEYSTONE_ADMIN_TOKEN}
 
 # We need to wait that it's up and that it was running
 while true; do 
@@ -17,8 +17,8 @@ done
 
 # Create the keystone service and endpoint cause we could not before in keystone image (silly I know)
 /usr/bin/keystone service-create --name=keystone --type=identity --description="Identity Service"
-export SERVICE_ENDPOINT_USER="http://${KEYSTONEMASTER_PORT_5000_TCP_ADDR}:5000/v2.0"
-export SERVICE_ENDPOINT_ADMIN="http://${KEYSTONEMASTER_PORT_35357_TCP_ADDR}:35357/v2.0"
+export SERVICE_ENDPOINT_USER="http://${KEYSTONE_PORT_5000_TCP_ADDR}:5000/v2.0"
+export SERVICE_ENDPOINT_ADMIN="http://${KEYSTONE_PORT_35357_TCP_ADDR}:35357/v2.0"
 /usr/bin/keystone endpoint-create \
  --region RegionOne \
  --service-id=`keystone service-list | grep keystone | tr -s ' ' | cut -d \  -f 2` \
@@ -48,7 +48,7 @@ signing_dir = /tmp/saladier-signing-dir
 admin_tenant_name = service
 admin_password = ${SALADIER_USER_PASSWORD}
 admin_user = saladier
-identity_uri = http://${KEYSTONEMASTER_PORT_35357_TCP_ADDR}:35357
+identity_uri = http://${KEYSTONE_PORT_35357_TCP_ADDR}:35357
 EOF
 
 exec saladier-api --config-file /tmp/saladier.conf

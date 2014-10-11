@@ -64,10 +64,14 @@ export SERVICE_TOKEN="${KEYSTONE_ADMIN_TOKEN}"
 export SERVICE_ENDPOINT="http://127.0.0.1:35357/v2.0"
 
 # Create the admin user
-/usr/bin/keystone user-create --name admin --pass ${KEYSTONE_ADMIN_PASSWORD}
-/usr/bin/keystone role-create --name admin
-/usr/bin/keystone tenant-create --name ${ADMIN_TENANT_NAME}
-/usr/bin/keystone user-role-add --user admin --role admin --tenant ${ADMIN_TENANT_NAME}
+keystone user-get admin 2>/dev/null || \
+    /usr/bin/keystone user-create --name admin --pass ${KEYSTONE_ADMIN_PASSWORD}
+keystone role-get admin 2>/dev/null || \
+    /usr/bin/keystone role-create --name admin
+keystone tenant-get ${ADMIN_TENANT_NAME} 2>/dev/null || \
+    /usr/bin/keystone tenant-create --name ${ADMIN_TENANT_NAME}
+keystone user-role-list --user admin --tenant ${ADMIN_TENANT_NAME} || \
+    /usr/bin/keystone user-role-add --user admin --role admin --tenant ${ADMIN_TENANT_NAME}
 
 /usr/bin/sleep 5
 

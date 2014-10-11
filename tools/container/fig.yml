@@ -6,7 +6,7 @@ db:
   environment:
     DB_ROOT_PASSWORD: password
 
-keystonemaster:
+keystone:
   build: keystone/
 
   links:
@@ -29,7 +29,7 @@ saladier:
   build: ../../
   user: root
   links:
-    - keystonemaster
+    - keystone
 
   volumes:
     - ../../:/code
@@ -63,7 +63,7 @@ functional:
   user: root
   links:
     - saladier
-    - keystonemaster
+    - keystone
   volumes:
     - ../../:/code
   command: ./tools/container/functional/start.sh
