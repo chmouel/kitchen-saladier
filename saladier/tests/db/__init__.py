@@ -20,10 +20,8 @@ import oslo.db
 import sqlalchemy
 
 from saladier.db import api
-from saladier.db.sqlalchemy import models
 from saladier.openstack.common.fixture import config
 from saladier.tests import base
-
 
 DEFAULT_DB_TEST_CONNECTION = 'root@localhost/saladier'
 
@@ -54,33 +52,20 @@ class BaseTestDb(base.BaseTestCase):
         try:
             BaseTestDb.db_api.connect()
         except sqlalchemy.exc.OperationalError:
-            BaseTestDb.connected = False
             return
-        try:
-            BaseTestDb._drop_tables_content()
-        except Exception:
-            pass
-
-    @classmethod
-    def _drop_tables_content(cls):
-        session = BaseTestDb.db_api.get_session()
-        session.begin()
-        for table in reversed(models.BASE.metadata.sorted_tables):
-            session.execute(table.delete())
-        session.commit()
 
     @classmethod
     def tearDownClass(cls):
         super(BaseTestDb, cls).tearDownClass()
-        if BaseTestDb.connected:
-            BaseTestDb.db_api.disconnect()
+        BaseTestDb.db_api.disconnect()
 
     def setUp(self):
         super(BaseTestDb, self).setUp()
+        if not os.environ.get('DB_PORT_3306_TCP_ADDR'):
+            self.skipTest("Not in container environment")
         self.db_api = BaseTestDb.db_api
-        try:
-            self.session = self.db_api.get_session()
-        except Exception:
+        self.session = self.db_api.get_session()
+        if not self.session:
             self.skipTest("Error while connecting to mysql")
         self.session.begin()
 
