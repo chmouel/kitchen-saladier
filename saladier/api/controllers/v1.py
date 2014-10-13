@@ -13,9 +13,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 import pecan
+from pecan import rest
 
 
-class TestController(object):
+class TestController(rest.RestController):
     @pecan.expose('json')
     def index(self):
         return dict(foo='bar')
