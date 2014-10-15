@@ -1,4 +1,5 @@
 #!/bin/bash
+
 set -ex
 
 if [[ ! -d .tox/run_tests ]];then
@@ -13,9 +14,12 @@ else
 fi
 
 pushd tools/container/ >/dev/null && {
+    fig stop || :
+    fig rm --force || :
+
     fig run --rm unittests
-    fig run --rm functional
+    #fig run --rm functional
 } && popd >/dev/null
 
 # stupid testr
-chown -R $USER: .testrepository/
+[[ -d .testrepository ]] && { chown -R $USER: .testrepository/ || : ; }
