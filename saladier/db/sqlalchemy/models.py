@@ -18,7 +18,6 @@ from __future__ import absolute_import
 
 import sqlalchemy
 from sqlalchemy.ext import declarative
-from sqlalchemy import orm
 
 
 BASE = declarative.declarative_base()
@@ -27,10 +26,8 @@ BASE = declarative.declarative_base()
 class Product(BASE):
     __tablename__ = "products"
 
-    id = sqlalchemy.Column(sqlalchemy.Integer, nullable=False,
-                           primary_key=True, autoincrement=True)
     name = sqlalchemy.Column(sqlalchemy.String(255), unique=True,
-                             nullable=False)
+                             nullable=False, primary_key=True)
     team = sqlalchemy.Column(sqlalchemy.String(255), nullable=False)
     contact = sqlalchemy.Column(sqlalchemy.String(255), nullable=False)
 
@@ -44,22 +41,20 @@ class ProductVersion(BASE):
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
     version = sqlalchemy.Column(sqlalchemy.String(255))
-    product_id = sqlalchemy.Column(sqlalchemy.Integer,
-                                   sqlalchemy.ForeignKey('products.id'))
-
-    product = orm.relationship("Product", backref=orm.backref(
-        'product_versions', order_by=id))
+    product_name = sqlalchemy.Column(sqlalchemy.String(255),
+                                     sqlalchemy.ForeignKey('products.name'))
 
     def __repr__(self):
-        return "<ProductVersion(product_id='%s', version='%s')>" % (
-            self.product_id, self.version)
+        return "<ProductVersion(product_name='%s', version='%s')>" % (
+            self.product_name, self.version)
 
 
 class Customer(BASE):
     __tablename__ = "customers"
 
-    id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
-    name = sqlalchemy.Column(sqlalchemy.String(255))
+    name = sqlalchemy.Column(sqlalchemy.String(255), unique=True,
+                             nullable=False, primary_key=True)
+    contact = sqlalchemy.Column(sqlalchemy.String(255))
 
     def __repr__(self):
         return "<Customer(name='%s')>" % self.name
@@ -68,14 +63,13 @@ class Customer(BASE):
 class Platform(BASE):
     __tablename__ = "platforms"
 
-    id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
+    name = sqlalchemy.Column(sqlalchemy.String(255), unique=True,
+                             nullable=False, primary_key=True)
     location = sqlalchemy.Column(sqlalchemy.String(255))
-    email = sqlalchemy.Column(sqlalchemy.String(255))
+    contact = sqlalchemy.Column(sqlalchemy.String(255))
 
-    customer_id = sqlalchemy.Column(sqlalchemy.Integer,
-                                    sqlalchemy.ForeignKey('customers.id'))
-    customer = orm.relationship("Customer", backref=orm.backref('platforms',
-                                                                order_by=id))
+    customer_name = sqlalchemy.Column(sqlalchemy.String(255),
+                                      sqlalchemy.ForeignKey('customers.name'))
 
     def __repr__(self):
         return "<Platform(location='%s', email='%s', customer_id='%s')>" % (
@@ -85,14 +79,11 @@ class Platform(BASE):
 class Access(BASE):
     __tablename__ = "accesses"
 
-    id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
-    url = sqlalchemy.Column(sqlalchemy.String(255))
-    # TODO(yassine): ssh key does not fit in String(255)
-    ssh_key = sqlalchemy.Column(sqlalchemy.String(255))
-    username = sqlalchemy.Column(sqlalchemy.String(255))
+    username = sqlalchemy.Column(sqlalchemy.String(255), unique=True,
+                                 nullable=False, primary_key=True)
     password = sqlalchemy.Column(sqlalchemy.String(255))
-    platform_id = sqlalchemy.Column(sqlalchemy.Integer,
-                                    sqlalchemy.ForeignKey('platforms.id'))
 
-    platform = orm.relationship("Platform", backref=orm.backref('Access ',
-                                                                order_by=id))
+    url = sqlalchemy.Column(sqlalchemy.String(255))
+    ssh_key = sqlalchemy.Column(sqlalchemy.String(255))
+    platform_name = sqlalchemy.Column(sqlalchemy.String(255),
+                                      sqlalchemy.ForeignKey('platforms.name'))
