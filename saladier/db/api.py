@@ -49,20 +49,18 @@ class DbApi(object):
         if not self._engine_facade:
             self._engine_facade = db_session.EngineFacade.from_config(
                 self.conf)
-            try:
-                models.BASE.metadata.create_all(
-                    self._engine_facade.get_engine())
-            except Exception:
-                LOG.exception("Error creating DB metatata")
 
     def disconnect(self):
-        self._engine_facade.get_engine().dispose()
-        self._engine_facade = None
+        if self._engine_facade:
+            self._engine_facade.get_engine().dispose()
+            self._engine_facade = None
 
     def get_session(self):
         """Retrieve a new session."""
-
-        return self._engine_facade.get_session()
+        if self._engine_facade:
+            return self._engine_facade.get_session()
+        else:
+            None
 
     @staticmethod
     def _add_and_flush(session, ki_object):
