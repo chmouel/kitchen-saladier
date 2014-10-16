@@ -7,7 +7,7 @@ db:
     DB_ROOT_PASSWORD: password
 
 keystone:
-  build: keystone/
+  build: tools/container/keystone/
 
   links:
     - db:mariadbmaster
@@ -26,13 +26,13 @@ keystone:
     ADMIN_TENANT_NAME: admin
 
 saladier:
-  build: ../../
+  build: ./
   user: root
   links:
     - keystone
 
   volumes:
-    - ../../:/code
+    - ./:/code
 
   command: ./tools/container/saladier/start.sh
 
@@ -45,7 +45,7 @@ saladier:
     - "8777:8777"
 
 unittests:
-  build: ../../
+  build: ./
   environment:
     DB_ROOT_PASSWORD: password
     SALADIER_DB_PASSWORD: password
@@ -53,11 +53,11 @@ unittests:
   links:
     - db
   volumes:
-    - ../../:/code
+    - ./:/code
   command: ./tools/container/unittests/start.sh
 
 functional:
-  build: ../../
+  build: ./
   environment:
     SALADIER_USER_PASSWORD: password
   user: root
@@ -65,5 +65,5 @@ functional:
     - saladier
     - keystone
   volumes:
-    - ../../:/code
+    - ./:/code
   command: ./tools/container/functional/start.sh

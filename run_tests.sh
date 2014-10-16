@@ -1,5 +1,10 @@
 #!/bin/bash
 
+function exit_it() {
+    [[ -d .testrepository ]] && { sudo chown -R $(id -u):$(id -g) .testrepository || : ; }
+}
+trap exit_it EXIT
+
 set -ex
 
 if [[ ! -d .tox/run_tests ]];then
@@ -13,13 +18,10 @@ else
     source .tox/run_tests/bin/activate
 fi
 
-pushd tools/container/ >/dev/null && {
-    fig stop || :
-    fig rm --force || :
+# stupid testr (1)
+[[ -d .testrepository ]] && { sudo chown -R $(id -u):$(id -g) .testrepository || : ; }
+fig run --rm unittests
 
-    fig run --rm unittests
-    #fig run --rm functional
-} && popd >/dev/null
-
-# stupid testr
-[[ -d .testrepository ]] && { chown -R $USER: .testrepository/ || : ; }
+# stupid testr (2)
+[[ -d .testrepository ]] && { sudo chown -R $(id -u):$(id -g) .testrepository || : ; }
+fig run --rm functional
