@@ -43,6 +43,7 @@ class ProductVersion(BASE):
     version = sqlalchemy.Column(sqlalchemy.String(255))
     product_name = sqlalchemy.Column(sqlalchemy.String(255),
                                      sqlalchemy.ForeignKey('products.name'))
+    uri = sqlalchemy.Column(sqlalchemy.String(255))
 
     def __repr__(self):
         return "<ProductVersion(product_name='%s', version='%s')>" % (
