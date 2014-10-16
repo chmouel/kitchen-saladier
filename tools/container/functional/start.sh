@@ -6,10 +6,22 @@ function check_up() {
     host=$2
     port=$3
 
+    max=13 # 1 minute
     # check that the saladier is up
+
+    counter=1
     while true;do
-        python -c "import socket;s = socket.socket(socket.AF_INET, socket.SOCK_STREAM);s.connect(('$host', $port))" >/dev/null 2>/dev/null && break || echo "Waiting that $service on ${SALADIER_PORT_8777_TCP_ADDR}:8777 is started (sleeping for 5)"
+        python -c "import socket;s = socket.socket(socket.AF_INET, socket.SOCK_STREAM);s.connect(('$host', $port))" >/dev/null 2>/dev/null && break || echo "Waiting that $service on ${host}:${port} is started (sleeping for 5)"
+
+        if [[ ${counter} == ${max} ]];then
+            echo "Could not connect to saladier after some time"
+            echo "Investigate locally the logs with fig logs"
+            exit 1
+        fi
+
         sleep 5
+
+        (( counter++ ))
     done
 
 }
