@@ -25,7 +25,9 @@ import pecan
 from saladier.api import config as api_config
 from saladier.api import hooks
 from saladier.api import middleware
+import saladier.db as db
 from saladier.openstack.common import log
+
 
 LOG = log.getLogger(__name__)
 
@@ -51,7 +53,9 @@ def get_pecan_config():
 
 
 def setup_app(pecan_config=None, extra_hooks=None):
-    app_hooks = [hooks.ConfigHook()]
+    app_hooks = [hooks.ConfigHook(),
+                 hooks.DBHook(db.get_connection(cfg.CONF)),
+                 ]
     if extra_hooks:
         app_hooks.extend(extra_hooks)
 

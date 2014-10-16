@@ -27,3 +27,12 @@ class ConfigHook(hooks.PecanHook):
 
     def before(self, state):
         state.request.cfg = cfg.CONF
+
+
+class DBHook(hooks.PecanHook):
+
+    def __init__(self, db_connection):
+        self.db_connection = db_connection
+
+    def before(self, state):
+        state.request.db_conn = self.db_connection
