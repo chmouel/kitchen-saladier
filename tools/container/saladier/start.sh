@@ -16,27 +16,24 @@ while true; do
 done
 
 # Create the keystone service and endpoint cause we could not before in keystone image (silly I know)
-/usr/bin/keystone service-create --name=keystone --type=identity --description="Identity Service"
-export SERVICE_ENDPOINT_USER="http://${KEYSTONE_PORT_5000_TCP_ADDR}:5000/v2.0"
-export SERVICE_ENDPOINT_ADMIN="http://${KEYSTONE_PORT_35357_TCP_ADDR}:35357/v2.0"
-/usr/bin/keystone endpoint-create \
- --region RegionOne \
- --service-id=`keystone service-list | grep keystone | tr -s ' ' | cut -d \  -f 2` \
- --publicurl=${SERVICE_ENDPOINT_USER} \
- --internalurl=${SERVICE_ENDPOINT_USER} \
- --adminurl=http:${SERVICE_ENDPOINT_ADMIN}
+# Make sure we don't do that every time (double silly)
+if ! keystone service-list|grep -q keystone; then
+    /usr/bin/keystone service-create --name=keystone --type=identity --description="Identity Service"
+    export SERVICE_ENDPOINT_USER="http://${KEYSTONE_PORT_5000_TCP_ADDR}:5000/v2.0"
+    export SERVICE_ENDPOINT_ADMIN="http://${KEYSTONE_PORT_35357_TCP_ADDR}:35357/v2.0"
+    /usr/bin/keystone endpoint-create \
+                      --region RegionOne \
+                      --service-id=`keystone service-list | grep keystone | tr -s ' ' | cut -d \  -f 2` \
+                      --publicurl=${SERVICE_ENDPOINT_USER} \
+                      --internalurl=${SERVICE_ENDPOINT_USER} \
+                      --adminurl=http:${SERVICE_ENDPOINT_ADMIN}
 
-/usr/bin/keystone user-create --name saladier --pass ${SALADIER_USER_PASSWORD}
-/usr/bin/keystone tenant-create --name service
+    /usr/bin/keystone user-create --name saladier --pass ${SALADIER_USER_PASSWORD}
+    /usr/bin/keystone tenant-create --name service
+    /usr/bin/keystone user-role-add --user saladier --role admin --tenant service
+fi
 
-# We need to wait that it has restarted after keystone was bootstraping
-while true; do 
-    if /usr/bin/keystone user-role-add --user saladier --role admin --tenant service;then
-        break
-    else
-        sleep 5
-    fi
-done
+
 
 cat <<EOF>/tmp/saladier.conf
 [DEFAULT]
