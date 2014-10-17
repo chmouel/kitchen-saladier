@@ -1,7 +1,13 @@
 #!/bin/bash
+set -ex
+
+function clean_repo() {
+    # Since we are writting as root let fix the perms
+    sudo chown -R $(id -u):$(id -g) ./ || :
+}
 
 function exit_it() {
-    [[ -d .testrepository ]] && { sudo chown -R $(id -u):$(id -g) .testrepository || : ; }
+    clean_repo
 }
 trap exit_it EXIT
 
@@ -19,9 +25,9 @@ else
 fi
 
 # stupid testr (1)
-[[ -d .testrepository ]] && { sudo chown -R $(id -u):$(id -g) .testrepository || : ; }
+clean_repo
 fig run --rm unittests
 
 # stupid testr (2)
-[[ -d .testrepository ]] && { sudo chown -R $(id -u):$(id -g) .testrepository || : ; }
+clean_repo
 fig run --rm functional

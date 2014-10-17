@@ -23,8 +23,6 @@ from saladier.db import api
 from saladier.openstack.common.fixture import config
 from saladier.tests import base
 
-DEFAULT_DB_TEST_CONNECTION = 'root@localhost/saladier'
-
 
 class BaseTestDb(base.BaseTestCase):
     """Base test class for database unit tests."""
@@ -37,16 +35,8 @@ class BaseTestDb(base.BaseTestCase):
         BaseTestDb.connected = True
         conf = config.Config().conf
         oslo.db.options.set_defaults(conf)
-        # Fig testing see saladier/tools/containers/fig.yml
-        if (os.environ.get('DB_PORT_3306_TCP_ADDR') and
-           os.environ.get('SALADIER_DB_PASSWORD')):
-            db_connection = 'saladier:%s@%s/saladier' % (
-                os.environ.get('SALADIER_DB_PASSWORD'),
-                os.environ.get('DB_PORT_3306_TCP_ADDR'))
-        else:
-            db_connection = DEFAULT_DB_TEST_CONNECTION
         conf.set_override('connection',
-                          'mysql+pymysql://' + db_connection,
+                          os.environ.get("SALADIER_DATABASE_TEST_CONNECTION"),
                           group='database')
         BaseTestDb.db_api = api.DbApi(conf)
         try:
@@ -61,8 +51,9 @@ class BaseTestDb(base.BaseTestCase):
 
     def setUp(self):
         super(BaseTestDb, self).setUp()
-        if not os.environ.get('DB_PORT_3306_TCP_ADDR'):
-            self.skipTest("Not in container environment")
+        if not os.environ.get('SALADIER_DATABASE_TEST_CONNECTION'):
+            raise Exception(
+                "SALADIER_DATABASE_TEST_CONNECTION environ not defined")
         self.db_api = BaseTestDb.db_api
         self.session = self.db_api.get_session()
         if not self.session:

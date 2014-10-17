@@ -18,12 +18,15 @@ EOF
 source /virtualenv/bin/activate
 pip install -e.
 
+export SALADIER_DATABASE_TEST_CONNECTION="mysql+pymysql://saladier:${SALADIER_DB_PASSWORD}@${DB_PORT_3306_TCP_ADDR}/saladier"
+
 cat <<EOF>/tmp/saladier.conf
 [database]
-connection=mysql+pymysql://saladier:${SALADIER_DB_PASSWORD}@${DB_PORT_3306_TCP_ADDR}/saladier
+connection=${SALADIER_DATABASE_TEST_CONNECTION}
 EOF
 saladier-dbsync --config-file /tmp/saladier.conf
 
-# We probably want to make it a bit better next (i.e: py34)
-python setup.py testr --slowest
-
+# Running tox, stop as soon as we get a failure
+for i in $(tox -l); do
+    tox -e${i}
+done

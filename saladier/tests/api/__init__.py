@@ -42,17 +42,11 @@ class FunctionalTest(test_base.BaseTestCase):
         super(FunctionalTest, self).setUp()
         self.CONF = self.useFixture(config.Config()).conf
 
-        if not(os.environ.get('DB_PORT_3306_TCP_ADDR') and
-               os.environ.get('SALADIER_DB_PASSWORD')):
-            self.skipTest("You need to define the environ "
-                          "DB_PORT_3306_TCP_ADDR and SALADIER_DB_PASSWORD"
-                          "to test properly")
-
+        if not os.environ.get('SALADIER_DATABASE_TEST_CONNECTION'):
+            raise Exception(
+                "SALADIER_DATABASE_TEST_CONNECTION environ not defined")
         self.CONF.set_override("connection",
-                               "mysql+pymysql://saladier:"
-                               "%(SALADIER_DB_PASSWORD)s@"
-                               "%(DB_PORT_3306_TCP_ADDR)s/"
-                               "saladier" % os.environ,
+                               os.environ["SALADIER_DATABASE_TEST_CONNECTION"],
                                group='database')
         self.app = self._make_app()
 
