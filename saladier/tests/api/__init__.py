@@ -16,6 +16,7 @@
 # under the License.
 """Base classes for API tests.
 """
+import os
 
 from oslo.config import cfg
 import pecan
@@ -40,6 +41,10 @@ class FunctionalTest(test_base.BaseTestCase):
     def setUp(self):
         super(FunctionalTest, self).setUp()
         self.CONF = self.useFixture(config.Config()).conf
+
+        if not(os.environ.get('DB_PORT_3306_TCP_ADDR') and
+               os.environ.get('SALADIER_DB_PASSWORD')):
+            self.skipTest("No DB Configured")
 
         self.CONF.set_override("auth_version", "v2.0",
                                group=OPT_GROUP_NAME)
