@@ -1,7 +1,7 @@
 db:
   image: kollaglue/fedora-rdo-mariadb
-  expose:
-    - "3306"
+  ports:
+    - "3306:3306"
 
   environment:
     DB_ROOT_PASSWORD: password
@@ -30,6 +30,7 @@ saladier:
   user: root
   links:
     - keystone
+    - db
 
   volumes:
     - ./:/code

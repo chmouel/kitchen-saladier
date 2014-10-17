@@ -34,7 +34,8 @@ if ! keystone service-list|grep -q keystone; then
 fi
 
 
-
+# TODO(chmou): commonize with the other container start scripts since we are
+# doubloning up here
 cat <<EOF>/tmp/saladier.conf
 [DEFAULT]
 api_paste_config=/code/etc/saladier/api_paste.ini
@@ -46,6 +47,17 @@ admin_tenant_name = service
 admin_password = ${SALADIER_USER_PASSWORD}
 admin_user = saladier
 identity_uri = http://${KEYSTONE_PORT_35357_TCP_ADDR}:35357
+
+[database]
+connection=mysql+pymysql://saladier:${KEYSTONE_1_ENV_KEYSTONE_DB_PASSWORD}@${DB_PORT_3306_TCP_ADDR}/saladier
 EOF
 
-exec saladier-api --config-file /tmp/saladier.conf
+mysql -h ${DB_PORT_3306_TCP_ADDR} -u root -p${KITCHENSALADIER_DB_1_ENV_DB_ROOT_PASSWORD} mysql <<EOF
+CREATE DATABASE IF NOT EXISTS saladier;
+GRANT ALL PRIVILEGES ON saladier.* TO
+    'saladier'@'%' IDENTIFIED BY '${KEYSTONE_1_ENV_KEYSTONE_DB_PASSWORD}'
+EOF
+
+saladier-dbsync --config-file /tmp/saladier.conf
+
+exec saladier-api --config-file /tmp/saladier.conf --debug
