@@ -15,6 +15,10 @@
 import pecan
 from pecan import rest
 
+from saladier.openstack.common import log
+
+LOG = log.getLogger(__name__)
+
 
 class TestController(rest.RestController):
     @pecan.expose('json')
@@ -22,7 +26,16 @@ class TestController(rest.RestController):
         return dict(foo='bar')
 
 
+class ProductController(rest.RestController):
+
+    @pecan.expose('json')
+    def get_all(self):
+        session = pecan.request.db_conn.get_session()
+        return pecan.request.db_conn.get_all_products(session)
+
+
 class V1Controller(object):
     """Version 1 API controller root."""
 
     test = TestController()
+    products = ProductController()
