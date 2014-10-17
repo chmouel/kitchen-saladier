@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-# Author: Chmouel Boudjnah <chmouel.boudjnah@enovance.com>
+# Copyright (C) 2013 eNovance SAS <licensing@enovance.com>
+#
+# Author: Chmouel Boudjnah <chmouel@enovance.com>
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
@@ -15,10 +17,10 @@
 from saladier.tests.api import v1
 
 
-class TestSample(v1.FunctionalTest):
+class TestProducts(v1.FunctionalTest):
     def setUp(self):
-        super(TestSample, self).setUp()
+        super(TestProducts, self).setUp()
 
-    def test_all_foo(self):
-        data = self.get_json('/test/')
-        self.assertIn('foo', data)
+    def test_all_products(self):
+        data = self.get_json('/products/')
+        self.assertEqual({'products': []}, data)

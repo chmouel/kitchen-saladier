@@ -44,10 +44,16 @@ class FunctionalTest(test_base.BaseTestCase):
 
         if not(os.environ.get('DB_PORT_3306_TCP_ADDR') and
                os.environ.get('SALADIER_DB_PASSWORD')):
-            self.skipTest("No DB Configured")
+            self.skipTest("You need to define the environ "
+                          "DB_PORT_3306_TCP_ADDR and SALADIER_DB_PASSWORD"
+                          "to test properly")
 
-        self.CONF.set_override("auth_version", "v2.0",
-                               group=OPT_GROUP_NAME)
+        self.CONF.set_override("connection",
+                               "mysql+pymysql://saladier:"
+                               "%(SALADIER_DB_PASSWORD)s@"
+                               "%(DB_PORT_3306_TCP_ADDR)s/"
+                               "saladier" % os.environ,
+                               group='database')
         self.app = self._make_app()
 
     def _make_app(self, enable_acl=False):
