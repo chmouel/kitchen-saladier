@@ -39,10 +39,7 @@ class BaseTestDb(base.BaseTestCase):
                           os.environ.get("SALADIER_DATABASE_TEST_CONNECTION"),
                           group='database')
         BaseTestDb.db_api = api.DbApi(conf)
-        try:
-            BaseTestDb.db_api.connect()
-        except sqlalchemy.exc.OperationalError:
-            return
+        BaseTestDb.db_api.connect()
 
     @classmethod
     def tearDownClass(cls):
