@@ -17,7 +17,6 @@
 import os
 
 import oslo.db
-import sqlalchemy
 
 from saladier.db import api
 from saladier.openstack.common.fixture import config

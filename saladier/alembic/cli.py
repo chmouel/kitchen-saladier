@@ -22,7 +22,6 @@ from alembic import config
 from oslo.config import cfg
 from oslo.db import options
 from oslo.db.sqlalchemy import session as db_session
-import sqlalchemy
 
 from saladier.db.sqlalchemy import models
 from saladier.openstack.common import log
@@ -56,23 +55,10 @@ def init_database():
     command.stamp(alembic_cfg, "head")
 
 
-def ensure_database_is_created():
-    connection_url = CONF.database.connection
-    engine = sqlalchemy.create_engine(connection_url.replace('saladier', ''))
-    try:
-        conn = engine.connect()
-        conn.execute('DROP DATABASE IF EXISTS saladier;')
-        conn.execute('CREATE DATABASE saladier;')
-        conn.commit()
-    except Exception:
-        return
-
-
 def main():
     CONF(sys.argv[1:])
     CONF.register_opts(options.database_opts, 'database')
 
-    ensure_database_is_created()
     ret = init_database()
     if ret is False:
         sys.exit(1)
