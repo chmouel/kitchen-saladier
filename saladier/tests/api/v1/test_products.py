@@ -24,3 +24,14 @@ class TestProducts(v1.FunctionalTest):
     def test_all_products(self):
         data = self.get_json('/products/')
         self.assertEqual({'products': []}, data)
+
+    def test_product_crud(self):
+        prod_dict = dict(name="name1",
+                         team="team1",
+                         contact="product@owner.org")
+        self.post_json("/products/", prod_dict)
+        data = self.get_json('/products/')
+        self.assertEqual(1, len(data['products']))
+        self.assertEqual('product@owner.org', data['products'][0]['contact'])
+        self.assertEqual('name1', data['products'][0]['name'])
+        self.assertEqual('team1', data['products'][0]['team'])

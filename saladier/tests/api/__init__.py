@@ -19,11 +19,18 @@
 import os
 
 from oslo.config import cfg
+from oslo.db import options as db_options
+from oslotest import mockpatch
 import pecan
 import pecan.testing
 
+from saladier.db import api
 from saladier.openstack.common.fixture import config
 from saladier.tests import base as test_base
+
+cfg.CONF.register_opts([], group='database')
+db_options.set_defaults(cfg.CONF)
+cfg.CONF.import_opt('connection', 'oslo.db.options', group='database')
 
 OPT_GROUP_NAME = 'keystone_authtoken'
 cfg.CONF.import_group(OPT_GROUP_NAME, "keystoneclient.middleware.auth_token")
@@ -49,6 +56,13 @@ class FunctionalTest(test_base.BaseTestCase):
                                os.environ["SALADIER_DATABASE_TEST_CONNECTION"],
                                group='database')
         self.app = self._make_app()
+        self.db_api = api.DbApi(self.CONF)
+        self.db_api.connect()
+        self.useFixture(mockpatch.Patch('saladier.db.get_connection',
+                                        side_effect=self._get_connection))
+
+    def _get_connection(self):
+        return self.db_api
 
     def _make_app(self, enable_acl=False):
         # Determine where we are so we can set up paths in the config
@@ -71,6 +85,8 @@ class FunctionalTest(test_base.BaseTestCase):
 
     def tearDown(self):
         super(FunctionalTest, self).tearDown()
+        self.db_api.clear()
+        self.db_api = None
         pecan.set_config({}, overwrite=True)
 
     def put_json(self, path, params, expect_errors=False, headers=None,

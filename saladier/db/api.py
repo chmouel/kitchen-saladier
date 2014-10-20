@@ -55,6 +55,13 @@ class DbApi(object):
             self._engine_facade.get_engine().dispose()
             self._engine_facade = None
 
+    def clear(self):
+        engine = self._engine_facade.get_engine()
+        for table in reversed(models.BASE.metadata.sorted_tables):
+            engine.execute(table.delete())
+        self._engine_facade._session_maker.close_all()
+        engine.dispose()
+
     def get_session(self):
         """Retrieve a new session."""
         if self._engine_facade:
