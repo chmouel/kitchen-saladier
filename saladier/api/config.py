@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
-# Author: Chmouel Boudjnah <chmouel.boudjnah@enovance.com>
+# Copyright (C) 2014 eNovance SAS <licensing@enovance.com>
+#
+# Author: Chmouel Boudjnah <chmouel@enovance.com>
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain

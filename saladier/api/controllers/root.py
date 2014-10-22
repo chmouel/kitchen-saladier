@@ -14,12 +14,12 @@
 # under the License.
 import pecan
 
-from saladier.api.controllers import v1
+from saladier.api.controllers.v1 import base
 
 
 class RootController(object):
 
-    v1 = v1.V1Controller()
+    v1 = base.V1Controller()
 
     @pecan.expose(generic=True, template='index.html')
     def index(self):

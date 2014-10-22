@@ -27,4 +27,3 @@ fig run --rm unittests
 
 # stupid testr (2)
 clean_repo
-fig run --rm functional

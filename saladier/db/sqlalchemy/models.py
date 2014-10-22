@@ -16,16 +16,28 @@
 
 from __future__ import absolute_import
 
+from oslo.db.sqlalchemy import models
 import sqlalchemy
-from sqlalchemy.ext import declarative
+from sqlalchemy.ext.declarative import declarative_base
 
 
-BASE = declarative.declarative_base()
+class SaladierBase(models.TimestampMixin,
+                   models.ModelBase):
+    def save(self, session=None):
+        import saladier.db.api as db_api
+
+        if session is None:
+            session = db_api.get_session()
+
+        super(SaladierBase, self).save(session)
+
+BASE = declarative_base(cls=SaladierBase)
 
 
 class Product(BASE):
     __tablename__ = "products"
 
+    id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
     name = sqlalchemy.Column(sqlalchemy.String(255), unique=True,
                              nullable=False, primary_key=True)
     team = sqlalchemy.Column(sqlalchemy.String(255), nullable=False)

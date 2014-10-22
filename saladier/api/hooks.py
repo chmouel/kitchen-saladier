@@ -1,8 +1,7 @@
+# -*- coding: utf-8 -*-
+# Copyright (C) 2014 eNovance SAS <licensing@enovance.com>
 #
-# Copyright 2012 New Dream Network, LLC (DreamHost)
-#
-# Author: Doug Hellmann <doug.hellmann@dreamhost.com>
-#         Angus Salkeld <asalkeld@redhat.com>
+# Author: Chmouel Boudjnah <chmouel@enovance.com>
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain

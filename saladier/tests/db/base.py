@@ -14,24 +14,29 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
 from oslo.config import cfg
 
-# Register options for the service
-API_SERVICE_OPTS = [
-    cfg.IntOpt('port',
-               default=8777,
-               deprecated_group='DEFAULT',
-               help='The port for the saladier API server.',
-               ),
-    cfg.StrOpt('host',
-               default='0.0.0.0',
-               help='The listen IP for the saladier API server.',
-               ),
-]
+from saladier.db import api as sqla_api
+from saladier.tests import base
 
 CONF = cfg.CONF
-opt_group = cfg.OptGroup(name='api',
-                         title='Options for the saladier-api service')
-CONF.register_group(opt_group)
-CONF.register_opts(API_SERVICE_OPTS, opt_group)
+
+
+class DbTestCase(base.TestCase):
+
+    def setUp(self):
+        super(DbTestCase, self).setUp()
+
+        self.dbapi = sqla_api.get_backend()
+        self.engine = sqla_api.get_engine()
+        self.engine.dispose()
+
+        # NOTE(chmou): For testing we use the same session every time so we can
+        # rollback after
+        self.session = sqla_api.get_session(recycle=True)
+        self.session.begin()
+        self.addCleanup(self._rollback_db)
+        self.addCleanup(self.session.close)
+
+    def _rollback_db(self):
+        sqla_api.rollback()

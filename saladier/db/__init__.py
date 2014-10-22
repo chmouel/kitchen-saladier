@@ -28,6 +28,4 @@ cfg.CONF.import_opt('connection', 'oslo.db.options', group='database')
 
 
 def get_connection(conf):
-    dbconn = api_db.DbApi(conf)
-    dbconn.connect()
-    return dbconn
+    return api_db.Connection()

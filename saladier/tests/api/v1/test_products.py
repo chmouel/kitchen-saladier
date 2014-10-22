@@ -14,22 +14,19 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-from saladier.tests.api import v1
+import saladier.tests.api.base as base
 
 
-class TestProducts(v1.FunctionalTest):
+class TestProducts(base.FunctionalTest):
     def setUp(self):
         super(TestProducts, self).setUp()
-
-    def test_all_products(self):
-        data = self.get_json('/products/')
-        self.assertEqual({'products': []}, data)
 
     def test_product_crud(self):
         prod_dict = dict(name="name1",
                          team="team1",
                          contact="product@owner.org")
         self.post_json("/products/", prod_dict)
+
         data = self.get_json('/products/')
         self.assertEqual(1, len(data['products']))
         self.assertEqual('product@owner.org', data['products'][0]['contact'])
