@@ -25,7 +25,7 @@ class TestProducts(base.FunctionalTest):
         prod_dict = dict(name="name1",
                          team="team1",
                          contact="product@owner.org")
-        self.post_json("/products/", prod_dict)
+        self.post_json("/products/", prod_dict, status=201)
 
         data = self.get_json('/products/')
         self.assertEqual(1, len(data['products']))
