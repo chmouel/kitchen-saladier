@@ -29,6 +29,10 @@ class ProductCollection(base.APIBaseCollections):
 
 
 class ProductController(base.BaseRestController):
+    @pecan.expose('json')
+    def get(self, name):
+        p = Product(pecan.request.db_conn.get_product_by_name(name))
+        return p.as_dict()
 
     @pecan.expose('json')
     def get_all(self):

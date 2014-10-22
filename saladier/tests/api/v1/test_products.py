@@ -21,7 +21,7 @@ class TestProducts(base.FunctionalTest):
     def setUp(self):
         super(TestProducts, self).setUp()
 
-    def test_product_crud(self):
+    def test_product_create(self):
         prod_dict = dict(name="name1",
                          team="team1",
                          contact="product@owner.org")
@@ -32,3 +32,16 @@ class TestProducts(base.FunctionalTest):
         self.assertEqual('product@owner.org', data['products'][0]['contact'])
         self.assertEqual('name1', data['products'][0]['name'])
         self.assertEqual('team1', data['products'][0]['team'])
+
+    def test_product_get_by_name(self):
+        name = 'name1'
+        prod_dict = dict(name=name,
+                         team="team1",
+                         contact="product@owner.org")
+        self.post_json("/products/", prod_dict)
+
+        data = self.get_json('/products/' + name)
+
+        self.assertEqual('product@owner.org', data['contact'])
+        self.assertEqual('name1', data['name'])
+        self.assertEqual('team1', data['team'])
