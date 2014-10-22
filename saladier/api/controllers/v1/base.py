@@ -12,23 +12,13 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-import pecan
-from pecan import rest
-
 import saladier.api.controllers.v1.products as product_controller
 from saladier.openstack.common import log
 
 LOG = log.getLogger(__name__)
 
 
-class TestController(rest.RestController):
-    @pecan.expose('json')
-    def index(self):
-        return dict(foo='bar')
-
-
 class V1Controller(object):
     """Version 1 API controller root."""
 
-    test = TestController()
     products = product_controller.ProductController()
