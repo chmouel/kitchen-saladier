@@ -57,3 +57,6 @@ class TestProducts(base.FunctionalTest):
                          contact="product@owner.org")
         ret = self.post_json("/products/", prod_dict, status=409)
         self.assertEqual(409, ret.status_int)
+
+    def test_product_create_notfound(self):
+        self.get_json('/products/random', status=404)

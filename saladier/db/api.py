@@ -23,6 +23,7 @@ from oslo.db.sqlalchemy import session as db_session
 from oslo.db.sqlalchemy import utils as db_utils
 
 from saladier.common import exception
+import saladier.db.sqlalchemy
 from saladier.db.sqlalchemy import models
 from saladier.openstack.common import log
 
@@ -122,4 +123,7 @@ class Connection(object):  # TODO(chmouel): base class
 
     def get_product_by_name(self, name):
         query = model_query(models.Product).filter_by(name=name)
-        return query.one()  # TODO(chmou): Handle NotFounds
+        try:
+            return query.one()
+        except saladier.db.sqlalchemy.exc.NoResultFound:
+            raise exception.ProductNotFound(name=name)

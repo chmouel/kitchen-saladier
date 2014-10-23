@@ -74,5 +74,14 @@ class Conflict(SaladierException):
     code = 409
 
 
+class NotFound(SaladierException):
+    message = 'Not found.'
+    code = 404
+
+
 class ProductAlreadyExists(Conflict):
     message = "Product already exist."
+
+
+class ProductNotFound(NotFound):
+    message = "Product %(name)s is not found"
