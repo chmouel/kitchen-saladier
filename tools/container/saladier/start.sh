@@ -28,9 +28,16 @@ if ! keystone service-list|grep -q keystone; then
                       --internalurl=${SERVICE_ENDPOINT_USER} \
                       --adminurl=http:${SERVICE_ENDPOINT_ADMIN}
 
-    /usr/bin/keystone user-create --name saladier --pass ${SALADIER_USER_PASSWORD}
+    # Create an admin that we will use for admin stuff and for validating token
     /usr/bin/keystone tenant-create --name service
-    /usr/bin/keystone user-role-add --user saladier --role admin --tenant service
+    /usr/bin/keystone user-create --name saladier_admin --pass ${SALADIER_USER_PASSWORD}
+    /usr/bin/keystone user-role-add --user saladier_admin --role admin --tenant service
+
+    # Create a normal user for validating Jenkins CI without admin role
+    /usr/bin/keystone role-create --name Member
+    /usr/bin/keystone tenant-create --name saladier
+    /usr/bin/keystone user-create --name saladier_user1 --pass ${SALADIER_USER_PASSWORD}
+    /usr/bin/keystone user-role-add --user saladier_user1 --role Member --tenant saladier
 fi
 
 
@@ -47,7 +54,7 @@ api_paste_config=/code/etc/saladier/api_paste.ini
 signing_dir = /tmp/saladier-signing-dir
 admin_tenant_name = service
 admin_password = ${SALADIER_USER_PASSWORD}
-admin_user = saladier
+admin_user = saladier_admin
 identity_uri = http://${KEYSTONE_PORT_35357_TCP_ADDR}:35357
 
 [database]

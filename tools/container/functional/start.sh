@@ -1,6 +1,18 @@
 #!/bin/bash
 set -e
 
+[[ -n ${DEBUG} ]] && set -x
+
+function get_token() {
+    tenant=$1
+    user=$2
+    password=$3
+    curl -s -X POST \
+        http://${KEYSTONE_PORT_35357_TCP_ADDR}:35357/v2.0/tokens -H "Content-Type: application/json" -d \
+        "{\"auth\": {\"tenantName\": \"${tenant}\", \"passwordCredentials\": {\"username\": \"${user}\", \"password\": \"${password}\"}}}" | python -c 'import sys, json; print json.load(sys.stdin)["access"]["token"]["id"]'
+}
+
+
 function check_up() {
     service=$1
     host=$2
@@ -39,10 +51,13 @@ trap exit_it EXIT
 echo "Starting functional testing"
 echo "---------------------------"
 
-echo -n "Getting Token from Keystone: "
-TOKEN=$(curl -s -X POST http://${KEYSTONE_PORT_35357_TCP_ADDR}:35357/v2.0/tokens -H "Content-Type: application/json" \
-             -d '{"auth": {"tenantName": "service", "passwordCredentials": {"username": "saladier", "password": "password"}}}' |
-            python -c 'import sys, json; print json.load(sys.stdin)["access"]["token"]["id"]')
+echo -n "Getting admin token from Keystone: "
+ADMIN_TOKEN=$(get_token service saladier_admin ${SALADIER_USER_PASSWORD})
+echo "OK."
+
+
+echo -n "Getting user token from Keystone: "
+USER_TOKEN=$(get_token saladier saladier_user1 ${SALADIER_USER_PASSWORD})
 echo "OK."
 
 
@@ -51,14 +66,15 @@ echo "OK."
 # exit 1 if we have a 4xx or 5xx errors)
 
 # Create a product
-echo -n "Creating a product: "
-curl -f -s -L -H "x-auth-token: $TOKEN" -X POST -d 'name=ttttt' -d 'team=boa' -d 'contact=thecedric@isthegreatest.com' \
+echo -n "Creating a product as admin: "
+curl -f -s -L -H "x-auth-token: $ADMIN_TOKEN" -X POST -d 'name=ttttt' -d 'team=boa' -d 'contact=thecedric@isthegreatest.com' \
      http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/products/
 echo "OK"
 
-echo -n "Get created product: "
-curl -f -s -L -H "x-auth-token: $TOKEN" http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/products/ | grep -q "thecedric@isthegreatest.com"
+echo -n "Get created product as user: "
+curl -f -s -L -H "x-auth-token: $USER_TOKEN" http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/products/ | grep -q "thecedric@isthegreatest.com"
 echo "OK."
 
+#TODO(chmouel): Delete product
 
 echo "Done and successfull :)"
