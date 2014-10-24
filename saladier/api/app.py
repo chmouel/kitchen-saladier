@@ -105,7 +105,7 @@ def get_handler_cls():
 
 def load_app():
     # Build the WSGI app
-    cfg_file = cfg.CONF.api_paste_config
+    cfg_file = cfg.CONF.api.api_paste_config
     LOG.info("WSGI config requested: %s" % cfg_file)
     if not os.path.exists(cfg_file):
         raise APIPasteNotFound('api_paste_config file not found')

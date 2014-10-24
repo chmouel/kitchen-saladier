@@ -47,8 +47,10 @@ To configure the Saladier we need to edit its configuration file:
    $ cat <<EOF>etc/saladier/saladier.conf.sample
 
      [DEFAULT]
-     api_paste_config=etc/saladier/api_paste.ini
      debug = True
+
+     [api]
+     api_paste_config=etc/saladier/api_paste.ini
 
      [keystone_authtoken]
      signing_dir = /tmp/saladier-signing-dir

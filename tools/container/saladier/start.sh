@@ -38,8 +38,10 @@ fi
 # doubloning up here
 cat <<EOF>/tmp/saladier.conf
 [DEFAULT]
-api_paste_config=/code/etc/saladier/api_paste.ini
 debug=True
+
+[api]
+api_paste_config=/code/etc/saladier/api_paste.ini
 
 [keystone_authtoken]
 signing_dir = /tmp/saladier-signing-dir
