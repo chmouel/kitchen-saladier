@@ -46,7 +46,7 @@ saladier:
     - "8777:8777"
 
 unittests:
-  build: ./
+  image: chmouel/cuisineoriental
   environment:
     DB_ROOT_PASSWORD: password
     SALADIER_DB_PASSWORD: password
@@ -58,7 +58,7 @@ unittests:
   command: ./tools/container/unittests/start.sh
 
 functional:
-  build: ./
+  image: chmouel/cuisineoriental
   environment:
     SALADIER_USER_PASSWORD: password
   user: root

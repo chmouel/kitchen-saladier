@@ -12,7 +12,11 @@ EXPOSE 8777
 RUN useradd -s /bin/bash -G adm,wheel,systemd-journal -m saladier
 RUN sed -i.bak -n -e '/^Defaults.*requiretty/ { s/^/# /;};/^%wheel.*ALL$/ { s/^/# / ;} ;/^#.*wheel.*NOPASSWD/ { s/^#[ ]*//;};p' /etc/sudoers
 RUN yum -y groupinstall 'Development Tools'
-RUN yum -y install openssl python-keystoneclient python-virtualenv libxslt-devel mysql python-tox
+RUN yum -y install openssl python-keystoneclient python-virtualenv libxslt-devel mysql python-tox dnf-plugins-core
+
+RUN dnf -y copr enable hguemar/python34-fedora20
+RUN yum -y install python34-devel
+
 RUN virtualenv /virtualenv 
 RUN chown -R saladier: /virtualenv
 RUN mkdir -p /code
