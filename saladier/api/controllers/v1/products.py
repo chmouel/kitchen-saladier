@@ -40,7 +40,7 @@ class ProductController(base.BaseRestController):
         p = ProductCollection(products)
         return p.as_dict()
 
-    @pecan.expose('json')
+    @pecan.expose()
     # TODO(chmou): figure out what the deal
     # with that first empty argument given by pecan
     def post(self, _, name, team, contact):
