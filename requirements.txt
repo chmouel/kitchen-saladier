@@ -8,7 +8,8 @@ keystonemiddleware>=1.0.0
 lxml>=2.3
 sqlalchemy>=0.9.4
 PyMySQL>=0.6.2
-posix_ipc>=0.9.8
 
 oslo.config>=1.2.1
 oslo.db>=1.0.2
+oslo.serialization>=1.0.0
+oslo.utils>=0.3.0

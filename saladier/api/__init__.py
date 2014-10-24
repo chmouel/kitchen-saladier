@@ -18,7 +18,7 @@
 from oslo.config import cfg
 
 # Register options for the service
-API_SERVICE_OPTS = [
+OPTS = [
     cfg.IntOpt('port',
                default=8777,
                deprecated_group='DEFAULT',
@@ -28,10 +28,14 @@ API_SERVICE_OPTS = [
                default='0.0.0.0',
                help='The listen IP for the saladier API server.',
                ),
+    cfg.StrOpt('api_paste_config',
+               default="api_paste.ini",
+               help="Configuration file for WSGI definition of API."
+               ),
 ]
 
 CONF = cfg.CONF
 opt_group = cfg.OptGroup(name='api',
                          title='Options for the saladier-api service')
 CONF.register_group(opt_group)
-CONF.register_opts(API_SERVICE_OPTS, opt_group)
+CONF.register_opts(OPTS, opt_group)

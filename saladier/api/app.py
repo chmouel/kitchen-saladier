@@ -33,16 +33,6 @@ from saladier.openstack.common import log
 
 LOG = log.getLogger(__name__)
 
-auth_opts = [
-    cfg.StrOpt('api_paste_config',
-               default="api_paste.ini",
-               help="Configuration file for WSGI definition of API."
-               ),
-]
-
-CONF = cfg.CONF
-CONF.register_opts(auth_opts)
-
 
 class APIPasteNotFound(Exception):
     pass
@@ -70,7 +60,7 @@ def setup_app(pecan_config=None, extra_hooks=None):
         pecan_config.app.root,
         static_root=pecan_config.app.static_root,
         template_path=pecan_config.app.template_path,
-        debug=CONF.debug,
+        debug=cfg.CONF.debug,
         force_canonical=getattr(pecan_config.app, 'force_canonical', True),
         hooks=app_hooks,
         wrap_app=middleware.ParsableErrorMiddleware,
