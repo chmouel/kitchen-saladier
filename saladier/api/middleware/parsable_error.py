@@ -22,9 +22,6 @@ Based on pecan.middleware.errordocument
 """
 import json
 
-from lxml import etree
-import webob
-
 from saladier.openstack.common import log
 
 LOG = log.getLogger(__name__)
@@ -66,42 +63,17 @@ class ParsableErrorMiddleware(object):
 
         app_iter = self.app(environ, replacement_start_response)
         if (state['status_code'] / 100) not in (2, 3):
-            req = webob.Request(environ)
-            # Find the first TranslationHook in the array of hooks and use the
-            # translatable_error object from it
             error = None
-            if (req.accept.best_match(['application/json', 'application/xml'])
-               == 'application/xml'):
-                try:
-                    # simple check xml is valid
-                    faultstr = '\n'.join(
-                        [x.decode() for x in app_iter])
-                    fault = etree.fromstring(faultstr)
-                    # Add the translated error to the xml data
-                    if error is not None:
-                        for fault_string in fault.findall('faultstring'):
-                            fault_string.text = error
-                    body_str = ('<error_message>' +
-                                etree.tostring(fault).decode() +
-                                '</error_message>')
-                    body = [body_str.encode()]
-                except etree.XMLSyntaxError as err:
-                    LOG.error('Error parsing HTTP response: %s' % err)
-                    body_str = ('<error_message>%s</error_message>' %
-                                state['status_code'])
-                    body = [body_str.encode()]
-                state['headers'].append(('Content-Type', 'application/xml'))
-            else:
-                try:
-                    fault = json.loads(
-                        '\n'.join([x.decode() for x in app_iter]))
-                    if error is not None and 'faultstring' in fault:
-                        fault['faultstring'] = error
-                    body = [json.dumps({'error_message': fault}).encode()]
-                except ValueError as err:
-                    error = '\n'.join([x.decode() for x in app_iter])
-                    body = [json.dumps({'error_message': error}).encode()]
-                state['headers'].append(('Content-Type', 'application/json'))
+            try:
+                fault = json.loads(
+                    '\n'.join([x.decode() for x in app_iter]))
+                if error is not None and 'faultstring' in fault:
+                    fault['faultstring'] = error
+                body = [json.dumps({'error_message': fault}).encode()]
+            except ValueError:
+                error = '\n'.join([x.decode() for x in app_iter])
+                body = [json.dumps({'error_message': error}).encode()]
+            state['headers'].append(('Content-Type', 'application/json'))
             state['headers'].append(('Content-Length', str(len(body[0]))))
         else:
             body = app_iter
