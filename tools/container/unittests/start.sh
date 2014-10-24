@@ -33,5 +33,8 @@ saladier-dbsync --config-file /tmp/saladier.conf upgrade
 
 # Running tox, stop as soon as we get a failure
 for i in $(tox -l); do
+    # NOTE(chmou): We do that cause py27 and py34 testrepository cache is not a
+    # compatible format :-(
+    rm -rf .testrepository
     tox -e${i}
 done

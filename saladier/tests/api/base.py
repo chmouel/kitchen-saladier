@@ -14,6 +14,7 @@
 # under the License.
 """Base classes for API tests."""
 from keystonemiddleware import auth_token  # noqa
+
 from oslo.config import cfg
 import pecan
 import pecan.testing
