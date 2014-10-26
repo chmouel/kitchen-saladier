@@ -30,11 +30,7 @@ class ProductCollection(base.APIBaseCollections):
 
 class ProductVersionsController(base.BaseRestController):
     @pecan.expose()
-    # TODO(chmou): There is a bug in pecan with /foo/bar/, it's fixed here
-    # https://review.openstack.org/#/c/131410/, we keep an empty _ for the
-    # first arg of our function until this get released in a pecan release that
-    # we can use.
-    def post(self, _, product, version, url):
+    def post(self, product, version, url):
         if not pecan.request.context.is_admin:
             return webob.exc.HTTPForbidden()
 

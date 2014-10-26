@@ -45,11 +45,7 @@ class PlatformController(base.BaseRestController):
         return p.as_dict()
 
     @pecan.expose()
-    # TODO(chmou): There is a bug in pecan with /foo/bar/, it's fixed here
-    # https://review.openstack.org/#/c/131410/, we keep an empty _ for the
-    # first of our function until this get released in a pecan release that
-    # we can use.
-    def post(self, _, name, location, contact, tenant_id):
+    def post(self, name, location, contact, tenant_id):
         if not pecan.request.context.is_admin:
             return webob.exc.HTTPForbidden()
 

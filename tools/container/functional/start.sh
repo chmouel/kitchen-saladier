@@ -70,7 +70,7 @@ echo "OK."
 # Create a product
 echo -n "Creating a product as admin: "
 curl -f ${CURL_FLAG} -L -H "x-auth-token: $ADMIN_TOKEN" -X POST -d 'name=yayalebogosse' -d 'team=boa' -d 'contact=thecedric@isthegreatest.com' \
-     http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/products/
+     http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/products
 echo "OK."
 
 echo -n "Get created product as user: "
@@ -80,7 +80,7 @@ echo "OK."
 echo -n "Associate a product to a version: "
 curl -f ${CURL_FLAG} -L -H "x-auth-token: $ADMIN_TOKEN" -X POST -d 'product=yayalebogosse' -d 'url=http://anywhereyoulike' \
      -d 'version=1.0' \
-     http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/versions/
+     http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/versions
 echo "OK"
 
 echo -n "List Association between product and version as user: "
@@ -100,7 +100,7 @@ echo "OK."
 echo -n "Creating a platform as admin: "
 curl -f ${CURL_FLAG} -L -H "x-auth-token: $ADMIN_TOKEN" -X POST -d 'name=chmoulebogosse' -d 'location=ParisEstMagique' \
      -d 'contact=thecedric@isthegreatest.com' \
-     -d 'tenant_id=0000101010101' http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/platforms/
+     -d 'tenant_id=0000101010101' http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/platforms
 echo "OK."
 
 echo -n "Get created platform as user: "

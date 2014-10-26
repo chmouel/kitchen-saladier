@@ -25,7 +25,7 @@ class TestPlatforms(base.FunctionalTest):
                              location="location1",
                              contact="platform@owner.org",
                              tenant_id="clarasoft")
-        self.post_json("/platforms/", platform_dict, status=201)
+        self.post_json("/platforms", platform_dict, status=201)
 
         data = self.get_json('/platforms/')
         self.assertEqual(1, len(data['platforms']))
@@ -40,7 +40,7 @@ class TestPlatforms(base.FunctionalTest):
                              location="location1",
                              contact="platform@owner.org",
                              tenant_id="clarasoft")
-        self.post_json("/platforms/", platform_dict)
+        self.post_json("/platforms", platform_dict)
 
         data = self.get_json('/platforms/' + name)
 
@@ -54,9 +54,9 @@ class TestPlatforms(base.FunctionalTest):
                              location="location1",
                              contact="platform@owner.org",
                              tenant_id="clarasoft")
-        self.post_json("/platforms/", platform_dict, status=201)
+        self.post_json("/platforms", platform_dict, status=201)
 
-        ret = self.post_json("/platforms/", platform_dict, status=409)
+        ret = self.post_json("/platforms", platform_dict, status=409)
         self.assertEqual(409, ret.status_int)
 
     def test_platform_create_notfound(self):
@@ -67,7 +67,7 @@ class TestPlatforms(base.FunctionalTest):
                              location="location1",
                              contact="platform@owner.org",
                              tenant_id="clarasoft")
-        self.post_json("/platforms/", platform_dict, status=201)
+        self.post_json("/platforms", platform_dict, status=201)
 
         status = self.delete('/platforms/name1', status=204)
         self.assertEqual(204, status.status_int)
@@ -77,7 +77,7 @@ class TestPlatforms(base.FunctionalTest):
                              location="location1",
                              contact="platform@owner.org",
                              tenant_id="clarasoft")
-        self.post_json("/platforms/", platform_dict, status=201)
+        self.post_json("/platforms", platform_dict, status=201)
 
         status = self.delete('/platforms/name1',
                              headers={'X-Auth-Token': utils.MEMBER_TOKEN},

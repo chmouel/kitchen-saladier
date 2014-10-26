@@ -24,36 +24,36 @@ class TestProductVersions(base.FunctionalTest):
         prod_dict = dict(name="name1",
                          team="team1",
                          contact="product@owner.org")
-        self.post_json("/products/", prod_dict, status=201)
+        self.post_json("/products", prod_dict, status=201)
 
         for version in ['1.0', '1.1']:
             version_dict = dict(product="name1",
                                 url="http://localhost/",
                                 version=version)
-            self.post_json("/versions/", version_dict, status=201)
+            self.post_json("/versions", version_dict, status=201)
 
     def test_product_version_delete(self):
         prod_dict = dict(name="name1",
                          team="team1",
                          contact="product@owner.org")
-        self.post_json("/products/", prod_dict, status=201)
+        self.post_json("/products", prod_dict, status=201)
 
         version_dict = dict(product="name1",
                             url="http://localhost/",
                             version="1.0")
-        self.post_json("/versions/", version_dict, status=201)
+        self.post_json("/versions", version_dict, status=201)
         self.delete('/versions/name1/1.0', status=204)
 
     def test_product_version_delete_as_user(self):
         prod_dict = dict(name="name1",
                          team="team1",
                          contact="product@owner.org")
-        self.post_json("/products/", prod_dict, status=201)
+        self.post_json("/products", prod_dict, status=201)
 
         version_dict = dict(product="name1",
                             url="http://localhost/",
                             version="1.0")
-        self.post_json("/versions/", version_dict, status=201)
+        self.post_json("/versions", version_dict, status=201)
 
         self.delete('/versions/name1/1.0',
                     headers={'X-Auth-Token': utils.MEMBER_TOKEN},
@@ -63,12 +63,12 @@ class TestProductVersions(base.FunctionalTest):
         prod_dict = dict(name="name1",
                          team="team1",
                          contact="product@owner.org")
-        self.post_json("/products/", prod_dict, status=201)
+        self.post_json("/products", prod_dict, status=201)
 
         for version in ['1.0', '1.1']:
             version_dict = dict(product="name1",
                                 url="http://localhost/",
                                 version=version)
-            self.post_json("/versions/", version_dict, status=201)
+            self.post_json("/versions", version_dict, status=201)
         data = self.get_json('/versions/name1', status=200)
         self.assertEqual(2, len(data['versions']))

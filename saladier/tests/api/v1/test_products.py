@@ -24,7 +24,7 @@ class TestProducts(base.FunctionalTest):
         prod_dict = dict(name="name1",
                          team="team1",
                          contact="product@owner.org")
-        self.post_json("/products/", prod_dict, status=201)
+        self.post_json("/products", prod_dict, status=201)
 
         data = self.get_json('/products/')
         self.assertEqual(1, len(data['products']))
@@ -37,7 +37,7 @@ class TestProducts(base.FunctionalTest):
         prod_dict = dict(name=name,
                          team="team1",
                          contact="product@owner.org")
-        self.post_json("/products/", prod_dict)
+        self.post_json("/products", prod_dict)
 
         data = self.get_json('/products/' + name)
 
@@ -49,12 +49,12 @@ class TestProducts(base.FunctionalTest):
         prod_dict = dict(name="name1",
                          team="team1",
                          contact="product@owner.org")
-        self.post_json("/products/", prod_dict, status=201)
+        self.post_json("/products", prod_dict, status=201)
 
         prod_dict = dict(name="name1",
                          team="team1",
                          contact="product@owner.org")
-        ret = self.post_json("/products/", prod_dict, status=409)
+        ret = self.post_json("/products", prod_dict, status=409)
         self.assertEqual(409, ret.status_int)
 
     def test_product_create_notfound(self):
@@ -64,7 +64,7 @@ class TestProducts(base.FunctionalTest):
         prod_dict = dict(name="name1",
                          team="team1",
                          contact="product@owner.org")
-        self.post_json("/products/", prod_dict, status=201)
+        self.post_json("/products", prod_dict, status=201)
 
         status = self.delete('/products/name1', status=204)
         self.assertEqual(204, status.status_int)
@@ -73,7 +73,7 @@ class TestProducts(base.FunctionalTest):
         prod_dict = dict(name="name1",
                          team="team1",
                          contact="product@owner.org")
-        self.post_json("/products/", prod_dict, status=201)
+        self.post_json("/products", prod_dict, status=201)
 
         status = self.delete('/products/name1',
                              headers={'X-Auth-Token': utils.MEMBER_TOKEN},
