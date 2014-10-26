@@ -85,7 +85,7 @@ echo "OK."
 # Create a platform
 echo -n "Creating a platform as admin: "
 curl -f -s -L -H "x-auth-token: $ADMIN_TOKEN" -X POST -d 'name=chmoulebogosse' -d 'location=ParisEstMagique' -d 'contact=thecedric@isthegreatest.com' \
-     -d 'tenant=etmontenantcestdupoulet' http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/platforms/
+     -d 'tenant_id=0000101010101' http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/platforms/
 echo "OK."
 
 echo -n "Get created platform as user: "
