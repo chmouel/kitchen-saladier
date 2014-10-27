@@ -8,7 +8,7 @@ export SERVICE_TOKEN=${KEYSTONE_ENV_KEYSTONE_ADMIN_TOKEN}
 
 # We need to wait that it's up and that it was running
 while true; do 
-    if keystone service-list 2>/dev/null >/dev/null;then
+    if keystone role-list | grep -q admin 2>/dev/null >/dev/null;then
         break
     else
         sleep 5
@@ -55,7 +55,7 @@ connection=mysql+pymysql://saladier:${KEYSTONE_1_ENV_KEYSTONE_DB_PASSWORD}@${DB_
 EOF
 
 # TODO(chmouel): make that unittest and functional not using the same DB
-mysql -h ${DB_PORT_3306_TCP_ADDR} -u root -p${KITCHENSALADIER_DB_1_ENV_DB_ROOT_PASSWORD} mysql <<EOF
+mysql -h ${DB_PORT_3306_TCP_ADDR} -u root -p${DB_ENV_DB_ROOT_PASSWORD} mysql <<EOF
 DROP DATABASE IF EXISTS saladier;
 CREATE DATABASE saladier;
 GRANT ALL PRIVILEGES ON saladier.* TO
