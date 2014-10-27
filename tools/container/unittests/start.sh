@@ -10,15 +10,16 @@ while true;do
 done
 
 mysql -h ${DB_PORT_3306_TCP_ADDR} -u root -p${DB_ROOT_PASSWORD} mysql <<EOF
-CREATE DATABASE IF NOT EXISTS saladier;
-GRANT ALL PRIVILEGES ON saladier.* TO
+DROP DATABASE IF EXISTS saladierunit;
+CREATE DATABASE IF NOT EXISTS saladierunit;
+GRANT ALL PRIVILEGES ON saladierunit.* TO
     'saladier'@'%' IDENTIFIED BY '${SALADIER_DB_PASSWORD}'
 EOF
 
 source /virtualenv/bin/activate
 pip install -e.
 
-export SALADIER_DATABASE_TEST_CONNECTION="mysql+pymysql://saladier:${SALADIER_DB_PASSWORD}@${DB_PORT_3306_TCP_ADDR}/saladier"
+export SALADIER_DATABASE_TEST_CONNECTION="mysql+pymysql://saladier:${SALADIER_DB_PASSWORD}@${DB_PORT_3306_TCP_ADDR}/saladierunit"
 
 cat <<EOF>/tmp/saladier.conf
 [database]
