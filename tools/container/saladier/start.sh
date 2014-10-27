@@ -54,6 +54,7 @@ identity_uri = http://${KEYSTONE_PORT_35357_TCP_ADDR}:35357
 connection=mysql+pymysql://saladier:${KEYSTONE_1_ENV_KEYSTONE_DB_PASSWORD}@${DB_PORT_3306_TCP_ADDR}/saladier
 EOF
 
+# TODO(chmouel): make that unittest and functional not using the same DB
 mysql -h ${DB_PORT_3306_TCP_ADDR} -u root -p${KITCHENSALADIER_DB_1_ENV_DB_ROOT_PASSWORD} mysql <<EOF
 DROP DATABASE IF EXISTS saladier;
 CREATE DATABASE saladier;
@@ -61,6 +62,9 @@ GRANT ALL PRIVILEGES ON saladier.* TO
     'saladier'@'%' IDENTIFIED BY '${KEYSTONE_1_ENV_KEYSTONE_DB_PASSWORD}'
 EOF
 
-saladier-dbsync --config-file /tmp/saladier.conf
+# Create schema and upgrade
+saladier-dbsync --config-file /tmp/saladier.conf create_schema
+saladier-dbsync --config-file /tmp/saladier.conf upgrade
 
+# Exec Saladier
 exec saladier-api --config-file /tmp/saladier.conf --debug
