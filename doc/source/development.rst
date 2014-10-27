@@ -109,12 +109,12 @@ You development setup is done ! Congratulations :) !
 Unit Testing
 ------------
 
-The unit tests is by default tighted to the database so you need to have a mysql
-database running locally with the user root being able to access to the saladier
-database without password.
+The unit tests is by default tighted to the database so you need to have a
+mysql database running locally with the user root being able to access to
+the saladier database without password.
 
 We have added a docker based container for our CI to make things very
-easy. We have as well added a run_tests.sh to make it easy to launch those, 
+easy. We have as well added a run_tests.sh to make it easy to launch those,
 This is the manual steps that the run_tests.sh script is doing
 
 - Install docker on your laptop, for example on fedora::
