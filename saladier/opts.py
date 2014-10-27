@@ -17,12 +17,14 @@
 import itertools
 
 import saladier.api
+import saladier.common.exception
 import saladier.openstack.common.log as log
 
 
 def list_opts():
     return [
         ("api", saladier.api.OPTS),
+        ("", saladier.common.exception.OPTS),
         ("", itertools.chain(log.log_opts,
                              log.generic_log_opts)),
     ]

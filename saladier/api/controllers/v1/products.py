@@ -17,6 +17,7 @@
 import pecan
 
 import saladier.api.controllers.base as base
+import saladier.common.exception as exception
 
 
 class Product(base.APIBase):
@@ -44,6 +45,10 @@ class ProductController(base.BaseRestController):
     # TODO(chmou): figure out what the deal
     # with that first empty argument given by pecan
     def post(self, _, name, team, contact):
-        pecan.response.status = 201
-        pecan.request.db_conn.create_product(
-            name=name, team=team, contact=contact)
+        try:
+            pecan.request.db_conn.create_product(
+                name=name, team=team, contact=contact)
+            pecan.response.status = 201
+        except exception.ProductAlreadyExists:
+            pecan.response.status = 409
+            return "Product %s already exist" % name

@@ -18,9 +18,11 @@
 """SQLAlchemy storage backend."""
 
 from oslo.config import cfg
+from oslo.db import exception as db_exc
 from oslo.db.sqlalchemy import session as db_session
 from oslo.db.sqlalchemy import utils as db_utils
 
+from saladier.common import exception
 from saladier.db.sqlalchemy import models
 from saladier.openstack.common import log
 
@@ -107,7 +109,10 @@ class Connection(object):  # TODO(chmouel): base class
         product = models.Product(name=name, team=team, contact=contact)
 
         # TODO(chmouel): handle conflicts
-        product.save()
+        try:
+            product.save()
+        except db_exc.DBDuplicateEntry:
+            raise exception.ProductAlreadyExists(name)
 
     def get_all_products(self, filters=None, limit=None,
                          marker=None, sort_key=None, sort_dir=None):

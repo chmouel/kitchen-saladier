@@ -45,3 +45,15 @@ class TestProducts(base.FunctionalTest):
         self.assertEqual('product@owner.org', data['contact'])
         self.assertEqual('name1', data['name'])
         self.assertEqual('team1', data['team'])
+
+    def test_product_create_conflict(self):
+        prod_dict = dict(name="name1",
+                         team="team1",
+                         contact="product@owner.org")
+        self.post_json("/products/", prod_dict, status=201)
+
+        prod_dict = dict(name="name1",
+                         team="team1",
+                         contact="product@owner.org")
+        ret = self.post_json("/products/", prod_dict, status=409)
+        self.assertEqual(409, ret.status_int)
