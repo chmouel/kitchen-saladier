@@ -177,3 +177,28 @@ class Connection(object):  # TODO(chmouel): base class
             return query.one()
         except saladier.db.sqlalchemy.exc.NoResultFound:
             raise exception.PlatformNotFound(name=name)
+
+    # -*- Subscriptions -*-
+    def create_subscription(self, tenant_id, product_name):
+        subs = (model_query(models.Subscriptions).
+                filter_by(product_name=product_name).
+                filter_by(tenant_id=tenant_id).
+                first())
+
+        if subs:
+            raise exception.SubscriptionAlreadyExists(product_name)
+
+        query = models.Subscriptions(tenant_id=tenant_id,
+                                     product_name=product_name)
+        query.save()
+
+    def delete_subscription(self, tenant_id, product_name):
+        model = (model_query(models.Subscriptions).
+                 filter_by(product_name=product_name).
+                 filter_by(tenant_id=tenant_id))
+        model.delete()
+
+    def get_subscriptions_for_tenant_id(self, tenant_id):
+        query = model_query(models.Subscriptions).filter_by(
+            tenant_id=tenant_id)
+        return query.all()
