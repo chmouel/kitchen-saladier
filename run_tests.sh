@@ -27,3 +27,8 @@ fig run --rm unittests
 
 # stupid testr (2)
 clean_repo
+fig stop keystone
+fig stop saladier
+fig start keystone
+fig start saladier
+fig run functional
