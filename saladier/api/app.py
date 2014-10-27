@@ -24,6 +24,7 @@ from oslo.config import cfg
 from paste import deploy
 import pecan
 
+from saladier.api import acl
 from saladier.api import config as api_config
 from saladier.api import hooks
 from saladier.api import middleware
@@ -47,6 +48,7 @@ def get_pecan_config():
 def setup_app(pecan_config=None, extra_hooks=None):
     app_hooks = [hooks.ConfigHook(),
                  hooks.DBHook(db.get_connection(cfg.CONF)),
+                 hooks.ContextHook(pecan_config.app.acl_public_routes),
                  ]
     if extra_hooks:
         app_hooks.extend(extra_hooks)
@@ -67,18 +69,16 @@ def setup_app(pecan_config=None, extra_hooks=None):
         guess_content_type_from_ext=False
     )
 
+    if pecan_config.app.enable_acl:
+        return acl.install(app, cfg.CONF, pecan_config.app.acl_public_routes)
+
     return app
 
 
 class VersionSelectorApplication(object):
     def __init__(self):
         pc = get_pecan_config()
-        pc.app.debug = True
-
-        def not_found(environ, start_response):
-            start_response('404 Not Found', [])
-            return []
-
+        pc.app.enable_acl = True
         self.v1 = setup_app(pecan_config=pc)
 
     def __call__(self, environ, start_response):

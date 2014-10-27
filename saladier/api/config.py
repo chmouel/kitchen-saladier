@@ -27,4 +27,10 @@ app = {
     'modules': ['saladier.api'],
     'static_root': '%(confdir)s/public',
     'template_path': '%(confdir)s/templates',
+    'debug': False,
+    'enable_acl': True,
+    'acl_public_routes': [
+        '/',
+        '/v1',
+    ],
 }
