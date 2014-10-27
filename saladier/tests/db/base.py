@@ -14,6 +14,8 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+import os
+
 from oslo.config import cfg
 
 from saladier.db import api as sqla_api
@@ -26,6 +28,11 @@ class DbTestCase(base.TestCase):
 
     def setUp(self):
         super(DbTestCase, self).setUp()
+
+        if not os.environ.get("SALADIER_DATABASE_TEST_CONNECTION"):
+            self.fail("You need to have the "
+                      "SALADIER_DATABASE_TEST_CONNECTION environment "
+                      "variable set to a running database.")
 
         self.dbapi = sqla_api.get_backend()
         self.engine = sqla_api.get_engine()
