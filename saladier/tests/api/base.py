@@ -166,7 +166,8 @@ class FunctionalTest(base.DbTestCase):
         return response
 
     def get_json(self, path, expect_errors=False, headers=None,
-                 extra_environ=None, q=[], path_prefix=PATH_PREFIX, **params):
+                 status=None, extra_environ=None, q=[],
+                 path_prefix=PATH_PREFIX, **params):
         """Sends simulated HTTP GET request to Pecan test app.
 
         :param path: url path of target service
@@ -196,6 +197,7 @@ class FunctionalTest(base.DbTestCase):
         response = self.app.get(full_path,
                                 params=all_params,
                                 headers=headers,
+                                status=status,
                                 extra_environ=extra_environ,
                                 expect_errors=expect_errors)
         if not expect_errors:

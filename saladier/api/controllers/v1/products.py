@@ -32,8 +32,12 @@ class ProductCollection(base.APIBaseCollections):
 class ProductController(base.BaseRestController):
     @pecan.expose('json')
     def get(self, name):
-        p = Product(pecan.request.db_conn.get_product_by_name(name))
-        return p.as_dict()
+        try:
+            p = Product(pecan.request.db_conn.get_product_by_name(name))
+            return p.as_dict()
+        except exception.ProductNotFound:
+            pecan.response.status = 404
+            return "Product %s was not found" % name
 
     @pecan.expose('json')
     def get_all(self):
