@@ -60,7 +60,7 @@ def setup_app(pecan_config=None, extra_hooks=None):
         pecan_config.app.root,
         static_root=pecan_config.app.static_root,
         template_path=pecan_config.app.template_path,
-        debug=cfg.CONF.debug,
+        debug=False,
         force_canonical=getattr(pecan_config.app, 'force_canonical', True),
         hooks=app_hooks,
         wrap_app=middleware.ParsableErrorMiddleware,
