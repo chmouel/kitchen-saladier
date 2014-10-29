@@ -13,11 +13,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 """Base classes for API tests."""
-
+from keystonemiddleware import auth_token  # noqa
+from oslo.config import cfg
 import pecan
 import pecan.testing
 from six.moves.urllib import parse as urlparse
 
+from saladier.tests.api import utils
 from saladier.tests.db import base
 
 PATH_PREFIX = '/v1'
@@ -35,6 +37,12 @@ class FunctionalTest(base.DbTestCase):
 
     def setUp(self):
         super(FunctionalTest, self).setUp()
+
+        cfg.CONF.set_override(
+            'cache', 'fake.cache',
+            group='keystone_authtoken')
+        self.environ = {'fake.cache': utils.FakeMemcache()}
+
         self.app = self._make_app()
 
         def reset_pecan():
@@ -42,21 +50,25 @@ class FunctionalTest(base.DbTestCase):
 
         self.addCleanup(reset_pecan)
 
-    def _make_app(self, enable_acl=False):
+    def _set_headers(self, headers):
+        headers = headers or {}
+        headers = {x.lower(): headers[x] for x in headers.keys()}
+        headers.setdefault("x-auth-token", utils.ADMIN_TOKEN)
+        return headers
+
+    def _make_app(self):
         # Determine where we are so we can set up paths in the config
         root_dir = self.path_get()
-
         self.config = {
             'app': {
                 'root': 'saladier.api.controllers.root.RootController',
                 'modules': ['saladier.api'],
                 'static_root': '%s/public' % root_dir,
                 'template_path': '%s/saladier/api/templates' % root_dir,
-                'enable_acl': enable_acl,
+                'enable_acl': True,
                 'acl_public_routes': ['/', '/v1'],
             },
         }
-
         return pecan.testing.load_test_app(self.config)
 
     def _request_json(self, path, params, expect_errors=False, headers=None,
@@ -77,6 +89,10 @@ class FunctionalTest(base.DbTestCase):
         :param path_prefix: prefix of the url path
         """
         full_path = path_prefix + path
+        if not extra_environ:
+            extra_environ = self.environ
+
+        headers = self._set_headers(headers)
         print('%s: %s %s' % (method.upper(), full_path, params))
         response = getattr(self.app, "%s_json" % method)(
             str(full_path),
@@ -190,6 +206,9 @@ class FunctionalTest(base.DbTestCase):
         for query in q:
             for name in ['field', 'op', 'value']:
                 query_params['q.%s' % name].append(query.get(name, ''))
+
+        headers = self._set_headers(headers)
+
         all_params = {}
         all_params.update(params)
         if q:
@@ -199,7 +218,7 @@ class FunctionalTest(base.DbTestCase):
                                 params=all_params,
                                 headers=headers,
                                 status=status,
-                                extra_environ=extra_environ,
+                                extra_environ=extra_environ or self.environ,
                                 expect_errors=expect_errors)
         if not expect_errors:
             response = response.json

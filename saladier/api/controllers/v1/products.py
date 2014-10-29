@@ -15,6 +15,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 import pecan
+import webob
 
 import saladier.api.controllers.base as base
 import saladier.common.exception as exception
@@ -49,6 +50,9 @@ class ProductController(base.BaseRestController):
     # TODO(chmou): figure out what the deal
     # with that first empty argument given by pecan
     def post(self, _, name, team, contact):
+        if not pecan.request.context.is_admin:
+            return webob.exc.HTTPForbidden()
+
         try:
             pecan.request.db_conn.create_product(
                 name=name, team=team, contact=contact)

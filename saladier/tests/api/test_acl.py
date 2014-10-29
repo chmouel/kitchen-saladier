@@ -18,41 +18,40 @@ are blocked or allowed to be processed.
 
 # NOTE(deva): import auth_token so we can override a config option
 from keystonemiddleware import auth_token  # noqa
-from oslo.config import cfg
 
 from saladier.tests.api import base
 from saladier.tests.api import utils
 
 
 class TestACL(base.FunctionalTest):
-    def setUp(self):
-        super(TestACL, self).setUp()
-        self.environ = {'fake.cache': utils.FakeMemcache()}
-
-    def get_json(self, path, expect_errors=False, headers=None, q=[], **param):
-        return super(TestACL, self).get_json(
-            path, expect_errors=expect_errors,
-            headers=headers, q=q,
-            extra_environ=self.environ, **param)
-
-    def _make_app(self):
-        cfg.CONF.set_override('cache', 'fake.cache',
-                              group='keystone_authtoken')
-        return super(TestACL, self)._make_app(enable_acl=True)
-
     def test_non_authenticated(self):
-        response = self.get_json('/products/', expect_errors=True)
+        response = self.get_json('/products/',
+                                 headers={'X-Auth-Token': ''},
+                                 expect_errors=True)
         self.assertEqual(401, response.status_int)
 
     def test_authenticated(self):
-        response = self.get_json(
-            "/products/", headers={'X-Auth-Token': utils.ADMIN_TOKEN})
-        self.assertEqual({'products': []}, response)
+        prod_dict = dict(name="name1",
+                         team="team1",
+                         contact="product@owner.org")
+        response = self.post_json("/products/", prod_dict,
+                                  expect_errors=True)
+        self.assertEqual(201, response.status_int)
+
+    def test_non_admin(self):
+        prod_dict = dict(name="name1",
+                         team="team1",
+                         contact="product@owner.org")
+        response = self.post_json("/products/", prod_dict,
+                                  headers={'X-Auth-Token': utils.MEMBER_TOKEN},
+                                  expect_errors=True)
+        self.assertEqual(403, response.status_int)
 
     def test_public_api(self):
         # expect_errors should be set to True: If expect_errors is set to False
         # the response gets converted to JSON and we cannot read the response
         # code so easy.
         response = self.get_json("/",
+                                 headers={'X-Auth-Token': ''},
                                  path_prefix='', expect_errors=True)
         self.assertEqual(200, response.status_int)
