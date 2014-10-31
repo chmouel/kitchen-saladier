@@ -109,11 +109,15 @@ class Connection(object):  # TODO(chmouel): base class
     def create_product(self, name, team, contact):
         product = models.Product(name=name, team=team, contact=contact)
 
-        # TODO(chmouel): handle conflicts
         try:
             product.save()
         except db_exc.DBDuplicateEntry:
             raise exception.ProductAlreadyExists(name)
+
+    def delete_product_by_name(self, name):
+        # TODO(chmouel): Check that product is not used by something else
+        query = model_query(models.Product).filter_by(name=name)
+        query.delete()
 
     def get_all_products(self, filters=None, limit=None,
                          marker=None, sort_key=None, sort_dir=None):

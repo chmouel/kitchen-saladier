@@ -15,6 +15,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 import saladier.tests.api.base as base
+from saladier.tests.api import utils
 
 
 class TestProducts(base.FunctionalTest):
@@ -60,3 +61,23 @@ class TestProducts(base.FunctionalTest):
 
     def test_product_create_notfound(self):
         self.get_json('/products/random', status=404)
+
+    def test_product_delete(self):
+        prod_dict = dict(name="name1",
+                         team="team1",
+                         contact="product@owner.org")
+        self.post_json("/products/", prod_dict, status=201)
+
+        status = self.delete('/products/name1', status=204)
+        self.assertEqual(204, status.status_int)
+
+    def test_product_delete_as_user(self):
+        prod_dict = dict(name="name1",
+                         team="team1",
+                         contact="product@owner.org")
+        self.post_json("/products/", prod_dict, status=201)
+
+        status = self.delete('/products/name1',
+                             headers={'X-Auth-Token': utils.MEMBER_TOKEN},
+                             expect_errors=True)
+        self.assertEqual(403, status.status_int)

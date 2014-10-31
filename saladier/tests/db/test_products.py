@@ -27,6 +27,14 @@ class ProductTestCase(base.DbTestCase):
         self.assertEqual("team1", product["team"])
         self.assertEqual("contact1", product["contact"])
 
+    def test_delete_product(self):
+        self.dbapi.create_product(name="name1", team="team1",
+                                  contact="contact1")
+        self.dbapi.delete_product_by_name("name1")
+        self.assertRaises(exception.ProductNotFound,
+                          self.dbapi.get_product_by_name,
+                          "name1")
+
     def test_get_product_notfound(self):
         self.assertRaises(exception.ProductNotFound,
                           self.dbapi.get_product_by_name,

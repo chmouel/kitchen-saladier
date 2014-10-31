@@ -60,3 +60,12 @@ class ProductController(base.BaseRestController):
         except exception.ProductAlreadyExists:
             pecan.response.status = 409
             return "Product %s already exist" % name
+
+    @pecan.expose()
+    # TODO(chmou): figure out what the deal
+    # with that first empty argument given by pecan
+    def delete(self, name):
+        if not pecan.request.context.is_admin:
+            return webob.exc.HTTPForbidden()
+        pecan.request.db_conn.delete_product_by_name(name=name)
+        pecan.response.status = 204

@@ -89,8 +89,6 @@ class FunctionalTest(base.DbTestCase):
         :param path_prefix: prefix of the url path
         """
         full_path = path_prefix + path
-        if not extra_environ:
-            extra_environ = self.environ
 
         headers = self._set_headers(headers)
         print('%s: %s %s' % (method.upper(), full_path, params))
@@ -99,7 +97,7 @@ class FunctionalTest(base.DbTestCase):
             params=params,
             headers=headers,
             status=status,
-            extra_environ=extra_environ,
+            extra_environ=extra_environ or self.environ,
             expect_errors=expect_errors
         )
         print('GOT:%s' % response)
@@ -174,10 +172,12 @@ class FunctionalTest(base.DbTestCase):
         """
         full_path = path_prefix + path
         print('DELETE: %s' % (full_path))
+
+        headers = self._set_headers(headers)
         response = self.app.delete(str(full_path),
                                    headers=headers,
                                    status=status,
-                                   extra_environ=extra_environ,
+                                   extra_environ=extra_environ or self.environ,
                                    expect_errors=expect_errors)
         print('GOT:%s' % response)
         return response
