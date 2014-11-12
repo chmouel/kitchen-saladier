@@ -47,8 +47,10 @@ class ProductController(base.BaseRestController):
         return p.as_dict()
 
     @pecan.expose()
-    # TODO(chmou): figure out what the deal
-    # with that first empty argument given by pecan
+    # TODO(chmou): There is a bug in pecan with /foo/bar/, it's fixed here
+    # https://review.openstack.org/#/c/131410/, we keep an empty _ for the
+    # first of our function until this get released in a pecan release that
+    # we can use.
     def post(self, _, name, team, contact):
         if not pecan.request.context.is_admin:
             return webob.exc.HTTPForbidden()
@@ -62,8 +64,6 @@ class ProductController(base.BaseRestController):
             return "Product %s already exist" % name
 
     @pecan.expose()
-    # TODO(chmou): figure out what the deal
-    # with that first empty argument given by pecan
     def delete(self, name):
         if not pecan.request.context.is_admin:
             return webob.exc.HTTPForbidden()
