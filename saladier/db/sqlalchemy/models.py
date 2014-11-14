@@ -87,16 +87,3 @@ class Platform(BASE):
     def __repr__(self):
         return "<Platform(location='%s', email='%s', customer_id='%s')>" % (
             self.location, self.email, self.customer_id)
-
-
-class Access(BASE):
-    __tablename__ = "accesses"
-
-    username = sqlalchemy.Column(sqlalchemy.String(255), unique=True,
-                                 nullable=False, primary_key=True)
-    password = sqlalchemy.Column(sqlalchemy.String(255))
-
-    url = sqlalchemy.Column(sqlalchemy.String(255))
-    ssh_key = sqlalchemy.Column(sqlalchemy.String(255))
-    platform_name = sqlalchemy.Column(sqlalchemy.String(255),
-                                      sqlalchemy.ForeignKey('platforms.name'))
