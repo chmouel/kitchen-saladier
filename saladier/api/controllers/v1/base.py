@@ -10,6 +10,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+import saladier.api.controllers.v1.platforms as platform_controller
 import saladier.api.controllers.v1.products as product_controller
 from saladier.openstack.common import log
 
@@ -20,3 +21,4 @@ class V1Controller(object):
     """Version 1 API controller root."""
 
     products = product_controller.ProductController()
+    platforms = platform_controller.PlatformController()

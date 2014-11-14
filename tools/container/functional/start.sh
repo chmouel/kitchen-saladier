@@ -69,7 +69,7 @@ echo "OK."
 echo -n "Creating a product as admin: "
 curl -f -s -L -H "x-auth-token: $ADMIN_TOKEN" -X POST -d 'name=yayalebogosse' -d 'team=boa' -d 'contact=thecedric@isthegreatest.com' \
      http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/products/
-echo "OK"
+echo "OK."
 
 echo -n "Get created product as user: "
 curl -f -s -L -H "x-auth-token: $USER_TOKEN" http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/products/ | grep -q "thecedric@isthegreatest.com"
@@ -81,5 +81,19 @@ echo "OK."
 
 
 #TODO(chmouel): Delete product
+
+# Create a platform
+echo -n "Creating a platform as admin: "
+curl -f -s -L -H "x-auth-token: $ADMIN_TOKEN" -X POST -d 'name=chmoulebogosse' -d 'location=ParisEstMagique' -d 'contact=thecedric@isthegreatest.com' \
+     -d 'tenant=etmontenantcestdupoulet' http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/platforms/
+echo "OK."
+
+echo -n "Get created platform as user: "
+curl -f -s -L -H "x-auth-token: $USER_TOKEN" http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/platforms/ | grep -q "thecedric@isthegreatest.com"
+echo "OK."
+
+echo -n "Delete created platform as admin: "
+curl -X DELETE -f -s -L -H "x-auth-token: $ADMIN_TOKEN" http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/platforms/chmoulebogosse
+echo "OK."
 
 echo "Done and successfull :)"
