@@ -151,3 +151,29 @@ class Connection(object):  # TODO(chmouel): base class
         query = model_query(models.ProductVersion).filter_by(
             product_name=product_name, version=version)
         query.delete()
+
+    def create_platform(self, name, location, contact, tenant_id):
+        platform = models.Platform(name=name, location=location,
+                                   contact=contact, tenant_id=tenant_id)
+
+        try:
+            platform.save()
+        except db_exc.DBDuplicateEntry:
+            raise exception.PlatformAlreadyExists(name)
+
+    def delete_platform_by_name(self, name):
+        query = model_query(models.Platform).filter_by(name=name)
+        query.delete()
+
+    def get_all_platforms(self, filters=None, limit=None, marker=None,
+                          sort_key=None, sort_dir=None):
+        sort_key = sort_key or 'name'
+        return _paginate_query(models.Platform, limit, marker,
+                               sort_key, sort_dir)
+
+    def get_platform_by_name(self, name):
+        query = model_query(models.Platform).filter_by(name=name)
+        try:
+            return query.one()
+        except saladier.db.sqlalchemy.exc.NoResultFound:
+            raise exception.PlatformNotFound(name=name)

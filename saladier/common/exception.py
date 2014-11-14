@@ -78,11 +78,19 @@ class NotFound(SaladierException):
 
 
 class ProductAlreadyExists(Conflict):
-    message = "Product already exist."
+    message = "Product %(name)s already exist."
 
 
 class ProductNotFound(NotFound):
     message = "Product %(name)s is not found"
+
+
+class PlatformAlreadyExists(Conflict):
+    message = "Platform %(name)s already exist."
+
+
+class PlatformNotFound(NotFound):
+    message = "Platform %(name)s is not found"
 
 
 class ProductVersionAlreadyExists(Conflict):

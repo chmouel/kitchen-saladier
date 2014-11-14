@@ -62,28 +62,17 @@ class ProductVersion(BASE):
             self.product_name, self.version)
 
 
-class Customer(BASE):
-    __tablename__ = "customers"
-
-    name = sqlalchemy.Column(sqlalchemy.String(255), unique=True,
-                             nullable=False, primary_key=True)
-    contact = sqlalchemy.Column(sqlalchemy.String(255))
-
-    def __repr__(self):
-        return "<Customer(name='%s')>" % self.name
-
-
 class Platform(BASE):
     __tablename__ = "platforms"
 
     name = sqlalchemy.Column(sqlalchemy.String(255), unique=True,
                              nullable=False, primary_key=True)
-    location = sqlalchemy.Column(sqlalchemy.String(255))
-    contact = sqlalchemy.Column(sqlalchemy.String(255))
+    location = sqlalchemy.Column(sqlalchemy.String(255), nullable=False)
+    contact = sqlalchemy.Column(sqlalchemy.String(255), nullable=False)
 
-    customer_name = sqlalchemy.Column(sqlalchemy.String(255),
-                                      sqlalchemy.ForeignKey('customers.name'))
+    tenant_id = sqlalchemy.Column(sqlalchemy.String(255), nullable=False)
 
     def __repr__(self):
-        return "<Platform(location='%s', email='%s', customer_id='%s')>" % (
-            self.location, self.email, self.customer_id)
+        return ("<Platform(name='%s', location='%s', contact='%s', "
+                "tenant_id='%s')>" % (self.name, self.location, self.contact,
+                                      self.tenant_id))
