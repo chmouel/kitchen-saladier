@@ -83,3 +83,8 @@ class ProductAlreadyExists(Conflict):
 
 class ProductNotFound(NotFound):
     message = "Product %(name)s is not found"
+
+
+class ProductVersionAlreadyExists(Conflict):
+    # TODO(chmou): Get the actual version in there.
+    message = "Version %(name)s already exist."

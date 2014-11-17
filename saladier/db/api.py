@@ -129,3 +129,25 @@ class Connection(object):  # TODO(chmouel): base class
             return query.one()
         except saladier.db.sqlalchemy.exc.NoResultFound:
             raise exception.ProductNotFound(name=name)
+
+    # TODO(chmou): we are doing product_name thing for product_version but we
+    # really should switch to id soon!
+    def create_product_version(self, product_name, version, uri):
+        query = model_query(models.ProductVersion)
+        if query.filter_by(product_name=product_name, version=version).all():
+            raise exception.ProductVersionAlreadyExists(product_name)
+        new = models.ProductVersion(version=version,
+                                    product_name=product_name,
+                                    uri=uri)
+        new.save()
+
+    def get_all_product_versions(self, product_name):
+        query = model_query(models.ProductVersion)
+        res = query.filter_by(product_name=product_name).all()
+        # TODO(chmou): filtering/paging and such
+        return res
+
+    def delete_product_versions(self, product_name, version):
+        query = model_query(models.ProductVersion).filter_by(
+            product_name=product_name, version=version)
+        query.delete()
