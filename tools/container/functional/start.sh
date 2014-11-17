@@ -1,7 +1,9 @@
 #!/bin/bash
 set -e
+CURL_FLAG="-s"
 
 [[ -n ${DEBUG} ]] && set -x
+[[ -n ${DEBUG} ]] && CURL_FLAG="-i"
 
 function get_token() {
     tenant=$1
@@ -67,33 +69,46 @@ echo "OK."
 
 # Create a product
 echo -n "Creating a product as admin: "
-curl -f -s -L -H "x-auth-token: $ADMIN_TOKEN" -X POST -d 'name=yayalebogosse' -d 'team=boa' -d 'contact=thecedric@isthegreatest.com' \
+curl -f ${CURL_FLAG} -L -H "x-auth-token: $ADMIN_TOKEN" -X POST -d 'name=yayalebogosse' -d 'team=boa' -d 'contact=thecedric@isthegreatest.com' \
      http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/products/
 echo "OK."
 
 echo -n "Get created product as user: "
-curl -f -s -L -H "x-auth-token: $USER_TOKEN" http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/products/ | grep -q "thecedric@isthegreatest.com"
+curl -f ${CURL_FLAG} -L -H "x-auth-token: $USER_TOKEN" http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/products/ | grep -q "thecedric@isthegreatest.com"
 echo "OK."
+
+echo -n "Associate a product to a version: "
+curl -f ${CURL_FLAG} -L -H "x-auth-token: $ADMIN_TOKEN" -X POST -d 'product=yayalebogosse' -d 'url=http://anywhereyoulike' \
+     -d 'version=1.0' \
+     http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/versions/
+echo "OK"
+
+echo -n "List Association between product and version as user: "
+curl -f ${CURL_FLAG} -L -H "x-auth-token: $USER_TOKEN" http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/versions/yayalebogosse | grep -wq "1.0"
+echo "OK"
+
+echo -n "Delete Association between product and version: "
+curl -f ${CURL_FLAG} -L -H "x-auth-token: $ADMIN_TOKEN" -X DELETE \
+     http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/versions/yayalebogosse/1.0
+echo "OK"
 
 echo -n "Delete created product as admin: "
-curl -X DELETE -f -s -L -H "x-auth-token: $ADMIN_TOKEN" http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/products/yayalebogosse
+curl -f ${CURL_FLAG} -X DELETE -L -H "x-auth-token: $ADMIN_TOKEN" http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/products/yayalebogosse
 echo "OK."
-
-
-#TODO(chmouel): Delete product
 
 # Create a platform
 echo -n "Creating a platform as admin: "
-curl -f -s -L -H "x-auth-token: $ADMIN_TOKEN" -X POST -d 'name=chmoulebogosse' -d 'location=ParisEstMagique' -d 'contact=thecedric@isthegreatest.com' \
+curl -f ${CURL_FLAG} -L -H "x-auth-token: $ADMIN_TOKEN" -X POST -d 'name=chmoulebogosse' -d 'location=ParisEstMagique' \
+     -d 'contact=thecedric@isthegreatest.com' \
      -d 'tenant_id=0000101010101' http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/platforms/
 echo "OK."
 
 echo -n "Get created platform as user: "
-curl -f -s -L -H "x-auth-token: $USER_TOKEN" http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/platforms/ | grep -q "thecedric@isthegreatest.com"
+curl -f ${CURL_FLAG} -L -H "x-auth-token: $USER_TOKEN" http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/platforms/ | grep -q "thecedric@isthegreatest.com"
 echo "OK."
 
 echo -n "Delete created platform as admin: "
-curl -X DELETE -f -s -L -H "x-auth-token: $ADMIN_TOKEN" http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/platforms/chmoulebogosse
+curl -X DELETE -f ${CURL_FLAG} -L -H "x-auth-token: $ADMIN_TOKEN" http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/platforms/chmoulebogosse
 echo "OK."
 
-echo "Done and successfull :)"
+echo "Done and successful :)"
