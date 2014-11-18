@@ -17,6 +17,14 @@ from oslo.config import cfg
 
 # Register options for the service
 OPTS = [
+    cfg.StrOpt('provider',
+               default="eNovance",
+               help='The Saladier provider (i.e: vendor).',
+               ),
+    cfg.StrOpt('location',
+               default="Paris",
+               help='Location of the Saladier.',
+               ),
     cfg.IntOpt('port',
                default=8777,
                deprecated_group='DEFAULT',

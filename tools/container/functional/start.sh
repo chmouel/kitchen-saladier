@@ -63,9 +63,14 @@ USER_TOKEN=$(get_token saladier saladier_user1 ${SALADIER_USER_PASSWORD})
 echo "OK."
 
 
-# This is our only unittest for now we will expand with a proper unittest
-# framework in the future when REST class will be written. (The -f to curl would
-# exit 1 if we have a 4xx or 5xx errors)
+# NOTE(chmou): This is our blackbox functest suite with curl for now we will
+# expand with a proper framework (i.e: tempest-lib) in the future when REST
+# class will be written. (The -f to curl would exit 1 if we have a 4xx or 5xx
+# errors)
+
+echo -n "Test public version access: "
+curl -f ${CURL_FLAG} -L http://${SALADIER_PORT_8777_TCP_ADDR}:8777/ |grep -q 'Paris'
+echo "OK."
 
 # Create a product
 echo -n "Creating a product as admin: "

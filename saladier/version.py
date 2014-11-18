@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+# Copyright (C) 2014 eNovance SAS <licensing@enovance.com>
+#
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
@@ -10,21 +12,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-from oslo.config import cfg
-import pecan
 
-from saladier.api.controllers.v1 import base
-import saladier.version
+import pbr.version
 
-CONF = cfg.CONF
-
-
-class RootController(object):
-    v1 = base.V1Controller()
-
-    @pecan.expose('json')
-    def index(self):
-        # TODO(chmou): Fix the version properly when we will do proper releases
-        return dict(version=saladier.version.version_info.release_string(),
-                    location=cfg.CONF.api.location,
-                    provider=cfg.CONF.api.provider)
+version_info = pbr.version.VersionInfo('saladier')

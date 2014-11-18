@@ -108,7 +108,7 @@ with a backend service, or by a proxy in front of the Saladier service unable
 to communicate with the Saladier service itself.
 
 
-GET /version
+GET /
 ============
 
 Show Saladier version and environment.
