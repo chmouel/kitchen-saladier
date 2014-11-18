@@ -12,9 +12,9 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+from keystonemiddleware import auth_token
 import re
 
-from keystonemiddleware import auth_token
 import six
 
 from saladier.openstack.common import log
