@@ -34,6 +34,15 @@ class TestPlatforms(base.FunctionalTest):
         self.assertEqual('location1', data['platforms'][0]['location'])
         self.assertEqual('clarasoft', data['platforms'][0]['tenant_id'])
 
+    def test_platform_create_user_denied(self):
+        platform_dict = dict(name="name1",
+                             location="location1",
+                             contact="platform@owner.org",
+                             tenant_id="clarasoft")
+        self.post_json("/platforms", platform_dict,
+                       headers={'X-Auth-Token': utils.MEMBER_TOKEN},
+                       status=403)
+
     def test_platform_get_by_name(self):
         name = 'name1'
         platform_dict = dict(name=name,
