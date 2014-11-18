@@ -31,10 +31,10 @@ class SaladierBase(models.TimestampMixin,
 
         super(SaladierBase, self).save(session)
 
-BASE = declarative_base(cls=SaladierBase)
+Base = declarative_base(cls=SaladierBase)
 
 
-class Product(BASE):
+class Product(Base):
     __tablename__ = "products"
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
@@ -48,7 +48,7 @@ class Product(BASE):
             self.name, self.team, self.contact)
 
 
-class ProductVersion(BASE):
+class ProductVersion(Base):
     __tablename__ = "product_versions"
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
@@ -62,7 +62,7 @@ class ProductVersion(BASE):
             self.product_name, self.version)
 
 
-class Platform(BASE):
+class Platform(Base):
     __tablename__ = "platforms"
 
     name = sqlalchemy.Column(sqlalchemy.String(255), unique=True,

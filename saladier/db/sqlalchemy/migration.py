@@ -70,7 +70,7 @@ def create_schema(config=None, engine=None):
         raise db_exc.DbMigrationError("DB schema is already under version"
                                       " control. Use upgrade() instead")
 
-    models.BASE.metadata.create_all(engine)
+    models.Base.metadata.create_all(engine)
     stamp('head', config=config)
 
 
