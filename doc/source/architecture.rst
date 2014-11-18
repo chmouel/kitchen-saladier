@@ -77,18 +77,11 @@ The data model of the Control server is described below:
    digraph structs {
      node [shape=plaintext]
 
-       CUSTOMER_PRODUCTS [label=<
+       SUBSCRIPTIONS [label=<
        <table border="0" cellborder="1" cellspacing="0" align="left">
-       <tr><td BGCOLOR="Lavender">CUSTOMER_PRODUCTS</td></tr>
-       <tr><td PORT="CUSTOMER_ID">Customer ID</td></tr>
+       <tr><td BGCOLOR="Lavender">SUBSCRIPTIONS</td></tr>
+       <tr><td PORT="TENANT_ID">Tenant ID</td></tr>
        <tr><td PORT="PRODUCT_ID">Product ID</td></tr>
-       </table>>];
-
-       CUSTOMERS [label=<
-       <table border="0" cellborder="1" cellspacing="0" align="left">
-       <tr><td BGCOLOR="Lavender">CUSTOMERS</td></tr>
-       <tr><td PORT="CUSTOMER_ID">Customer ID</td></tr>
-       <tr><td PORT="Name">Name</td></tr>
        </table>>];
 
        PRODUCTS [label=<
@@ -105,13 +98,14 @@ The data model of the Control server is described below:
        <tr><td BGCOLOR="Lavender">PRODUCT_VERSIONS_PLATFORMS </td></tr>
        <tr><td PORT="Platform_ID">Platform ID</td></tr>
        <tr><td PORT="PRODUCT_VERSION_ID">Product version ID</td></tr>
+       <tr><td PORT="STATUS">Status</td></tr>
        </table>>];
 
        PLATFORMS [label=<
        <table border="0" cellborder="1" cellspacing="0" align="left">
        <tr><td BGCOLOR="Lavender">PLATFORMS</td></tr>
        <tr><td PORT="PLATFORM_ID">Platform ID</td></tr>
-       <tr><td PORT="Customer_ID">Customer ID</td></tr>
+       <tr><td PORT="Tenant_ID">Tenant ID</td></tr>
        <tr><td PORT="Location">Location</td></tr>
        <tr><td PORT="Notes">Contact email</td></tr>
        </table>>];
@@ -122,6 +116,7 @@ The data model of the Control server is described below:
        <tr><td PORT="PRODUCT_VERSION_ID">Product version ID</td></tr>
        <tr><td PORT="Product_ID">Product ID</td></tr>
        <tr><td PORT="Version">Version</td></tr>
+       <tr><td PORT="Uri">Uri</td></tr>
        </table>>];
 
        ACCESS [label=<
@@ -134,11 +129,9 @@ The data model of the Control server is described below:
        <tr><td PORT="Password">Password</td></tr>
        </table>>];
 
-       CUSTOMER_PRODUCTS:CUSTOMER_ID -> CUSTOMERS:CUSTOMER_ID[label = "N .. N"];
-       CUSTOMER_PRODUCTS:PRODUCT_ID -> PRODUCTS:PRODUCT_ID[label = "N .. N"];
+       SUBSCRIPTIONS:PRODUCT_ID -> PRODUCTS:PRODUCT_ID[label = "N .. N"];
        PRODUCT_VERSIONS_PLATFORMS:PLATFORM_ID -> PLATFORMS:PLATFORM_ID[label = "N .. N"];
        PRODUCT_VERSIONS_PLATFORMS:PRODUCT_VERSION_ID -> PRODUCT_VERSIONS:PRODUCT_VERSION_ID[label = "N .. N"];
        ACCESS:Platform_ID -> PLATFORMS:PLATFORM_ID[label = "N .. 1"];
-       PLATFORMS:Customer_ID -> CUSTOMERS:CUSTOMER_ID[label = "N .. 1"];
        PRODUCT_VERSIONS:Product_ID -> PRODUCTS:PRODUCT_ID[label = "N .. 1"];
    }
