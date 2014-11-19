@@ -50,9 +50,3 @@ class ProductVersionsController(base.BaseRestController):
         pecan.request.db_conn.delete_product_versions(
             product, version)
         pecan.response.status = 204
-
-    @pecan.expose('json')
-    def get(self, product):
-        products = pecan.request.db_conn.get_all_product_versions(product)
-        p = ProductCollection(products)
-        return p.as_dict()

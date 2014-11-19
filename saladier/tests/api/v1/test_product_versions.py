@@ -56,20 +56,6 @@ class TestProductVersions(base.FunctionalTest):
                     headers={'X-Auth-Token': utils.MEMBER_TOKEN},
                     status=403)
 
-    def test_product_version_listing(self):
-        prod_dict = dict(name="name1",
-                         team="team1",
-                         contact="product@owner.org")
-        self.post_json("/products", prod_dict, status=201)
-
-        for version in ['1.0', '1.1']:
-            version_dict = dict(product="name1",
-                                url="http://localhost/",
-                                version=version)
-            self.post_json("/versions", version_dict, status=201)
-        data = self.get_json('/versions/name1', status=200)
-        self.assertEqual(2, len(data['versions']))
-
     def test_product_version_create_user_denied(self):
         prod_dict = dict(name="name1",
                          team="team1",

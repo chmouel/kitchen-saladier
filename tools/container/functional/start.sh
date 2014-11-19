@@ -78,19 +78,25 @@ curl -f ${CURL_FLAG} -L -H "x-auth-token: $ADMIN_TOKEN" -X POST -d 'name=yayaleb
      http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/products
 echo "OK."
 
-echo -n "Get created product as user: "
-curl -f ${CURL_FLAG} -L -H "x-auth-token: $USER_TOKEN" http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/products/ | grep -q "thecedric@isthegreatest.com"
-echo "OK."
-
 echo -n "Associate a product to a version: "
 curl -f ${CURL_FLAG} -L -H "x-auth-token: $ADMIN_TOKEN" -X POST -d 'product=yayalebogosse' -d 'url=http://anywhereyoulike' \
      -d 'version=1.0' \
      http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/versions
 echo "OK"
 
-echo -n "List Association between product and version as user: "
-curl -f ${CURL_FLAG} -L -H "x-auth-token: $USER_TOKEN" http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/versions/yayalebogosse | grep -wq "1.0"
-echo "OK"
+echo -n "Listing products: "
+curl -f ${CURL_FLAG} -L -H "x-auth-token: $USER_TOKEN" http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/products/ | grep -q "1.0"
+echo "OK."
+
+echo -n "Get product directly: "
+curl -f ${CURL_FLAG} -L -H "x-auth-token: $USER_TOKEN" http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/products/yayalebogosse \
+    | grep -q "thecedric@isthegreatest.com"
+echo "OK."
+
+echo -n "Get product version directly: "
+curl -f ${CURL_FLAG} -L -H "x-auth-token: $USER_TOKEN" http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/products/yayalebogosse/1.0 | \
+    grep -q "validated_on"
+echo "OK."
 
 echo -n "Delete Association between product and version: "
 curl -f ${CURL_FLAG} -L -H "x-auth-token: $ADMIN_TOKEN" -X DELETE \

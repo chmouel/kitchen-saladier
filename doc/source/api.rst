@@ -115,6 +115,7 @@ Show Saladier version and environment.
 
 Returns::
 
+
   {
     "version": "2.0"
     "provider": "eNovance",
@@ -132,20 +133,29 @@ Returns::
   200 OK
 
   {
-    "products": [
-      "product1": {
-          versions: ["1.0", "1.1"],
-      },
-      "product2": {
-          versions: ["1.0", "1.1"],
+      "products": {
+          "product1": [
+              "1.0",
+              "1.1"
+          ],
+          "product2": [
+              "2.0",
+              "2.1"
+          ]
       }
-    ]
   }
 
-PUT /product/product2
+
+POST /product/product2
 =========================
 
-Add a new product
+Add a new product, POST arguments::
+
+ {
+  'name': 'product_name',
+  'team': 'team_name_taking_care_of_the_product',
+  'contact': 'contactemailoftheteam',
+  }
 
 Returns::
 
@@ -192,7 +202,7 @@ Returns::
 
 
 GET /product/product1/1.0
-=========================
+=================================
 
 Show product validation specific version
 
@@ -202,6 +212,8 @@ Returns::
 
   {
       ready-for-deploy: True,
+      contact: "product@owner.org",
+      team: "team1",
       validated-on: [
           "jenkins1": {
               date: "2014-01-01",
@@ -215,18 +227,6 @@ Returns::
           },
       ],
   }
-
-PUT /product/product1/1.2
-=========================
-
-Create a new product version
-
-Returns::
-
-  204 No Content
-
-
-
 
 
 .. _`Keystone policies`: https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux_OpenStack_Platform/4/html/Configuration_Reference_Guide/ch_configuring-openstack-identity.html#section_keystone-policy.json

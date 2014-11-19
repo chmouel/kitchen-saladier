@@ -21,19 +21,55 @@ import saladier.common.exception as exception
 
 class Product(base.APIBase):
     fields = ['name', 'contact', 'team']
+    dict_field = 'versions'
+
+    def version_info(self, specific_version=None):
+        # NOTE(chmou): We have that pv_gad cause 80 lines sucks big time!
+        pv_gad = pecan.request.db_conn.get_all_product_versions
+        ret = {}
+        for version in pv_gad(self.name):
+            ret[version.version] = {
+                # TODO(chmou): placeholder, we will need to have that updated
+                # properly when will have a decision maker API (tm)
+                'ready_for_deploy': False,
+                # TODO(chmou): placeholder we will add all the platforms here
+                # where that product_version has been validated on.
+                'validated_on': {},
+            }
+        return specific_version and ret[specific_version] or ret
+
+    def as_dict(self):
+        return dict(versions=self.version_info(),
+                    contact=self.contact,
+                    team=self.team)
 
 
 class ProductCollection(base.APIBaseCollections):
     _type = Product
     dict_field = 'products'
 
+    def as_dict(self):
+        # NOTE(chmou): We have that pv_gad cause 80 lines sucks big time!
+        pv_gad = pecan.request.db_conn.get_all_product_versions
+
+        # TODO(chmou): we may want to filter only for version when doing the
+        # get_all_product_versions call.
+        pv_fmt = lambda name: [v['version'] for v in pv_gad(name)]
+
+        return {self.dict_field:
+                dict((c.name, pv_fmt(c.name))
+                     for c in self.collections)}
+
 
 class ProductController(base.BaseRestController):
     @pecan.expose('json')
-    def get(self, name):
+    def get_one(self, name, *args):
         try:
             p = Product(pecan.request.db_conn.get_product_by_name(name))
-            return p.as_dict()
+            if len(args) == 1:
+                return p.version_info(args[0])
+            else:
+                return p.as_dict()
         except exception.ProductNotFound:
             pecan.response.status = 404
             return "Product %s was not found" % name
