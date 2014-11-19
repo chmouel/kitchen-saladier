@@ -93,18 +93,19 @@ The data model of the Control server is described below:
        <tr><td PORT="Contact_email">Contact email</td></tr>
        </table>>];
 
-       PRODUCT_VERSIONS_PLATFORMS [label=<
+       PRODUCT_VERSIONS_STATUS [label=<
        <table border="0" cellborder="1" cellspacing="0" align="left">
-       <tr><td BGCOLOR="Lavender">PRODUCT_VERSIONS_PLATFORMS </td></tr>
-       <tr><td PORT="Platform_ID">Platform ID</td></tr>
+       <tr><td BGCOLOR="Lavender">PRODUCT_VERSIONS_STATUS </td></tr>
+       <tr><td PORT="Platform_NAME">Platform name</td></tr>
        <tr><td PORT="PRODUCT_VERSION_ID">Product version ID</td></tr>
        <tr><td PORT="STATUS">Status</td></tr>
+       <tr><td PORT="LOGS_LOCATION">Logs location</td></tr>
        </table>>];
 
        PLATFORMS [label=<
        <table border="0" cellborder="1" cellspacing="0" align="left">
        <tr><td BGCOLOR="Lavender">PLATFORMS</td></tr>
-       <tr><td PORT="PLATFORM_ID">Platform ID</td></tr>
+       <tr><td PORT="PLATFORM_NAME">Platform name</td></tr>
        <tr><td PORT="Tenant_ID">Tenant ID</td></tr>
        <tr><td PORT="Location">Location</td></tr>
        <tr><td PORT="Notes">Contact email</td></tr>
@@ -122,16 +123,16 @@ The data model of the Control server is described below:
        ACCESS [label=<
        <table border="0" cellborder="1" cellspacing="0" align="left">
        <tr><td BGCOLOR="Lavender">ACCESS</td></tr>
-       <tr><td PORT="Platform_ID">Platform ID</td></tr>
+       <tr><td PORT="Platform_NAME">Platform name</td></tr>
        <tr><td PORT="Url">Url</td></tr>
        <tr><td PORT="SSH Key">SSH Key</td></tr>
        <tr><td PORT="Username">Username</td></tr>
        <tr><td PORT="Password">Password</td></tr>
        </table>>];
 
-       SUBSCRIPTIONS:PRODUCT_NAME -> PRODUCTS:PRODUCT_NAME[label = "N .. N"];
-       PRODUCT_VERSIONS_PLATFORMS:PLATFORM_ID -> PLATFORMS:PLATFORM_ID[label = "N .. N"];
-       PRODUCT_VERSIONS_PLATFORMS:PRODUCT_VERSION_ID -> PRODUCT_VERSIONS:PRODUCT_VERSION_ID[label = "N .. N"];
-       ACCESS:Platform_ID -> PLATFORMS:PLATFORM_ID[label = "N .. 1"];
+       SUBSCRIPTIONS:PRODUCT_ID -> PRODUCTS:PRODUCT_ID[label = "N .. N"];
+       PRODUCT_VERSIONS_STATUS:PLATFORM_NAME -> PLATFORMS:PLATFORM_NAME[label = "N .. N"];
+       PRODUCT_VERSIONS_STATUS:PRODUCT_VERSION_ID -> PRODUCT_VERSIONS:PRODUCT_VERSION_ID[label = "N .. N"];
+       ACCESS:Platform_ID -> PLATFORMS:PLATFORM_NAME[label = "N .. 1"];
        PRODUCT_VERSIONS:Product_ID -> PRODUCTS:PRODUCT_ID[label = "N .. 1"];
    }

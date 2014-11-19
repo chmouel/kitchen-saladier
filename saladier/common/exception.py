@@ -11,6 +11,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 from oslo.config import cfg
+import sqlalchemy.orm.exc
 
 from saladier.openstack.common import log as logging
 
@@ -90,7 +91,7 @@ class PlatformAlreadyExists(Conflict):
 
 
 class PlatformNotFound(NotFound):
-    message = "Platform %(name)s is not found"
+    message = "Platform %(name)s is not found."
 
 
 class ProductVersionAlreadyExists(Conflict):
@@ -100,3 +101,23 @@ class ProductVersionAlreadyExists(Conflict):
 
 class SubscriptionAlreadyExists(Conflict):
     message = "Subscription %(name)s already exist."
+
+
+class ProductVersionNotFound(Conflict):
+    message = "Version %(id)s is not found."
+
+
+class ProductVersionStatusInvalid(Conflict):
+    message = "Product version status %(name)s invalid."
+
+
+class ProductVersionStatusNotFound(Conflict):
+    message = "Product version status %(id)s is not found."
+
+
+class ProductVersionStatusAlreadyExists(Conflict):
+    message = "Product version status %(name)s already exist."
+
+
+class SaladierFlushError(sqlalchemy.orm.exc.FlushError):
+    """Raised when an error occurs during a flush to the database."""

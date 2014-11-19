@@ -13,6 +13,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+
 from __future__ import absolute_import
 import uuid
 
@@ -20,6 +21,7 @@ import uuid
 from oslo.db.sqlalchemy import models
 import sqlalchemy
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import orm
 
 
 class SaladierBase(models.TimestampMixin,
@@ -57,6 +59,7 @@ class ProductVersion(Base):
     product_name = sqlalchemy.Column(sqlalchemy.String(255),
                                      sqlalchemy.ForeignKey('products.name'))
     uri = sqlalchemy.Column(sqlalchemy.String(255))
+    platforms = orm.relationship("ProductVersionStatus")
 
     def __repr__(self):
         return "<ProductVersion(product_name='%s', version='%s')>" % (
@@ -91,3 +94,24 @@ class Subscriptions(Base):
     def __repr__(self):
         str = "<Subscriptions(tenant_id='%s', product_name='%s')>"
         return str % (self.tenant_id, self.product_name)
+
+
+class Status:
+    NOT_TESTED = "NOT_TESTED"
+    SUCCESS = "SUCCESS"
+    FAILED = "FAILED"
+
+
+class ProductVersionStatus(Base):
+    __tablename__ = "product_versions_status"
+
+    product_version_id = sqlalchemy.Column(sqlalchemy.Integer,
+                                           sqlalchemy.ForeignKey(
+                                               'product_versions.id'),
+                                           primary_key=True)
+    platform_name = sqlalchemy.Column(sqlalchemy.String(255),
+                                      sqlalchemy.ForeignKey('platforms.name'),
+                                      primary_key=True)
+    status = sqlalchemy.Column(sqlalchemy.String(255), nullable=False)
+    logs_location = sqlalchemy.Column(sqlalchemy.String(255))
+    platform = orm.relationship("Platform")

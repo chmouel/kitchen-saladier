@@ -154,6 +154,13 @@ class Connection(object):  # TODO(chmouel): base class
                                     uri=uri)
         new.save()
 
+    def get_product_version_by_id(self, id):
+        query = model_query(models.ProductVersion).filter_by(id=id)
+        try:
+            return query.one()
+        except saladier.db.sqlalchemy.exc.NoResultFound:
+            raise exception.ProductVersionNotFound(id=id)
+
     def get_all_product_versions(self, product_name):
         query = model_query(models.ProductVersion)
         res = query.filter_by(product_name=product_name).all()
@@ -215,3 +222,52 @@ class Connection(object):  # TODO(chmouel): base class
         query = model_query(models.Subscriptions).filter_by(
             tenant_id=tenant_id)
         return query.all()
+
+    def add_version_status(self, platform_name, product_version_id, status,
+                           logs_location):
+        versions_status = (model_query(models.ProductVersionStatus).
+                           filter_by(platform_name=platform_name).
+                           filter_by(product_version_id=product_version_id).
+                           first())
+
+        if versions_status:
+            raise exception.ProductVersionStatusAlreadyExists(
+                "%s,%s" % (platform_name, product_version_id))
+
+        platform = self.get_platform_by_name(platform_name)
+        product_version = self.get_product_version_by_id(product_version_id)
+        product_version_status = models.ProductVersionStatus(
+            status=status, logs_location=logs_location)
+        product_version_status.platform = platform
+        product_version.platforms.append(product_version_status)
+        try:
+            product_version.save()
+        except exception.SaladierFlushError:
+            raise exception.ProductVersionStatusInvalid(
+                name="%s, %s" % (platform_name, product_version_id))
+
+    def get_version_status(self, platform_name, product_version_id):
+        query = model_query(models.ProductVersionStatus)
+        try:
+            return query.filter_by(platform_name=platform_name,
+                                   product_version_id=product_version_id).one()
+        except saladier.db.sqlalchemy.exc.NoResultFound:
+            raise exception.ProductVersionStatusNotFound(
+                id="%s,%s" % (platform_name, product_version_id))
+
+    def get_all_version_status(self):
+        return model_query(models.ProductVersionStatus).all()
+
+    def update_version_status(self, platform_name, product_version_id,
+                              new_status, new_logs_location):
+
+        product_version_status = self.get_version_status(platform_name,
+                                                         product_version_id)
+        product_version_status.status = new_status
+        product_version_status.logs_location = new_logs_location
+        product_version_status.save()
+
+    def delete_version_status(self, platform_name, product_version_id):
+        query = model_query(models.ProductVersionStatus).filter_by(
+            platform_name=platform_name, product_version_id=product_version_id)
+        query.delete()
