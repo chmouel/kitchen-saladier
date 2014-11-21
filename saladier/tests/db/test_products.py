@@ -20,7 +20,8 @@ class ProductTestCase(base.DbTestCase):
     def test_create_product(self):
         self.dbapi.create_product(name="name1", team="team1",
                                   contact="contact1")
-        product = self.dbapi.get_product_by_name("name1")
+        product = self.dbapi.get_product_by_name("name1",
+                                                 tenant_id='', admin=True)
         self.assertEqual("name1", product["name"])
         self.assertEqual("team1", product["team"])
         self.assertEqual("contact1", product["contact"])
@@ -31,12 +32,12 @@ class ProductTestCase(base.DbTestCase):
         self.dbapi.delete_product_by_name("name1")
         self.assertRaises(exception.ProductNotFound,
                           self.dbapi.get_product_by_name,
-                          "name1")
+                          "name1", tenant_id='', admin=True)
 
     def test_get_product_notfound(self):
         self.assertRaises(exception.ProductNotFound,
                           self.dbapi.get_product_by_name,
-                          "name2")
+                          "name2", tenant_id='', admin=True)
 
     def test_create_product_conflict(self):
         self.dbapi.create_product(name="name1", team="team1",

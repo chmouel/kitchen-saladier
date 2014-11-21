@@ -55,7 +55,7 @@ class SubscriptionTestCase(base.DbTestCase):
                    self.dbapi.get_subscriptions_for_tenant_id(other_tenant_id)]
         self.assertEqual([], all_sub)
 
-    def test_subscription_duplicate(self):
+    def test_subscription_duplicate_error(self):
         product_name = "name1"
         tenant_id = '0123456789'
 
@@ -90,4 +90,45 @@ class SubscriptionTestCase(base.DbTestCase):
         all_sub = [x.product_name
                    for x in
                    self.dbapi.get_subscriptions_for_tenant_id(tenant_id)]
+        self.assertEqual([], all_sub)
+
+    def test_subscriptions_list_own(self):
+        product_name = "name1"
+        tenant_id = '0123456789'
+
+        self.dbapi.create_product(name="name1", team="team1",
+                                  contact="contact1")
+        self.dbapi.create_subscription(tenant_id=tenant_id,
+                                       product_name=product_name)
+
+        all_sub = [x.name for x in self.dbapi.get_all_products(
+            tenant_id=tenant_id)]
+        self.assertEqual(['name1'], all_sub)
+
+    def test_subscriptions_list_all_admin(self):
+        product_name = "name1"
+        tenant_id = '0123456789'
+        tenant_id_other = '1111111111'
+
+        self.dbapi.create_product(name="name1", team="team1",
+                                  contact="contact1")
+        self.dbapi.create_subscription(tenant_id=tenant_id,
+                                       product_name=product_name)
+
+        all_sub = [x.name for x in self.dbapi.get_all_products(
+            tenant_id=tenant_id_other, admin=True)]
+        self.assertEqual(['name1'], all_sub)
+
+    def test_subscriptions_list_not_showing_other_tenant(self):
+        product_name = "name1"
+        tenant_id = '0123456789'
+        tenant_id_other = '1111111111'
+
+        self.dbapi.create_product(name="name1", team="team1",
+                                  contact="contact1")
+        self.dbapi.create_subscription(tenant_id=tenant_id,
+                                       product_name=product_name)
+
+        all_sub = [x.name for x in self.dbapi.get_all_products(
+            tenant_id=tenant_id_other)]
         self.assertEqual([], all_sub)

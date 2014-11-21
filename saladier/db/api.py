@@ -117,14 +117,27 @@ class Connection(object):  # TODO(chmouel): base class
         query = model_query(models.Product).filter_by(name=name)
         query.delete()
 
-    def get_all_products(self, filters=None, limit=None,
-                         marker=None, sort_key=None, sort_dir=None):
+    # TODO(chmou): Make those filters working (they don't do anything yet)
+    def get_all_products(self, tenant_id, admin=False,
+                         filters=None, limit=None,
+                         marker=None, sort_key=None,
+                         sort_dir=None):
         sort_key = sort_key or 'name'  # TODO(chmouel): sort by ID
-        return _paginate_query(models.Product, limit, marker,
-                               sort_key, sort_dir)
+        query = model_query(models.Product)
 
-    def get_product_by_name(self, name):
+        # NOTE(chmou): This would list everthing when in admins
+        if not admin:
+            query = query.join(models.Subscriptions).filter(
+                tenant_id == models.Subscriptions.tenant_id)
+        return _paginate_query(models.Product, limit, marker,
+                               sort_key, sort_dir, query)
+
+    def get_product_by_name(self, name, tenant_id, admin=False):
         query = model_query(models.Product).filter_by(name=name)
+
+        if not admin:
+            query = query.join(models.Subscriptions).filter(
+                tenant_id == models.Subscriptions.tenant_id)
         try:
             return query.one()
         except saladier.db.sqlalchemy.exc.NoResultFound:
@@ -192,7 +205,7 @@ class Connection(object):  # TODO(chmouel): base class
                                      product_name=product_name)
         query.save()
 
-    def delete_subscription(self, tenant_id, product_name):
+    def delete_subscription(self, product_name, tenant_id):
         model = (model_query(models.Subscriptions).
                  filter_by(product_name=product_name).
                  filter_by(tenant_id=tenant_id))

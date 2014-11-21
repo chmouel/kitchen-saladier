@@ -65,7 +65,14 @@ class ProductController(base.BaseRestController):
     @pecan.expose('json')
     def get_one(self, name, *args):
         try:
-            p = Product(pecan.request.db_conn.get_product_by_name(name))
+            p = Product(
+                pecan.request.db_conn.get_product_by_name(
+                    name, tenant_id=pecan.request.context.tenant,
+                    admin=pecan.request.context.is_admin))
+            # NOTE(chmou): This probably can be optimised in a nicer way, we
+            # currently list everything in versions and filter manually in
+            # python. There is many way to do that properly in sqla but since I
+            # don't masterize let's keep it like that for now.
             if len(args) == 1:
                 return p.version_info(args[0])
             else:
@@ -76,7 +83,9 @@ class ProductController(base.BaseRestController):
 
     @pecan.expose('json')
     def get_all(self):
-        products = pecan.request.db_conn.get_all_products()
+        products = pecan.request.db_conn.get_all_products(
+            tenant_id=pecan.request.context.tenant,
+            admin=pecan.request.context.is_admin)
         p = ProductCollection(products)
         return p.as_dict()
 

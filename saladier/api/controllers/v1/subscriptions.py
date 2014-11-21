@@ -41,10 +41,10 @@ class SubscriptionController(base.BaseRestController):
             pecan.response.status = 409
 
     @pecan.expose()
-    def delete(self, tenant_id, product_name):
+    def delete(self, product_name, tenant_id):
         if not pecan.request.context.is_admin:
             return webob.exc.HTTPForbidden()
-        pecan.request.db_conn.delete_subscription(tenant_id, product_name)
+        pecan.request.db_conn.delete_subscription(product_name, tenant_id)
         pecan.response.status = 204
 
     @pecan.expose('json')

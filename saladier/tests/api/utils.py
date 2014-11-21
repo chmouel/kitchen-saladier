@@ -14,7 +14,16 @@ import datetime
 import json
 
 ADMIN_TOKEN = '4562138218392831'
+ADMIN_TENANT_ID = '123i2910'
+ADMIN_TENANT_NAME = 'admin'
+
 MEMBER_TOKEN = '4562138218392832'
+MEMBER_TENANT_ID = '111111i111111'
+MEMBER_TENANT_NAME = 'member'
+
+MEMBER_OTHER_TOKEN = '292829821902'
+MEMBER_OTHER_TENANT_ID = '22222i22222'
+MEMBER_OTHER_TENANT_NAME = 'other'
 
 
 class FakeMemcache(object):
@@ -27,8 +36,8 @@ class FakeMemcache(object):
                           'expires': '2100-09-11T00:00:00'},
                 'user': {'id': 'user_id1',
                          'name': 'user_name1',
-                         'tenantId': '123i2910',
-                         'tenantName': 'mytenant',
+                         'tenantId': ADMIN_TENANT_ID,
+                         'tenantName': ADMIN_TENANT_NAME,
                          'roles': [{'name': 'admin'}]},
             }
         },
@@ -37,11 +46,21 @@ class FakeMemcache(object):
                 'token': {'id': MEMBER_TOKEN,
                           'expires': '2100-09-11T00:00:00'},
                 'user': {'id': 'user_id2',
-                         'name': 'user-good',
-                         'tenantId': 'project-good',
-                         'tenantName': 'goodies',
-                         'roles': [{'name': 'Member'}]
-                }
+                         'name': 'user_name',
+                         'tenantId': MEMBER_TENANT_ID,
+                         'tenantName': MEMBER_TENANT_NAME,
+                         'roles': [{'name': 'Member'}]},
+            }
+        },
+        'tokens/%s' % MEMBER_OTHER_TOKEN: {
+            'access': {
+                'token': {'id': MEMBER_OTHER_TOKEN,
+                          'expires': '2100-09-11T00:00:00'},
+                'user': {'id': 'user_id2',
+                         'name': 'user-other',
+                         'tenantId': MEMBER_OTHER_TENANT_ID,
+                         'tenantName': MEMBER_OTHER_TENANT_NAME,
+                         'roles': [{'name': 'Member'}]},
             }
         }
     }

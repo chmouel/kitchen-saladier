@@ -65,7 +65,6 @@ class ContextHook(hooks.PecanHook):
         user_id = state.request.headers.get('X-User-Id')
         user_id = state.request.headers.get('X-User', user_id)
         tenant = state.request.headers.get('X-Tenant-Id')
-        tenant = state.request.headers.get('X-Tenant', tenant)
         auth_token = state.request.headers.get('X-Auth-Token')
 
         # TODO(chmouel): openstack policy based
