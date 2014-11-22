@@ -21,7 +21,7 @@ fi
 source .tox/run_tests/bin/activate
 pip install -U fig
 
-# stupid testr (1)
+# NOTE(chmou): launch unittests at the end this is needed for condition to success
 clean_repo
 fig run --rm unittests
 

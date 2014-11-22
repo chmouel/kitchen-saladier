@@ -6,6 +6,15 @@ db:
   environment:
     DB_ROOT_PASSWORD: password
 
+
+postgres:
+  image: postgres:latest
+  ports:
+    - "5432:5432"
+  environment:
+    POSTGRES_PASSWORD: password
+
+
 keystone:
   build: tools/container/keystone/
 
@@ -53,6 +62,8 @@ unittests:
   user: root
   links:
     - db
+    - postgres
+
   volumes:
     - ./:/code
   command: ./tools/container/unittests/start.sh
