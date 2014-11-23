@@ -1,9 +1,12 @@
 #!/bin/bash
 set -e
 CURL_FLAG="-s"
+DOCDIR=$(readlink -f $(dirname $(readlink -f $0))/../../../doc/source/rests/)
 
 [[ -n ${DEBUG} ]] && set -x
 [[ -n ${DEBUG} ]] && CURL_FLAG="-i"
+
+GENERATE_DOC_RESTS=${GENERATE_DOC_RESTS:-""}
 
 function get_token() {
     tenant=$1
@@ -60,33 +63,27 @@ USER_TOKEN=${_token##* }
 USER_TENANT_ID=${_token% *}
 echo "OK."
 
-
-# NOTE(chmou): This is our blackbox functest suite with curl for now we will
-# expand with a proper framework (i.e: tempest-lib) in the future when REST
-# class will be written. (The -f to curl would exit 1 if we have a 4xx or 5xx
-# errors)
-
-echo -n "Test public version access: "
-curl -f ${CURL_FLAG} -L http://${SALADIER_PORT_8777_TCP_ADDR}:8777/ |grep -q 'Paris'
-echo "OK."
-
 function curl_it {
     local msg=$1
-    local url=$2
-    local token=$3
-    local method=$4
-    local datas=$5
-    local grep=$6
+    local type=$2
+    local url=$3
+    local token=$4
+    local method=$5
+    local datas=$6
+    local grep=$7
+
     local _curl_datas=""
     [[ ${datas} == " " ]] && datas= # NOTE(chmou): placeholders when we don't want to go on with the arg
-    [[ ${url} != http://* ]] && url=http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1${url}
+    [[ ${url} == / ]] && furl=http://${SALADIER_PORT_8777_TCP_ADDR}:8777/ || furl=http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1${url}
+
+    [[ ${token} != " " ]] && gtoken="-H x-auth-token:${token}" || gtoken=""
 
     for x in ${datas//|/ };do
         _curl_datas="${_curl_datas} -d $x"
     done
 
     echo -n "$msg: "
-    curl -f -i -o /tmp/output.json ${CURL_FLAG} ${_curl_datas} -L -X ${method} -H "x-auth-token: ${token}" ${url} || failed=$?
+    curl -f -i -o /tmp/output.json ${CURL_FLAG} ${_curl_datas} -L -X ${method} ${gtoken} ${furl} || failed=$?
 
     if [[ -n ${failed} || -n ${grep} ]];then
         grep -q ${grep} /tmp/output.json || failed=$?
@@ -105,78 +102,139 @@ function curl_it {
     else
         echo "OK."
     fi
+
+    [[ -z ${GENERATE_DOC_RESTS} ]] && return
+
+    rm -f ${DOCDIR}/${type}.rst
+
+    str="${method} ${url}"
+    # NOTE(chmou): make it pretty user_tenant_id
+    [[ ${str} == *${USER_TENANT_ID}* ]] && str=${str/${USER_TENANT_ID}/tenantId}
+
+    echo ${str} >> ${DOCDIR}/${type}.rst
+    printf %${#str}s |tr " " "=" >> ${DOCDIR}/${type}.rst
+    echo -e "\n\n${msg}\n\n" >> ${DOCDIR}/${type}.rst
+
+    if [[ ${method} == "POST" ]];then
+        echo -e "Arguments::\n\n  {" >> ${DOCDIR}/${type}.rst
+        for x in ${datas//|/ };do
+            echo -e "    \"${x%=*}\": \"${x#*=}\"," >> ${DOCDIR}/${type}.rst
+        done
+        echo -e "  }\n" >> ${DOCDIR}/${type}.rst
+    fi
+
+    echo -e "Returns::\n" >> ${DOCDIR}/${type}.rst
+    sed -n -e '1s,HTTP/1.0 ,    ,p;' /tmp/output.json|tr -d '' >> ${DOCDIR}/${type}.rst
+    echo -e "\n\n" >> /tmp/${type}.rst
+
+    if [[ ${method} == "GET" ]];then
+        sed '1,/^\r$/d' /tmp/output.json | python -mjson.tool |sed -n -e 's/^/    /p' >> ${DOCDIR}/${type}.rst
+    fi
+
+    if [[ ${token} == ${ADMIN_TOKEN} ]];then
+            cat <<EOF>>${DOCDIR}/${type}.rst
+
+.. note:: This call needs to be made with the ``admin`` rights.
+EOF
+    fi
 }
 
+# NOTE(chmou): This is our blackbox functest suite with curl for now we will
+# expand with a proper framework (i.e: tempest-lib) in the future when REST
+# class will be written. (The -f to curl would exit 1 if we have a 4xx or 5xx
+# errors)
+
+curl_it "Get saladier public URL with version and location" \
+        public_version_access \
+        / \
+        " " \
+        GET \
+        " " \
+        "Paris"
+
 # Create a product
-curl_it "Creating a product as admin" \
+curl_it "Create product" \
+         product_create \
          /products \
          ${ADMIN_TOKEN} \
          POST \
-         "team=boa|name=yayalebogosse|contact=cedric@isthegreatest.com"
+         "team=boa|name=product1|contact=cedric@isthegreatest.com"
+
 
 curl_it "Associate a product to a version" \
+        product_version_create \
         /versions \
         ${ADMIN_TOKEN} \
         POST \
-        'product=yayalebogosse|url=http://anywhereyoulike|version=1.0'
+        'product=product1|url=http://anywhereyoulike|version=1.0'
 
 curl_it "Subscribe tenant ${USER_NAME} to product" \
+        product_subscription_create \
         /subscriptions \
         ${ADMIN_TOKEN} \
         POST \
-        "product_name=yayalebogosse|tenant_id=${USER_TENANT_ID}"
+        "product_name=product1|tenant_id=${USER_TENANT_ID}"
 
-curl_it "Listing products" \
+curl_it "List products available for the current users" \
+        product_list \
         /products/ \
         ${USER_TOKEN} \
         GET \
         " " \
-        "yayalebogosse"
+        "product1"
 
-curl_it "Get product directly" \
-        /products/yayalebogosse \
+curl_it "Show specific product information and validations" \
+        product_get \
+        /products/product1 \
         ${USER_TOKEN} \
         GET \
         " " \
         "cedric@isthegreatest.com"
 
-curl_it "Get product version directly" \
-        /products/yayalebogosse/1.0 \
+curl_it "Show specific product/version information and validations" \
+        product_get_version \
+        /products/product1/1.0 \
         ${USER_TOKEN} \
         GET \
         " " \
         "validated_on"
 
 curl_it "Delete subscription of ${USER_NAME} to our product" \
-        /subscriptions/yayalebogosse/${USER_TENANT_ID} \
+        product_subscription_delete \
+        /subscriptions/product1/${USER_TENANT_ID} \
         ${ADMIN_TOKEN} \
         DELETE
 
 curl_it "Delete Association between product and version" \
-        /versions/yayalebogosse/1.0 \
+        product_version_delete \
+        /versions/product1/1.0 \
         ${ADMIN_TOKEN} \
         DELETE
 
-curl_it "Delete created product as admin" \
-        /products/yayalebogosse \
+curl_it "Delete created product" \
+        product_delete \
+        /products/product1 \
         ${ADMIN_TOKEN} \
         DELETE
 
-curl_it "Creating a platform as admin: " \
+curl_it "Create platform" \
+        platform_create \
         /platforms \
         ${ADMIN_TOKEN} \
         POST \
-        'name=chmoulebogosse|location=ParisEstMagique|contact=thecedric@isthegreatest.com|tenant_id=0000101010101'
+        'name=platform1|location=ParisEstMagique|contact=thecedric@isthegreatest.com|tenant_id=0000101010101'
 
-curl_it "Get created platform as user: " \
+curl_it "Show created platform" \
+        platform_list \
         /platforms/ \
         ${USER_TOKEN} \
         GET \
         " " \
         "thecedric@isthegreatest.com"
 
-curl_it "Delete created platform as admin: " \
-        /platforms/chmoulebogosse \
+curl_it "Delete created platform" \
+        platform_delete \
+        /platforms/platform1 \
         $ADMIN_TOKEN  \
         DELETE
 

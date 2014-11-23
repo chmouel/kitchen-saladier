@@ -107,126 +107,30 @@ This status code is returned when the Saladier service is unable to communicate
 with a backend service, or by a proxy in front of the Saladier service unable
 to communicate with the Saladier service itself.
 
+.. include:: rests/public_version_access.rst
 
-GET /
-============
+.. include:: rests/product_create.rst
 
-Show Saladier version and environment.
+.. include:: rests/product_list.rst
 
-Returns::
+.. include:: rests/product_get.rst
 
+.. include:: rests/product_get_version.rst
 
-  {
-    "version": "2.0"
-    "provider": "eNovance",
-    "location": "Paris",
-  }
+.. include:: rests/product_delete.rst
 
+.. include:: rests/product_subscription_create.rst
 
-GET /products
-=============
+.. include:: rests/product_subscription_delete.rst
 
-List the products available for the current users
+.. include:: rests/product_version_create.rst
 
-Returns::
+.. include:: rests/product_version_delete.rst
 
-  200 OK
+.. include:: rests/platform_create.rst
 
-  {
-      "products": {
-          "product1": [
-              "1.0",
-              "1.1"
-          ],
-          "product2": [
-              "2.0",
-              "2.1"
-          ]
-      }
-  }
+.. include:: rests/platform_list.rst
 
-
-POST /product/product2
-=========================
-
-Add a new product, POST arguments::
-
- {
-  'name': 'product_name',
-  'team': 'team_name_taking_care_of_the_product',
-  'contact': 'contactemailoftheteam',
-  }
-
-Returns::
-
-  204 No Content
-
-GET /product/product1
-=====================
-
-Show all product validation information
-
-Returns::
-
-  200 OK
-
-  {
-    versions: [
-        "1.0": {
-            ready-for-deploy: True,
-            validated-on: [
-                "jenkins1": {
-                    date: "2014-01-01",
-                    logs: "http://host/log",
-                    success: True
-                },
-                "jenkins2": {
-                    date: "2014-01-01",
-                    logs: "swift://user@host/log",
-                    success: True
-                },
-            ],
-        }
-        "1.1": {
-            ready-for-deploy: False,
-            validated-on: [
-                "jenkins1": {
-                    date: "2014-01-02",
-                    logs: "http://host/log",
-                    success: False,
-                }
-            ]
-        }
-    ]
-  }
-
-
-GET /product/product1/1.0
-=================================
-
-Show product validation specific version
-
-Returns::
-
-  200 OK
-
-  {
-      ready-for-deploy: True,
-      contact: "product@owner.org",
-      team: "team1",
-      validated-on: [
-          "jenkins1": {
-              date: "2014-01-01",
-              logs: "http://host/log",
-              success: True,
-          },
-          "jenkins2": {
-              date: "2014-01-01",
-              logs: "swift://user@host/log",
-              success: True,
-          },
-      ],
-  }
-
+.. include:: rests/platform_delete.rst
 
 .. _`Keystone policies`: https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux_OpenStack_Platform/4/html/Configuration_Reference_Guide/ch_configuring-openstack-identity.html#section_keystone-policy.json
