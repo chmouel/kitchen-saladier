@@ -96,3 +96,7 @@ class PlatformNotFound(NotFound):
 class ProductVersionAlreadyExists(Conflict):
     # TODO(chmou): Get the actual version in there.
     message = "Version %(name)s already exist."
+
+
+class SubscriptionAlreadyExists(Conflict):
+    message = "Subscription %(name)s already exist."

@@ -129,7 +129,7 @@ The data model of the Control server is described below:
        <tr><td PORT="Password">Password</td></tr>
        </table>>];
 
-       SUBSCRIPTIONS:PRODUCT_ID -> PRODUCTS:PRODUCT_ID[label = "N .. N"];
+       SUBSCRIPTIONS:PRODUCT_NAME -> PRODUCTS:PRODUCT_NAME[label = "N .. N"];
        PRODUCT_VERSIONS_PLATFORMS:PLATFORM_ID -> PLATFORMS:PLATFORM_ID[label = "N .. N"];
        PRODUCT_VERSIONS_PLATFORMS:PRODUCT_VERSION_ID -> PRODUCT_VERSIONS:PRODUCT_VERSION_ID[label = "N .. N"];
        ACCESS:Platform_ID -> PLATFORMS:PLATFORM_ID[label = "N .. 1"];

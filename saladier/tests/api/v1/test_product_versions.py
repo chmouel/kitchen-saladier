@@ -12,55 +12,34 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-import saladier.tests.api.base as base
 from saladier.tests.api import utils
+import saladier.tests.api.v1.base as base
 
 
-class TestProductVersions(base.FunctionalTest):
+class TestProductVersions(base.V1FunctionalTest):
     def test_product_version_create(self):
-        prod_dict = dict(name="name1",
-                         team="team1",
-                         contact="product@owner.org")
-        self.post_json("/products", prod_dict, status=201)
+        self._create_sample_product(name='name1')
 
         for version in ['1.0', '1.1']:
-            version_dict = dict(product="name1",
-                                url="http://localhost/",
-                                version=version)
-            self.post_json("/versions", version_dict, status=201)
+            self._create_sample_product_version(product='name1',
+                                                version=version)
 
     def test_product_version_delete(self):
-        prod_dict = dict(name="name1",
-                         team="team1",
-                         contact="product@owner.org")
-        self.post_json("/products", prod_dict, status=201)
-
-        version_dict = dict(product="name1",
-                            url="http://localhost/",
-                            version="1.0")
-        self.post_json("/versions", version_dict, status=201)
+        self._create_sample_product(name='name1')
+        self._create_sample_product_version(product='name1',
+                                            version="1.0")
         self.delete('/versions/name1/1.0', status=204)
 
     def test_product_version_delete_as_user(self):
-        prod_dict = dict(name="name1",
-                         team="team1",
-                         contact="product@owner.org")
-        self.post_json("/products", prod_dict, status=201)
-
-        version_dict = dict(product="name1",
-                            url="http://localhost/",
-                            version="1.0")
-        self.post_json("/versions", version_dict, status=201)
-
+        self._create_sample_product(name='name1')
+        self._create_sample_product_version(product='name1',
+                                            version="1.0")
         self.delete('/versions/name1/1.0',
                     headers={'X-Auth-Token': utils.MEMBER_TOKEN},
                     status=403)
 
     def test_product_version_create_user_denied(self):
-        prod_dict = dict(name="name1",
-                         team="team1",
-                         contact="product@owner.org")
-        self.post_json("/products", prod_dict, status=201)
+        self._create_sample_product(name='name1')
 
         version_dict = dict(product="name1",
                             url="http://localhost/",
@@ -71,10 +50,7 @@ class TestProductVersions(base.FunctionalTest):
                        status=403)
 
     def test_product_version_create_conflicts(self):
-        prod_dict = dict(name="name1",
-                         team="team1",
-                         contact="product@owner.org")
-        self.post_json("/products", prod_dict, status=201)
+        self._create_sample_product(name='name1')
 
         version_dict = dict(product="name1",
                             url="http://localhost/",

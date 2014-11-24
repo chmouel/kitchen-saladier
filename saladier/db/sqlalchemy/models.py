@@ -13,8 +13,9 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
 from __future__ import absolute_import
+import uuid
+
 
 from oslo.db.sqlalchemy import models
 import sqlalchemy
@@ -76,3 +77,17 @@ class Platform(Base):
         return ("<Platform(name='%s', location='%s', contact='%s', "
                 "tenant_id='%s')>" % (self.name, self.location, self.contact,
                                       self.tenant_id))
+
+
+class Subscriptions(Base):
+    __tablename__ = "subscriptions"
+    id = sqlalchemy.Column(sqlalchemy.String(36), primary_key=True,
+                           default=lambda: str(uuid.uuid4()))
+
+    tenant_id = sqlalchemy.Column(sqlalchemy.String(255), nullable=False)
+    product_name = sqlalchemy.Column(sqlalchemy.String(255),
+                                     sqlalchemy.ForeignKey('products.name'))
+
+    def __repr__(self):
+        str = "<Subscriptions(tenant_id='%s', product_name='%s')>"
+        return str % (self.tenant_id, self.product_name)
