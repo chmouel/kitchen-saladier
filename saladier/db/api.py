@@ -153,6 +153,7 @@ class Connection(object):  # TODO(chmouel): base class
                                     product_name=product_name,
                                     uri=uri)
         new.save()
+        return new
 
     def get_product_version_by_id(self, id, session=None):
         query = model_query(models.ProductVersion,
@@ -242,7 +243,7 @@ class Connection(object):  # TODO(chmouel): base class
             try:
                 product_version.save(session)
             except exception.SaladierFlushError:
-                raise exception.ProductVersionStatusInvalid(
+                raise exception.ProductVersionStatusAlreadyExists(
                     name="%s, %s" % (platform_name, product_version_id))
 
     def get_version_status(self, platform_name, product_version_id):
@@ -254,7 +255,14 @@ class Connection(object):  # TODO(chmouel): base class
             raise exception.ProductVersionStatusNotFound(
                 id="%s,%s" % (platform_name, product_version_id))
 
-    def get_all_version_status(self):
+    def get_all_status_by_version_id(self, product_version_id):
+        query = model_query(models.ProductVersionStatus)
+        try:
+            return query.filter_by(product_version_id=product_version_id).all()
+        except saladier.db.sqlalchemy.exc.NoResultFound:
+            raise exception.ProductVersionStatusNotFound(id=product_version_id)
+
+    def get_all_versions_status(self):
         return model_query(models.ProductVersionStatus).all()
 
     def update_version_status(self, platform_name, product_version_id,

@@ -55,7 +55,8 @@ class Product(Base):
 class ProductVersion(Base):
     __tablename__ = "product_versions"
 
-    id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
+    id = sqlalchemy.Column(sqlalchemy.String(36), primary_key=True,
+                           default=lambda: str(uuid.uuid4()))
     version = sqlalchemy.Column(sqlalchemy.String(255))
     product_name = sqlalchemy.Column(sqlalchemy.String(255),
                                      sqlalchemy.ForeignKey('products.name'))
@@ -111,7 +112,7 @@ class Status:
 class ProductVersionStatus(Base):
     __tablename__ = "product_versions_status"
 
-    product_version_id = sqlalchemy.Column(sqlalchemy.Integer,
+    product_version_id = sqlalchemy.Column(sqlalchemy.String(36),
                                            sqlalchemy.ForeignKey(
                                                'product_versions.id'),
                                            primary_key=True)

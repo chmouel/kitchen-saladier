@@ -30,9 +30,14 @@ class TestProducts(base.V1FunctionalTest):
         for version in base.SAMPLE_JSON_PRODUCTS['products']['name2']:
             self._create_sample_product_version(product='name2',
                                                 version=version)
+        result = self.get_json('/products/')
+
+        for p in base.SAMPLE_JSON_PRODUCTS["products"]:
+            base.SAMPLE_JSON_PRODUCTS["products"][p].sort()
+            result['products'][p].sort()
 
         self.assertEqual(base.SAMPLE_JSON_PRODUCTS,
-                         self.get_json('/products/'))
+                         result)
 
     def test_product_get_by_name_has_versions(self):
         name = 'name1'
@@ -41,9 +46,10 @@ class TestProducts(base.V1FunctionalTest):
         for version in base.SAMPLE_JSON_PRODUCTS['products'][name]:
             self._create_sample_product_version(product=name,
                                                 version=version)
-
-        self.assertEqual(base.SAMPLE_JSON_PRODUCTS_NAME,
-                         self.get_json('/products/' + name))
+        result = self.get_json('/products/' + name)
+        self.assertEqual(2, len(result["versions"]))
+        self.assertIn("1.0", result["versions"])
+        self.assertIn("1.1", result["versions"])
 
     def test_product_get_by_name_no_version(self):
         name = 'name1'
@@ -64,9 +70,10 @@ class TestProducts(base.V1FunctionalTest):
                                                 version=version)
 
         ret_dict = base.SAMPLE_JSON_PRODUCTS_NAME['versions'][version]
-        self.assertEqual(ret_dict,
-                         self.get_json('/products/%s/%s' %
-                                       (name, version)))
+        result = self.get_json('/products/%s/%s' % (name, version))
+        self.assertEqual(ret_dict['ready_for_deploy'],
+                         result['ready_for_deploy'])
+        self.assertEqual(ret_dict['validated_on'], result['validated_on'])
 
     def test_product_create_conflict(self):
         prod_dict = dict(name="name1",

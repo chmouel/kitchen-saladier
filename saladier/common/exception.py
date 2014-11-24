@@ -107,10 +107,6 @@ class ProductVersionNotFound(Conflict):
     message = "Version %(id)s is not found."
 
 
-class ProductVersionStatusInvalid(Conflict):
-    message = "Product version status %(name)s invalid."
-
-
 class ProductVersionStatusNotFound(Conflict):
     message = "Product version status %(id)s is not found."
 
