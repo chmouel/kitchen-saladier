@@ -11,7 +11,7 @@ function get_token() {
     password=$3
     curl -s -X POST \
         http://${KEYSTONE_PORT_35357_TCP_ADDR}:35357/v2.0/tokens -H "Content-Type: application/json" -d \
-        "{\"auth\": {\"tenantName\": \"${tenant}\", \"passwordCredentials\": {\"username\": \"${user}\", \"password\": \"${password}\"}}}" | python -c 'import sys, json; print json.load(sys.stdin)["access"]["token"]["id"]'
+        "{\"auth\": {\"tenantName\": \"${tenant}\", \"passwordCredentials\": {\"username\": \"${user}\", \"password\": \"${password}\"}}}" | python -c 'import sys, json; d=json.load(sys.stdin);print d["access"]["token"]["tenant"]["id"]+" "+d["access"]["token"]["id"]'
 }
 
 
@@ -54,12 +54,17 @@ echo "Starting functional testing"
 echo "---------------------------"
 
 echo -n "Getting admin token from Keystone: "
-ADMIN_TOKEN=$(get_token service saladier_admin ${SALADIER_USER_PASSWORD})
+_token=$(get_token service saladier_admin ${SALADIER_USER_PASSWORD})
+ADMIN_TOKEN=${_token##* }
+ADMIN_TENANT_ID=${_token% *}
 echo "OK."
 
-
 echo -n "Getting user token from Keystone: "
-USER_TOKEN=$(get_token saladier saladier_user1 ${SALADIER_USER_PASSWORD})
+USER_NAME=saladier_user1
+USER_TENANT=saladier
+_token=$(get_token ${USER_TENANT} ${USER_NAME} ${SALADIER_USER_PASSWORD})
+USER_TOKEN=${_token##* }
+USER_TENANT_ID=${_token% *}
 echo "OK."
 
 
@@ -82,10 +87,16 @@ echo -n "Associate a product to a version: "
 curl -f ${CURL_FLAG} -L -H "x-auth-token: $ADMIN_TOKEN" -X POST -d 'product=yayalebogosse' -d 'url=http://anywhereyoulike' \
      -d 'version=1.0' \
      http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/versions
-echo "OK"
+echo "OK."
+
+echo -n "Subscribe tenant ${USER_NAME} to product: "
+curl -f ${CURL_FLAG} -L -H "x-auth-token: $ADMIN_TOKEN" -X POST -d 'product_name=yayalebogosse' -d "tenant_id=${USER_TENANT_ID}" \
+     -d 'version=1.0' \
+     http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/subscriptions
+echo "OK".
 
 echo -n "Listing products: "
-curl -f ${CURL_FLAG} -L -H "x-auth-token: $USER_TOKEN" http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/products/ | grep -q "1.0"
+curl -f ${CURL_FLAG} -L -H "x-auth-token: $USER_TOKEN" http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/products/ | grep -q 'yayalebogosse'
 echo "OK."
 
 echo -n "Get product directly: "
@@ -97,6 +108,11 @@ echo -n "Get product version directly: "
 curl -f ${CURL_FLAG} -L -H "x-auth-token: $USER_TOKEN" http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/products/yayalebogosse/1.0 | \
     grep -q "validated_on"
 echo "OK."
+
+echo -n "Delete subscription of ${USER_NAME} to our product: "
+curl -f ${CURL_FLAG} -L -H "x-auth-token: $ADMIN_TOKEN" -X DELETE \
+     http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/subscriptions/yayalebogosse/${USER_TENANT_ID}
+echo "OK"
 
 echo -n "Delete Association between product and version: "
 curl -f ${CURL_FLAG} -L -H "x-auth-token: $ADMIN_TOKEN" -X DELETE \

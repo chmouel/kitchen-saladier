@@ -111,3 +111,80 @@ class TestSubscriptions(base.V1FunctionalTest):
         self.get_json("/subscriptions/%s" % (tenant_id),
                       headers={'X-Auth-Token': utils.MEMBER_TOKEN},
                       status=403)
+
+    def test_product_list_only_for_certain_tenant(self):
+        product_name = 'name1'
+        version = '1.0'
+        tenant_id_owner = utils.MEMBER_TENANT_ID
+
+        self._create_sample_product(name=product_name)
+
+        self._create_sample_product_version(product=product_name,
+                                            version=version)
+
+        subs_dict = dict(product_name=product_name,
+                         tenant_id=tenant_id_owner)
+        self.post_json("/subscriptions", subs_dict, status=201)
+
+        data = self.get_json('/products/',
+                             headers={'X-Auth-Token':
+                                      utils.MEMBER_OTHER_TOKEN})
+        self.assertNotIn('name1', data['products'])
+
+    def test_product_directly_owner(self):
+        product_name = 'name1'
+        version = '1.0'
+        tenant_id_owner = utils.MEMBER_TENANT_ID
+
+        self._create_sample_product(name=product_name)
+        self._create_sample_product_version(product=product_name,
+                                            version=version)
+
+        subs_dict = dict(product_name=product_name,
+                         tenant_id=tenant_id_owner)
+        self.post_json("/subscriptions", subs_dict, status=201)
+
+        # NOTE(chmou): 404 error cause it's not accessible to
+        # MEMBER_OTHER_TOKEN
+        data = self.get_json('/products/%s' % (product_name),
+                             headers={'X-Auth-Token': utils.MEMBER_TOKEN},
+                             status=200)
+        self.assertIn("1.0", data['versions'])
+
+    def test_product_directly_not_owner(self):
+        product_name = 'name1'
+        version = '1.0'
+        tenant_id_owner = utils.MEMBER_TENANT_ID
+
+        self._create_sample_product(name=product_name)
+        self._create_sample_product_version(product=product_name,
+                                            version=version)
+
+        subs_dict = dict(product_name=product_name,
+                         tenant_id=tenant_id_owner)
+        self.post_json("/subscriptions", subs_dict, status=201)
+
+        # NOTE(chmou): 404 error cause it's not accessible to
+        # MEMBER_OTHER_TOKEN
+        self.get_json('/products/%s' % (product_name),
+                      headers={'X-Auth-Token':
+                               utils.MEMBER_OTHER_TOKEN}, status=404)
+
+    def test_product_version_directly_not_owner(self):
+        product_name = 'name1'
+        version = '1.0'
+        tenant_id_owner = utils.MEMBER_TENANT_ID
+
+        self._create_sample_product(name=product_name)
+        self._create_sample_product_version(product=product_name,
+                                            version=version)
+
+        subs_dict = dict(product_name=product_name,
+                         tenant_id=tenant_id_owner)
+        self.post_json("/subscriptions", subs_dict, status=201)
+
+        # NOTE(chmou): 404 error cause it's not accessible to
+        # MEMBER_OTHER_TOKEN
+        self.get_json('/products/%s/%s' % (product_name, version),
+                      headers={'X-Auth-Token':
+                               utils.MEMBER_OTHER_TOKEN}, status=404)
