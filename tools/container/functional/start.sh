@@ -43,13 +43,6 @@ function check_up() {
 check_up saladier ${SALADIER_PORT_8777_TCP_ADDR} 8777
 check_up keystone ${KEYSTONE_PORT_35357_TCP_ADDR} 35357
 
-function exit_it {
-    [[ $? != 0 ]] && echo "has failed :("
-}
-
-trap exit_it EXIT
-
-
 echo "Starting functional testing"
 echo "---------------------------"
 
@@ -77,65 +70,114 @@ echo -n "Test public version access: "
 curl -f ${CURL_FLAG} -L http://${SALADIER_PORT_8777_TCP_ADDR}:8777/ |grep -q 'Paris'
 echo "OK."
 
+function curl_it {
+    local msg=$1
+    local url=$2
+    local token=$3
+    local method=$4
+    local datas=$5
+    local grep=$6
+    local _curl_datas=""
+    [[ ${datas} == " " ]] && datas= # NOTE(chmou): placeholders when we don't want to go on with the arg
+    [[ ${url} != http://* ]] && url=http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1${url}
+
+    for x in ${datas//|/ };do
+        _curl_datas="${_curl_datas} -d $x"
+    done
+
+    echo -n "$msg: "
+    curl -f -i -o /tmp/output.json ${CURL_FLAG} ${_curl_datas} -L -X ${method} -H "x-auth-token: ${token}" ${url} || failed=$?
+
+    if [[ -n ${failed} || -n ${grep} ]];then
+        grep -q ${grep} /tmp/output.json || failed=$?
+    fi
+
+    if [[ -n ${failed} ]];then
+        echo  "Failed."
+        if [[ -n ${grep} ]];then
+            echo "------- Error while trying to grep '${grep}' in the json output -------"
+        else
+            echo "------- ERROR -------"
+        fi
+        cat /tmp/output.json
+        echo "------- ERROR -------"
+        exit 1
+    else
+        echo "OK."
+    fi
+}
+
 # Create a product
-echo -n "Creating a product as admin: "
-curl -f ${CURL_FLAG} -L -H "x-auth-token: $ADMIN_TOKEN" -X POST -d 'name=yayalebogosse' -d 'team=boa' -d 'contact=thecedric@isthegreatest.com' \
-     http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/products
-echo "OK."
+curl_it "Creating a product as admin" \
+         /products \
+         ${ADMIN_TOKEN} \
+         POST \
+         "team=boa|name=yayalebogosse|contact=cedric@isthegreatest.com"
 
-echo -n "Associate a product to a version: "
-curl -f ${CURL_FLAG} -L -H "x-auth-token: $ADMIN_TOKEN" -X POST -d 'product=yayalebogosse' -d 'url=http://anywhereyoulike' \
-     -d 'version=1.0' \
-     http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/versions
-echo "OK."
+curl_it "Associate a product to a version" \
+        /versions \
+        ${ADMIN_TOKEN} \
+        POST \
+        'product=yayalebogosse|url=http://anywhereyoulike|version=1.0'
 
-echo -n "Subscribe tenant ${USER_NAME} to product: "
-curl -f ${CURL_FLAG} -L -H "x-auth-token: $ADMIN_TOKEN" -X POST -d 'product_name=yayalebogosse' -d "tenant_id=${USER_TENANT_ID}" \
-     -d 'version=1.0' \
-     http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/subscriptions
-echo "OK".
+curl_it "Subscribe tenant ${USER_NAME} to product" \
+        /subscriptions \
+        ${ADMIN_TOKEN} \
+        POST \
+        "product_name=yayalebogosse|tenant_id=${USER_TENANT_ID}"
 
-echo -n "Listing products: "
-curl -f ${CURL_FLAG} -L -H "x-auth-token: $USER_TOKEN" http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/products/ | grep -q 'yayalebogosse'
-echo "OK."
+curl_it "Listing products" \
+        /products/ \
+        ${USER_TOKEN} \
+        GET \
+        " " \
+        "yayalebogosse"
 
-echo -n "Get product directly: "
-curl -f ${CURL_FLAG} -L -H "x-auth-token: $USER_TOKEN" http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/products/yayalebogosse \
-    | grep -q "thecedric@isthegreatest.com"
-echo "OK."
+curl_it "Get product directly" \
+        /products/yayalebogosse \
+        ${USER_TOKEN} \
+        GET \
+        " " \
+        "cedric@isthegreatest.com"
 
-echo -n "Get product version directly: "
-curl -f ${CURL_FLAG} -L -H "x-auth-token: $USER_TOKEN" http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/products/yayalebogosse/1.0 | \
-    grep -q "validated_on"
-echo "OK."
+curl_it "Get product version directly" \
+        /products/yayalebogosse/1.0 \
+        ${USER_TOKEN} \
+        GET \
+        " " \
+        "validated_on"
 
-echo -n "Delete subscription of ${USER_NAME} to our product: "
-curl -f ${CURL_FLAG} -L -H "x-auth-token: $ADMIN_TOKEN" -X DELETE \
-     http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/subscriptions/yayalebogosse/${USER_TENANT_ID}
-echo "OK"
+curl_it "Delete subscription of ${USER_NAME} to our product" \
+        /subscriptions/yayalebogosse/${USER_TENANT_ID} \
+        ${ADMIN_TOKEN} \
+        DELETE
 
-echo -n "Delete Association between product and version: "
-curl -f ${CURL_FLAG} -L -H "x-auth-token: $ADMIN_TOKEN" -X DELETE \
-     http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/versions/yayalebogosse/1.0
-echo "OK"
+curl_it "Delete Association between product and version" \
+        /versions/yayalebogosse/1.0 \
+        ${ADMIN_TOKEN} \
+        DELETE
 
-echo -n "Delete created product as admin: "
-curl -f ${CURL_FLAG} -X DELETE -L -H "x-auth-token: $ADMIN_TOKEN" http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/products/yayalebogosse
-echo "OK."
+curl_it "Delete created product as admin" \
+        /products/yayalebogosse \
+        ${ADMIN_TOKEN} \
+        DELETE
 
-# Create a platform
-echo -n "Creating a platform as admin: "
-curl -f ${CURL_FLAG} -L -H "x-auth-token: $ADMIN_TOKEN" -X POST -d 'name=chmoulebogosse' -d 'location=ParisEstMagique' \
-     -d 'contact=thecedric@isthegreatest.com' \
-     -d 'tenant_id=0000101010101' http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/platforms
-echo "OK."
+curl_it "Creating a platform as admin: " \
+        /platforms \
+        ${ADMIN_TOKEN} \
+        POST \
+        'name=chmoulebogosse|location=ParisEstMagique|contact=thecedric@isthegreatest.com|tenant_id=0000101010101'
 
-echo -n "Get created platform as user: "
-curl -f ${CURL_FLAG} -L -H "x-auth-token: $USER_TOKEN" http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/platforms/ | grep -q "thecedric@isthegreatest.com"
-echo "OK."
+curl_it "Get created platform as user: " \
+        /platforms/ \
+        ${USER_TOKEN} \
+        GET \
+        " " \
+        "thecedric@isthegreatest.com"
 
-echo -n "Delete created platform as admin: "
-curl -X DELETE -f ${CURL_FLAG} -L -H "x-auth-token: $ADMIN_TOKEN" http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1/platforms/chmoulebogosse
-echo "OK."
+curl_it "Delete created platform as admin: " \
+        /platforms/chmoulebogosse \
+        $ADMIN_TOKEN  \
+        DELETE
 
 echo "Done and successful :)"
