@@ -13,6 +13,7 @@
 import saladier.api.controllers.v1.platforms as platform_controller
 import saladier.api.controllers.v1.product_versions as product_versions
 import saladier.api.controllers.v1.products as product_controller
+import saladier.api.controllers.v1.subscriptions as subscriptions
 from saladier.openstack.common import log
 
 LOG = log.getLogger(__name__)
@@ -24,3 +25,4 @@ class V1Controller(object):
     products = product_controller.ProductController()
     platforms = platform_controller.PlatformController()
     versions = product_versions.ProductVersionsController()
+    subscriptions = subscriptions.SubscriptionController()
