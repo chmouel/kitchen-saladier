@@ -200,17 +200,12 @@ class Connection(object):  # TODO(chmouel): base class
 
     # -*- Subscriptions -*-
     def create_subscription(self, tenant_id, product_name):
-        subs = (model_query(models.Subscriptions).
-                filter_by(product_name=product_name).
-                filter_by(tenant_id=tenant_id).
-                first())
-
-        if subs:
-            raise exception.SubscriptionAlreadyExists(product_name)
-
         query = models.Subscriptions(tenant_id=tenant_id,
                                      product_name=product_name)
-        query.save()
+        try:
+            query.save()
+        except db_exc.DBDuplicateEntry:
+            raise exception.SubscriptionAlreadyExists(product_name)
 
     def delete_subscription(self, product_name, tenant_id):
         model = (model_query(models.Subscriptions).

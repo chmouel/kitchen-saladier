@@ -84,6 +84,11 @@ class Platform(Base):
 
 class Subscriptions(Base):
     __tablename__ = "subscriptions"
+    __table_args__ = (
+        sqlalchemy.schema.UniqueConstraint('product_name',
+                                           'tenant_id',
+                                           name='uniq_tenantname@product'),
+    )
     id = sqlalchemy.Column(sqlalchemy.String(36), primary_key=True,
                            default=lambda: str(uuid.uuid4()))
 
