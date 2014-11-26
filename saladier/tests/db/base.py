@@ -58,7 +58,7 @@ class Database(fixtures.Fixture):
             conn = self.engine.connect()
             self._DB = "".join(line for line in conn.connection.iterdump())
             self.engine.dispose()
-        else:
+        elif sql_connection.startswith('sqlite:///'):
             cleandb = self._state_path_rel(sqlite_clean_db)
             shutil.copyfile(testdb, cleandb)
 
@@ -75,10 +75,18 @@ class Database(fixtures.Fixture):
             conn = self.engine.connect()
             conn.connection.executescript(self._DB)
             self.addCleanup(self.engine.dispose)
-        else:
+        elif self.sql_connection.startswith('sqlite:///'):
             shutil.copyfile(self._state_path_rel(self.sqlite_clean_db),
                             self._state_path_rel(self.sqlite_db))
             self.addCleanup(os.unlink, self.sqlite_db)
+        else:
+            self.session = sqla_api.get_session(recycle=True)
+            self.session.begin()
+            self.addCleanup(self._rollback_close)
+
+    def _rollback_close(self):
+        self.session.rollback()
+        self.session.close()
 
     def post_migrations(self):
         """Any addition steps that are needed outside of the migrations."""

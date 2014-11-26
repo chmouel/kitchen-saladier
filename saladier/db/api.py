@@ -46,8 +46,26 @@ def get_engine():
 
 
 def get_session(**kwargs):
+    """Reuse the same session so we can rollback for tests or get a new one
+
+    This probably can get optimised.
+    """
+    recycle = False
+    global _SESSION
     facade = _create_facade_lazily()
-    return facade.get_session(**kwargs)
+
+    if 'recycle' in kwargs:
+        kwargs.pop('recycle')
+        recycle = True
+
+    session = facade.get_session(**kwargs)
+    if recycle:
+        _SESSION = session
+
+    if _SESSION is not None:
+        return _SESSION
+
+    return session
 
 
 def get_backend():
@@ -213,7 +231,7 @@ class Connection(object):  # TODO(chmouel): base class
                 "%s,%s" % (platform_name, product_version_id))
 
         session = get_session()
-        with session.begin():
+        with session.begin(subtransactions=True):
             platform = self.get_platform_by_name(platform_name)
             product_version = self.get_product_version_by_id(
                 product_version_id, session=session)
