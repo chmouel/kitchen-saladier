@@ -14,8 +14,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import os
-
 import fixtures
 from oslo.config import cfg
 
@@ -31,6 +29,7 @@ class ConfFixture(fixtures.Fixture):
     def setUp(self):
         super(ConfFixture, self).setUp()
 
-        test_cnx = os.environ.get("SALADIER_DATABASE_TEST_CONNECTION")
-        self.conf.set_default('connection', test_cnx, group='database')
+        self.conf.set_default('connection', "sqlite://", group='database')
+        self.conf.set_default('sqlite_synchronous', False, group='database')
+        self.conf.set_default('verbose', True)
         self.addCleanup(self.conf.reset)

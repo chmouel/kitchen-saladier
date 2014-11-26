@@ -39,10 +39,11 @@ Base = declarative_base(cls=SaladierBase)
 
 class Product(Base):
     __tablename__ = "products"
+    __table_args__ = {'sqlite_autoincrement': True}
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
     name = sqlalchemy.Column(sqlalchemy.String(255), unique=True,
-                             nullable=False, primary_key=True)
+                             nullable=False)
     team = sqlalchemy.Column(sqlalchemy.String(255), nullable=False)
     contact = sqlalchemy.Column(sqlalchemy.String(255), nullable=False)
 

@@ -46,26 +46,8 @@ def get_engine():
 
 
 def get_session(**kwargs):
-    """Reuse the same session so we can rollback for tests or get a new one
-
-    This probably can get optimised.
-    """
-    recycle = False
-    global _SESSION
     facade = _create_facade_lazily()
-
-    if 'recycle' in kwargs:
-        kwargs.pop('recycle')
-        recycle = True
-
-    session = facade.get_session(**kwargs)
-    if recycle:
-        _SESSION = session
-
-    if _SESSION is not None:
-        return _SESSION
-
-    return session
+    return facade.get_session(**kwargs)
 
 
 def get_backend():
@@ -154,8 +136,9 @@ class Connection(object):  # TODO(chmouel): base class
                                     uri=uri)
         new.save()
 
-    def get_product_version_by_id(self, id):
-        query = model_query(models.ProductVersion).filter_by(id=id)
+    def get_product_version_by_id(self, id, session=None):
+        query = model_query(models.ProductVersion,
+                            session=session).filter_by(id=id)
         try:
             return query.one()
         except saladier.db.sqlalchemy.exc.NoResultFound:
@@ -229,17 +212,20 @@ class Connection(object):  # TODO(chmouel): base class
             raise exception.ProductVersionStatusAlreadyExists(
                 "%s,%s" % (platform_name, product_version_id))
 
-        platform = self.get_platform_by_name(platform_name)
-        product_version = self.get_product_version_by_id(product_version_id)
-        product_version_status = models.ProductVersionStatus(
-            status=status, logs_location=logs_location)
-        product_version_status.platform = platform
-        product_version.platforms.append(product_version_status)
-        try:
-            product_version.save()
-        except exception.SaladierFlushError:
-            raise exception.ProductVersionStatusInvalid(
-                name="%s, %s" % (platform_name, product_version_id))
+        session = get_session()
+        with session.begin():
+            platform = self.get_platform_by_name(platform_name)
+            product_version = self.get_product_version_by_id(
+                product_version_id, session=session)
+            product_version_status = models.ProductVersionStatus(
+                status=status, logs_location=logs_location)
+            product_version_status.platform = platform
+            product_version.platforms.append(product_version_status)
+            try:
+                product_version.save(session)
+            except exception.SaladierFlushError:
+                raise exception.ProductVersionStatusInvalid(
+                    name="%s, %s" % (platform_name, product_version_id))
 
     def get_version_status(self, platform_name, product_version_id):
         query = model_query(models.ProductVersionStatus)
