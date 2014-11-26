@@ -7,7 +7,7 @@ export SERVICE_ENDPOINT="http://${KEYSTONE_PORT_35357_TCP_ADDR}:35357/v2.0"
 export SERVICE_TOKEN=${KEYSTONE_ENV_KEYSTONE_ADMIN_TOKEN}
 
 function check_keystone_up  {
-    max=13 # 1 minute
+    max=20 # 1 minute
     counter=1
     while true; do
         if [[ ${counter} == ${max} ]];then
@@ -24,15 +24,18 @@ function check_keystone_up  {
         (( counter ++ ))
     done
 }
+check_keystone_up
+
+# NOTE(chmou): go figure :( I can't catch properly with a loop so let's just wait a litle bit more
+sleep 10
 
 # Create the keystone service and endpoint cause we could not before in keystone image (silly I know)
 # Make sure we don't do that every time (double silly)
 if ! keystone service-list|grep -q keystone; then
-    check_keystone_up
     /usr/bin/keystone service-create --name=keystone --type=identity --description="Identity Service"
     export SERVICE_ENDPOINT_USER="http://${KEYSTONE_PORT_5000_TCP_ADDR}:5000/v2.0"
     export SERVICE_ENDPOINT_ADMIN="http://${KEYSTONE_PORT_35357_TCP_ADDR}:35357/v2.0"
-    check_keystone_up
+
     /usr/bin/keystone endpoint-create \
                       --region RegionOne \
                       --service-id=`keystone service-list | grep keystone | tr -s ' ' | cut -d \  -f 2` \
@@ -40,13 +43,11 @@ if ! keystone service-list|grep -q keystone; then
                       --internalurl=${SERVICE_ENDPOINT_USER} \
                       --adminurl=${SERVICE_ENDPOINT_ADMIN}
 
-    check_keystone_up
-
     /usr/bin/keystone service-create --name=saladier --type=ci --description="CI validation Service"
     # NOTE(chmou): we have to detect our own ip this sucks but fig don't expose it :(
     SALADIER_PORT_8777_TCP_ADDR=$(ip addr show eth0|sed -n '/inet / { s/.*inet //;s/\/.*//;p }')
     export SALADIER_ENDPOINT_USER="http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1"
-    check_keystone_up
+
     /usr/bin/keystone endpoint-create \
                       --region RegionOne \
                       --service-id=`keystone service-list | grep saladier | tr -s ' ' | cut -d \  -f 2` \
@@ -54,23 +55,15 @@ if ! keystone service-list|grep -q keystone; then
                       --internalurl=${SALADIER_ENDPOINT_USER} \
                       --adminurl=${SALADIER_ENDPOINT_USER}
 
-
     # Create an admin that we will use for admin stuff and for validating token
-    check_keystone_up
     /usr/bin/keystone tenant-create --name service
-    check_keystone_up
     /usr/bin/keystone user-create --name saladier_admin --pass ${SALADIER_USER_PASSWORD}
-    check_keystone_up
     /usr/bin/keystone user-role-add --user saladier_admin --role admin --tenant service
 
     # Create a normal user for validating Jenkins CI without admin role
-    check_keystone_up
     /usr/bin/keystone role-create --name Member
-    check_keystone_up
     /usr/bin/keystone tenant-create --name saladier
-    check_keystone_up
     /usr/bin/keystone user-create --name saladier_user1 --pass ${SALADIER_USER_PASSWORD}
-    check_keystone_up
     /usr/bin/keystone user-role-add --user saladier_user1 --role Member --tenant saladier
 fi
 

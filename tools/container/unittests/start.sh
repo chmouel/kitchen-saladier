@@ -1,5 +1,10 @@
 #!/bin/bash
-set -ex
+RED='\e[0;31m'
+GREEN='\e[0;32m'
+MAGENTA="\e[0;35m"
+NC='\e[0m'
+BOLD='\e[1m'
+YELLOW='\e[1;33m'
 
 cnt=0
 while true;do
@@ -14,6 +19,7 @@ while true;do
     (( cnt++ ))
 done
 
+set -ex
 
 run_tox() {
     target=$1
@@ -29,7 +35,7 @@ run_tox() {
         # NOTE(chmou): We do that cause py27 and py34 testrepository cache is not a
         # compatible format :-(
         rm -rf .testrepository
-        echo "Running $i under ${target}"
+        echo -e "Running ${MAGENTA}$i${NC} under ${MAGENTA}${target}${NC}"
         tox -e${i}
     done
 }
@@ -38,7 +44,7 @@ source /virtualenv/bin/activate
 pip install -e.
 
 ### MySQL
-echo "Running tests under MySQL"
+echo -e "${MAGENTA}Running tests under MySQL${NC}"
 mysql -h ${DB_PORT_3306_TCP_ADDR} -u root -p${DB_ROOT_PASSWORD} mysql <<EOF
 DROP DATABASE IF EXISTS saladierunit;
 CREATE DATABASE IF NOT EXISTS saladierunit;
@@ -59,7 +65,7 @@ saladier-dbsync --config-file /tmp/saladier.conf upgrade
 run_tox MySQL runonly_pythontest_formysql
 
 ### PostgresSQL
-echo "Running tests under PostgresSQL"
+echo -e "${MAGENTA}Running tests under PostgresSQL${NC}"
 export SALADIER_DATABASE_TEST_CONNECTION="postgres://postgres:${SALADIER_DB_PASSWORD}@${POSTGRES_PORT_5432_TCP_ADDR}/saladier"
 
 PGPASSWORD=${SALADIER_DB_PASSWORD} dropdb --if-exists -U postgres -h${POSTGRES_PORT_5432_TCP_ADDR} saladier
@@ -79,6 +85,6 @@ run_tox PostgresSQL runonly_pythontest_formysql
 ### SQLITE
 # NOTE(chmou): need to be at the end after the others cause it generates the
 # cover and docs.
-echo "Running tests under SQLite"
+echo -e "${MAGENTA}Running tests under SQLite${NC}"
 export SALADIER_DATABASE_TEST_CONNECTION="sqlite://"
 run_tox SQLite

@@ -10,5 +10,5 @@ Returns::
     {
         "location": "Paris",
         "provider": "eNovance",
-        "version": "3f27799"
+        "version": "cfa3fdb"
     }

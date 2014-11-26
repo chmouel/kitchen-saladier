@@ -23,12 +23,12 @@ pip install -U fig
 
 # NOTE(chmou): launch unittests at the end this is needed for condition to success
 clean_repo
+fig ps -q|xargs docker stop || :
+fig ps -q|xargs docker rm || :
 fig run --rm unittests
 
 # stupid testr (2)
 clean_repo
-fig stop keystone
-fig stop saladier
-fig start keystone
-fig start saladier
+fig ps -q|xargs docker stop || :
+fig ps -q|xargs docker rm || :
 fig run functional

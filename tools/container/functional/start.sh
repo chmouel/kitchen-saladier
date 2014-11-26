@@ -3,6 +3,12 @@ set -e
 CURL_FLAG="-s"
 DOCDIR=$(readlink -f $(dirname $(readlink -f $0))/../../../doc/source/rests/)
 
+RED='\e[0;31m'
+GREEN='\e[0;32m'
+NC='\e[0m'
+BOLD='\e[1m'
+MAGENTA="\e[0;35m"
+
 [[ -n ${DEBUG} ]] && set -x
 [[ -n ${DEBUG} ]] && CURL_FLAG="-i"
 
@@ -43,25 +49,29 @@ function check_up() {
 
 }
 
+function ok {
+    echo -e "${GREEN}OK.${NC}"
+}
+
 check_up saladier ${SALADIER_PORT_8777_TCP_ADDR} 8777
 check_up keystone ${KEYSTONE_PORT_35357_TCP_ADDR} 35357
 
 echo "Starting functional testing"
 echo "---------------------------"
 
-echo -n "Getting admin token from Keystone: "
+echo -e -n "${BOLD}Getting admin token from Keystone:${NC} "
 _token=$(get_token service saladier_admin ${SALADIER_USER_PASSWORD})
 ADMIN_TOKEN=${_token##* }
 ADMIN_TENANT_ID=${_token% *}
-echo "OK."
+ok
 
-echo -n "Getting user token from Keystone: "
+echo -e -n "${BOLD}Getting user token from Keystone${NC}: "
 USER_NAME=saladier_user1
 USER_TENANT=saladier
 _token=$(get_token ${USER_TENANT} ${USER_NAME} ${SALADIER_USER_PASSWORD})
 USER_TOKEN=${_token##* }
 USER_TENANT_ID=${_token% *}
-echo "OK."
+ok
 
 function curl_it {
     local msg=$1
@@ -82,7 +92,7 @@ function curl_it {
         _curl_datas="${_curl_datas} -d $x"
     done
 
-    echo -n "$msg: "
+    echo -en "${BOLD}$msg${NC}: "
     curl -f -i -o /tmp/output.json ${CURL_FLAG} ${_curl_datas} -L -X ${method} ${gtoken} ${furl} || failed=$?
 
     if [[ -n ${failed} || -n ${grep} ]];then
@@ -94,13 +104,13 @@ function curl_it {
         if [[ -n ${grep} ]];then
             echo "------- Error while trying to grep '${grep}' in the json output -------"
         else
-            echo "------- ERROR -------"
+            echo "${RED}------- ERROR -------${NC}"
         fi
         cat /tmp/output.json
-        echo "------- ERROR -------"
+        echo "${RED}------- ERROR -------${NC}"
         exit 1
     else
-        echo "OK."
+        ok
     fi
 
     [[ -z ${GENERATE_DOC_RESTS} ]] && return
@@ -238,4 +248,4 @@ curl_it "Delete created platform" \
         $ADMIN_TOKEN  \
         DELETE
 
-echo "Done and successful :)"
+echo "${MAGENTA}Done and successful :)${NC}"
