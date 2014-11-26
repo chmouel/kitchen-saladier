@@ -21,7 +21,7 @@ class ProductVersionStatusTestCase(base.DbTestCase):
 
     version_status_deps = {"prod_name": "product1", "team": "team1",
                            "prod_contact": "contact1", "version": "1.0",
-                           "uri": "http://localhost/",
+                           "uri": "http://localhost/", "plat_name": "name1",
                            "location": "location1", "plat_contact": "contact1",
                            "tenant_id": "tenant1"}
 
@@ -37,8 +37,6 @@ class ProductVersionStatusTestCase(base.DbTestCase):
                                    contact=plat_contact, tenant_id=tenant_id)
 
     def test_add_product_status(self):
-        plat_name = 'test_add_product_status'
-        self.version_status_deps['plat_name'] = plat_name
         self._create_product_version_status_deps(**self.version_status_deps)
         product_version_id = self.dbapi.get_all_product_versions(
             product_name="product1")[0].id
@@ -46,39 +44,33 @@ class ProductVersionStatusTestCase(base.DbTestCase):
         all_product_status = self.dbapi.get_all_version_status()
         self.assertEqual(0, len(all_product_status))
 
-        self.dbapi.add_version_status(plat_name, product_version_id,
+        self.dbapi.add_version_status("name1", product_version_id,
                                       models.Status.NOT_TESTED,
                                       "swift://localhost/deployment")
         all_product_status = self.dbapi.get_all_version_status()
         self.assertEqual(1, len(all_product_status))
 
     def test_add_existing_product_status(self):
-        plat_name = 'test_add_existing_product_status'
-        self.version_status_deps['plat_name'] = plat_name
-
         self._create_product_version_status_deps(**self.version_status_deps)
         product_version_id = self.dbapi.get_all_product_versions(
             product_name="product1")[0].id
-        self.dbapi.add_version_status(plat_name, product_version_id,
+        self.dbapi.add_version_status("name1", product_version_id,
                                       models.Status.NOT_TESTED,
                                       "swift://localhost/deployment")
         self.assertRaises(exception.ProductVersionStatusAlreadyExists,
-                          self.dbapi.add_version_status, plat_name,
+                          self.dbapi.add_version_status, "name1",
                           product_version_id, models.Status.NOT_TESTED,
                           "swift://localhost/deployment")
 
     def test_get_version_status(self):
-        plat_name = 'test_get_version_status'
-        self.version_status_deps['plat_name'] = plat_name
-
         self._create_product_version_status_deps(**self.version_status_deps)
         product_version_id = self.dbapi.get_all_product_versions(
             product_name="product1")[0].id
-        self.dbapi.add_version_status(plat_name, product_version_id,
+        self.dbapi.add_version_status("name1", product_version_id,
                                       models.Status.NOT_TESTED,
                                       "swift://localhost/deployment")
         created_version_status = self.dbapi.get_version_status(
-            plat_name, product_version_id)
+            "name1", product_version_id)
         self.assertIsNotNone(created_version_status)
 
     def test_non_existing_product_status(self):
@@ -86,32 +78,26 @@ class ProductVersionStatusTestCase(base.DbTestCase):
                           self.dbapi.get_version_status, "name2", 3)
 
     def test_update_product_status(self):
-        plat_name = 'test_update_product_status'
-        self.version_status_deps['plat_name'] = plat_name
-
         self._create_product_version_status_deps(**self.version_status_deps)
         product_version_id = self.dbapi.get_all_product_versions(
             product_name="product1")[0].id
 
-        self.dbapi.add_version_status(plat_name, product_version_id,
+        self.dbapi.add_version_status("name1", product_version_id,
                                       models.Status.NOT_TESTED,
                                       "swift://localhost/deployment")
 
-        self.dbapi.update_version_status(plat_name, product_version_id,
+        self.dbapi.update_version_status("name1", product_version_id,
                                          models.Status.SUCCESS,
                                          "swift://localhost/deploymentlogs")
 
         created_version_status = self.dbapi.get_version_status(
-            plat_name, product_version_id)
+            "name1", product_version_id)
 
         self.assertEqual(models.Status.SUCCESS, created_version_status.status)
         self.assertEqual("swift://localhost/deploymentlogs",
                          created_version_status.logs_location)
 
     def test_delete_product_status(self):
-        plat_name = 'test_delete_product_status'
-        self.version_status_deps['plat_name'] = plat_name
-
         self._create_product_version_status_deps(**self.version_status_deps)
         product_version_id = self.dbapi.get_all_product_versions(
             product_name="product1")[0].id
@@ -119,12 +105,12 @@ class ProductVersionStatusTestCase(base.DbTestCase):
         all_product_status = self.dbapi.get_all_version_status()
         self.assertEqual(0, len(all_product_status))
 
-        self.dbapi.add_version_status(plat_name, product_version_id,
+        self.dbapi.add_version_status("name1", product_version_id,
                                       models.Status.NOT_TESTED,
                                       "swift://localhost/deployment")
         all_product_status = self.dbapi.get_all_version_status()
         self.assertEqual(1, len(all_product_status))
 
-        self.dbapi.delete_version_status(plat_name, product_version_id)
+        self.dbapi.delete_version_status("name1", product_version_id)
         all_product_status = self.dbapi.get_all_version_status()
         self.assertEqual(0, len(all_product_status))

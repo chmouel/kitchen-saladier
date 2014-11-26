@@ -21,30 +21,24 @@ class TestProducts(base.V1FunctionalTest):
         super(TestProducts, self).setUp()
 
     def test_product_version_create_list(self):
-        product_name = 'test_product_version_create_list'
-        product_name2 = 'test_product_version_create_list2'
-
-        self._create_sample_product(name=product_name)
-        self._create_sample_product(name=product_name2)
+        self._create_sample_product(name='name1')
+        self._create_sample_product(name='name2')
 
         for version in base.SAMPLE_JSON_PRODUCTS['products']['name1']:
-            self._create_sample_product_version(product=product_name,
+            self._create_sample_product_version(product='name1',
                                                 version=version)
         for version in base.SAMPLE_JSON_PRODUCTS['products']['name2']:
-            self._create_sample_product_version(product=product_name2,
+            self._create_sample_product_version(product='name2',
                                                 version=version)
 
-        data = self.get_json('/products/')['products'][product_name]
-        self.assertEqual(base.SAMPLE_JSON_PRODUCTS['products']['name1'], data)
-
-        data = self.get_json('/products/')['products'][product_name2]
-        self.assertEqual(base.SAMPLE_JSON_PRODUCTS['products']['name2'], data)
+        self.assertEqual(base.SAMPLE_JSON_PRODUCTS,
+                         self.get_json('/products/'))
 
     def test_product_get_by_name_has_versions(self):
-        name = 'test_product_get_by_name_has_versions'
+        name = 'name1'
         self._create_sample_product(name=name)
 
-        for version in base.SAMPLE_JSON_PRODUCTS['products']['name1']:
+        for version in base.SAMPLE_JSON_PRODUCTS['products'][name]:
             self._create_sample_product_version(product=name,
                                                 version=version)
 
@@ -52,7 +46,7 @@ class TestProducts(base.V1FunctionalTest):
                          self.get_json('/products/' + name))
 
     def test_product_get_by_name_no_version(self):
-        name = 'test_product_get_by_name_no_version'
+        name = 'name1'
         self._create_sample_product(name=name)
 
         ret_dict = {'versions': {},
@@ -61,27 +55,26 @@ class TestProducts(base.V1FunctionalTest):
         self.assertEqual(ret_dict, self.get_json('/products/' + name))
 
     def test_product_get_by_name_and_version(self):
-        product_name = 'test_product_get_by_name_and_version'
+        name = 'name1'
         version = '1.0'
 
-        self._create_sample_product(name=product_name)
-        for version in base.SAMPLE_JSON_PRODUCTS['products']['name1']:
-            self._create_sample_product_version(product=product_name,
+        self._create_sample_product(name=name)
+        for version in base.SAMPLE_JSON_PRODUCTS['products'][name]:
+            self._create_sample_product_version(product=name,
                                                 version=version)
 
         ret_dict = base.SAMPLE_JSON_PRODUCTS_NAME['versions'][version]
         self.assertEqual(ret_dict,
                          self.get_json('/products/%s/%s' %
-                                       (product_name, version)))
+                                       (name, version)))
 
     def test_product_create_conflict(self):
-        product_name = 'test_product_create_conflict'
-        prod_dict = dict(name=product_name,
+        prod_dict = dict(name="name1",
                          team="team1",
                          contact="product@owner.org")
         self.post_json("/products", prod_dict, status=201)
 
-        prod_dict = dict(name=product_name,
+        prod_dict = dict(name="name1",
                          team="team1",
                          contact="product@owner.org")
         ret = self.post_json("/products", prod_dict, status=409)
@@ -91,23 +84,21 @@ class TestProducts(base.V1FunctionalTest):
         self.get_json('/products/random', status=404)
 
     def test_product_delete(self):
-        product_name = 'test_product_delete'
-        prod_dict = dict(name=product_name,
+        prod_dict = dict(name="name1",
                          team="team1",
                          contact="product@owner.org")
         self.post_json("/products", prod_dict, status=201)
 
-        status = self.delete('/products/' + product_name, status=204)
+        status = self.delete('/products/name1', status=204)
         self.assertEqual(204, status.status_int)
 
     def test_product_delete_as_user(self):
-        product_name = 'test_product_delete_as_user'
-        prod_dict = dict(name=product_name,
+        prod_dict = dict(name="name1",
                          team="team1",
                          contact="product@owner.org")
         self.post_json("/products", prod_dict, status=201)
 
-        status = self.delete('/products/' + product_name,
+        status = self.delete('/products/name1',
                              headers={'X-Auth-Token': utils.MEMBER_TOKEN},
                              expect_errors=True)
         self.assertEqual(403, status.status_int)

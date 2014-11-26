@@ -18,7 +18,7 @@ import saladier.tests.api.v1.base as base
 
 class TestSubscriptions(base.V1FunctionalTest):
     def test_subscriptions_create(self):
-        product_name = "test_subscriptions_create"
+        product_name = "name1"
         self._create_sample_product(name=product_name)
 
         subs_dict = dict(product_name=product_name,
@@ -28,7 +28,7 @@ class TestSubscriptions(base.V1FunctionalTest):
                        status=201)
 
     def test_subscriptions_create_as_user_denied(self):
-        product_name = "test_subscriptions_create_as_user_denied"
+        product_name = "name1"
         self._create_sample_product(name=product_name)
 
         subs_dict = dict(product_name=product_name,
@@ -39,7 +39,7 @@ class TestSubscriptions(base.V1FunctionalTest):
                        status=403)
 
     def test_subscriptions_duplicate_error(self):
-        product_name = "test_subscriptions_duplicate_error"
+        product_name = "name1"
         self._create_sample_product(name=product_name)
 
         subs_dict = dict(product_name=product_name,
@@ -49,7 +49,7 @@ class TestSubscriptions(base.V1FunctionalTest):
         self.post_json("/subscriptions", subs_dict, status=409)
 
     def test_subscriptions_delete(self):
-        product_name = "test_subscriptions_delete"
+        product_name = "name1"
         tenant_id = "0123456789"
 
         self._create_sample_product(name=product_name)
@@ -64,7 +64,7 @@ class TestSubscriptions(base.V1FunctionalTest):
                     status=204)
 
     def test_subscriptions_delete_as_user_denied(self):
-        product_name = "test_subscriptions_delete_as_user_denied"
+        product_name = "name1"
         tenant_id = "0123456789"
 
         self._create_sample_product(name=product_name)
@@ -80,7 +80,7 @@ class TestSubscriptions(base.V1FunctionalTest):
                     status=403)
 
     def test_subscriptions_list(self):
-        product_name = "test_subscriptions_list"
+        product_name = "name1"
         tenant_id = "0123456789"
 
         self._create_sample_product(name=product_name)
@@ -97,7 +97,7 @@ class TestSubscriptions(base.V1FunctionalTest):
     def test_subscriptions_list_user_denied(self):
         # FIXME(chmou): we have this but in the future this should be allowed
         # tailored to the user view permissions.
-        product_name = "test_subscriptions_list_user_denied"
+        product_name = "name1"
         tenant_id = "0123456789"
 
         self._create_sample_product(name=product_name)
@@ -113,7 +113,7 @@ class TestSubscriptions(base.V1FunctionalTest):
                       status=403)
 
     def test_product_list_only_for_certain_tenant(self):
-        product_name = 'test_product_list_only_for_certain_tenant'
+        product_name = 'name1'
         version = '1.0'
         tenant_id_owner = utils.MEMBER_TENANT_ID
 
@@ -129,10 +129,10 @@ class TestSubscriptions(base.V1FunctionalTest):
         data = self.get_json('/products/',
                              headers={'X-Auth-Token':
                                       utils.MEMBER_OTHER_TOKEN})
-        self.assertNotIn(product_name, data['products'])
+        self.assertNotIn('name1', data['products'])
 
     def test_product_directly_owner(self):
-        product_name = 'test_product_directly_owner'
+        product_name = 'name1'
         version = '1.0'
         tenant_id_owner = utils.MEMBER_TENANT_ID
 
@@ -152,7 +152,7 @@ class TestSubscriptions(base.V1FunctionalTest):
         self.assertIn("1.0", data['versions'])
 
     def test_product_directly_not_owner(self):
-        product_name = 'test_product_directly_not_owner'
+        product_name = 'name1'
         version = '1.0'
         tenant_id_owner = utils.MEMBER_TENANT_ID
 
@@ -171,7 +171,7 @@ class TestSubscriptions(base.V1FunctionalTest):
                                utils.MEMBER_OTHER_TOKEN}, status=404)
 
     def test_product_version_directly_not_owner(self):
-        product_name = 'test_product_version_directly_not_owner'
+        product_name = 'name1'
         version = '1.0'
         tenant_id_owner = utils.MEMBER_TENANT_ID
 

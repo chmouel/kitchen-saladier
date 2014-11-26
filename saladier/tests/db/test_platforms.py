@@ -18,23 +18,21 @@ import saladier.tests.db.base as base
 
 class PlatformTestCase(base.DbTestCase):
     def test_create_platform(self):
-        product_name = 'test_create_platform'
-        self.dbapi.create_platform(name=product_name, location="location1",
+        self.dbapi.create_platform(name="name1", location="location1",
                                    contact="contact1", tenant_id="tenant1")
-        platform = self.dbapi.get_platform_by_name(product_name)
-        self.assertEqual(product_name, platform["name"])
+        platform = self.dbapi.get_platform_by_name("name1")
+        self.assertEqual("name1", platform["name"])
         self.assertEqual("location1", platform["location"])
         self.assertEqual("contact1", platform["contact"])
         self.assertEqual("tenant1", platform["tenant_id"])
 
     def test_delete_platform(self):
-        product_name = 'test_delete_platform'
-        self.dbapi.create_platform(name=product_name, location="location1",
+        self.dbapi.create_platform(name="name1", location="location1",
                                    contact="contact1", tenant_id="tenant1")
-        self.dbapi.delete_platform_by_name(product_name)
+        self.dbapi.delete_platform_by_name("name1")
         self.assertRaises(exception.PlatformNotFound,
                           self.dbapi.get_platform_by_name,
-                          product_name)
+                          "name1")
 
     def test_get_platform_notfound(self):
         self.assertRaises(exception.PlatformNotFound,
@@ -42,10 +40,9 @@ class PlatformTestCase(base.DbTestCase):
                           "name2")
 
     def test_create_product_conflict(self):
-        product_name = 'test_product_conflict'
-        self.dbapi.create_platform(name=product_name, location="location1",
+        self.dbapi.create_platform(name="name1", location="location1",
                                    contact="contact1", tenant_id="tenant1")
         self.assertRaises(exception.PlatformAlreadyExists,
-                          self.dbapi.create_platform, name=product_name,
+                          self.dbapi.create_platform, name="name1",
                           location="location1", contact="contact1",
                           tenant_id="tenant1")

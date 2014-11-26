@@ -21,8 +21,7 @@ class TestPlatforms(base.FunctionalTest):
         super(TestPlatforms, self).setUp()
 
     def test_platform_create(self):
-        product_name = 'TestPlatforms.test_platform_create'
-        platform_dict = dict(name=product_name,
+        platform_dict = dict(name="name1",
                              location="location1",
                              contact="platform@owner.org",
                              tenant_id="clarasoft")
@@ -31,13 +30,12 @@ class TestPlatforms(base.FunctionalTest):
         data = self.get_json('/platforms/')
         self.assertEqual(1, len(data['platforms']))
         self.assertEqual('platform@owner.org', data['platforms'][0]['contact'])
-        self.assertEqual(product_name, data['platforms'][0]['name'])
+        self.assertEqual('name1', data['platforms'][0]['name'])
         self.assertEqual('location1', data['platforms'][0]['location'])
         self.assertEqual('clarasoft', data['platforms'][0]['tenant_id'])
 
     def test_platform_create_user_denied(self):
-        product_name = 'TestPlatforms.test_platform_create_user_denied'
-        platform_dict = dict(name=product_name,
+        platform_dict = dict(name="name1",
                              location="location1",
                              contact="platform@owner.org",
                              tenant_id="clarasoft")
@@ -46,7 +44,7 @@ class TestPlatforms(base.FunctionalTest):
                        status=403)
 
     def test_platform_get_by_name(self):
-        name = 'test_platform_get_by_name'
+        name = 'name1'
         platform_dict = dict(name=name,
                              location="location1",
                              contact="platform@owner.org",
@@ -56,13 +54,12 @@ class TestPlatforms(base.FunctionalTest):
         data = self.get_json('/platforms/' + name)
 
         self.assertEqual('platform@owner.org', data['contact'])
-        self.assertEqual(name, data['name'])
+        self.assertEqual('name1', data['name'])
         self.assertEqual('location1', data['location'])
         self.assertEqual('clarasoft', data['tenant_id'])
 
     def test_platform_create_conflict(self):
-        product_name = 'TestPlatforms.test_platform_create_conflict'
-        platform_dict = dict(name=product_name,
+        platform_dict = dict(name="name1",
                              location="location1",
                              contact="platform@owner.org",
                              tenant_id="clarasoft")
@@ -75,25 +72,23 @@ class TestPlatforms(base.FunctionalTest):
         self.get_json('/platforms/random', status=404)
 
     def test_platform_delete(self):
-        product_name = 'test_platform_delete'
-        platform_dict = dict(name=product_name,
+        platform_dict = dict(name="name1",
                              location="location1",
                              contact="platform@owner.org",
                              tenant_id="clarasoft")
         self.post_json("/platforms", platform_dict, status=201)
 
-        status = self.delete('/platforms/' + product_name, status=204)
+        status = self.delete('/platforms/name1', status=204)
         self.assertEqual(204, status.status_int)
 
     def test_platform_delete_as_user(self):
-        product_name = 'TestPlatforms.test_platform_delete_as_user'
-        platform_dict = dict(name=product_name,
+        platform_dict = dict(name="name1",
                              location="location1",
                              contact="platform@owner.org",
                              tenant_id="clarasoft")
         self.post_json("/platforms", platform_dict, status=201)
 
-        status = self.delete('/platforms/' + product_name,
+        status = self.delete('/platforms/name1',
                              headers={'X-Auth-Token': utils.MEMBER_TOKEN},
                              expect_errors=True)
         self.assertEqual(403, status.status_int)
