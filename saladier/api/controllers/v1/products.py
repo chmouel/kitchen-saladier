@@ -24,8 +24,9 @@ class Product(base.APIBase):
     dict_field = 'versions'
 
     def version_info(self, specific_version=None):
-        # NOTE(chmou): We have that pv_gad cause 80 lines sucks big time!
+        # NOTE(chmou): We have those pv_gad/pv_gas cause 80 lines sucks!
         pv_gad = pecan.request.db_conn.get_all_product_versions
+        pv_gas = pecan.request.db_conn.get_all_status_by_version_id
         ret = {}
         for version in pv_gad(self.name):
             ret[version.version] = {
@@ -35,7 +36,7 @@ class Product(base.APIBase):
                 'ready_for_deploy': False,
                 # TODO(chmou): placeholder we will add all the platforms here
                 # where that product_version has been validated on.
-                'validated_on': {},
+                'validated_on': pv_gas(version.id)
             }
         return specific_version and ret[specific_version] or ret
 

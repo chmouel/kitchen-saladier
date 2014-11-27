@@ -12,6 +12,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+from saladier.db.sqlalchemy import models
 from saladier.tests.api import utils
 import saladier.tests.api.v1.base as base
 
@@ -109,3 +110,45 @@ class TestProducts(base.V1FunctionalTest):
                              headers={'X-Auth-Token': utils.MEMBER_TOKEN},
                              expect_errors=True)
         self.assertEqual(403, status.status_int)
+
+    def test_product_with_version_status(self):
+        self._create_sample_product(name='name1')
+        self._create_sample_product_version(product='name1', version="1.0")
+        pv_id = self._get_product_version_id("name1", "1.0")
+        self._create_sample_platform(name='plat1', location='location1',
+                                     contact='contact1')
+
+        status_dict = dict(platform_name='plat1',
+                           product_version_id=pv_id,
+                           status=models.Status.NOT_TESTED,
+                           logs_location="swift://localhost/deploy")
+        self.post_json("/status", status_dict, status=201)
+        result = self.get_json('/products/name1/1.0')
+        self.assertEqual(1, len(result['validated_on']))
+        result_validated_on = result['validated_on'][0]
+        self.assertEqual('plat1', result_validated_on['platform_name'])
+        self.assertEqual('swift://localhost/deploy',
+                         result_validated_on['logs_location'])
+        self.assertEqual('NOT_TESTED', result_validated_on['status'])
+
+    def test_product_with_update_version_status(self):
+        self._create_sample_product(name='name1')
+        self._create_sample_product_version(product='name1', version="1.0")
+        pv_id = self._get_product_version_id("name1", "1.0")
+        self._create_sample_platform(name='plat1', location='location1',
+                                     contact='contact1')
+
+        status_dict = dict(platform_name='plat1',
+                           product_version_id=pv_id,
+                           status=models.Status.NOT_TESTED,
+                           logs_location="swift://localhost/deploy")
+        self.post_json("/status", status_dict, status=201)
+
+        new_status_dict = dict(platform_name='plat1',
+                               product_version_id=pv_id,
+                               new_status=models.Status.SUCCESS,
+                               new_logs_location="swift://localhost/deploy")
+        self.put_json("/status", new_status_dict, status=204)
+        result = self.get_json('/products/name1/1.0')
+        result_validated_on = result['validated_on'][0]
+        self.assertEqual('SUCCESS', result_validated_on['status'])

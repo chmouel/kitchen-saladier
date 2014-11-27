@@ -17,7 +17,7 @@ import saladier.tests.api.base as base
 SAMPLE_JSON_PRODUCTS_NAME = {'contact': 'product@owner.org',
                              'team': 'team1',
                              'versions': {'1.0': {'ready_for_deploy': False,
-                                                  'validated_on': {}},
+                                                  'validated_on': []},
                                           '1.1': {'ready_for_deploy': False,
                                                   'validated_on': {}}}}
 
