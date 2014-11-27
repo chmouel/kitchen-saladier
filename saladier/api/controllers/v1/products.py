@@ -29,6 +29,7 @@ class Product(base.APIBase):
         ret = {}
         for version in pv_gad(self.name):
             ret[version.version] = {
+                'id': version.id,
                 # TODO(chmou): placeholder, we will need to have that updated
                 # properly when will have a decision maker API (tm)
                 'ready_for_deploy': False,

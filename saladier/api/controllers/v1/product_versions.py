@@ -20,7 +20,7 @@ import saladier.common.exception as exception
 
 
 class ProductVersions(base.APIBase):
-    fields = ['product_name', 'version', 'uri']
+    fields = ['id', 'product_name', 'version', 'uri']
 
 
 class ProductCollection(base.APIBaseCollections):
@@ -35,8 +35,7 @@ class ProductVersionsController(base.BaseRestController):
             return webob.exc.HTTPForbidden()
 
         try:
-            pecan.request.db_conn.create_product_version(
-                product, version, url)
+            pecan.request.db_conn.create_product_version(product, version, url)
             pecan.response.status = 201
         except exception.ProductVersionAlreadyExists:
             pecan.response.status = 409
