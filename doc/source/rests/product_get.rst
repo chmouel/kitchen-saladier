@@ -1,19 +1,21 @@
 GET /products/product1
 ======================
 
-Show specific product information and validations
-
+Show specific product information
 
 Returns::
 
-    200 OK
+    200
+
     {
-        "contact": "cedric@isthegreatest.com",
-        "team": "boa",
         "versions": {
-            "1.0": {
-                "ready_for_deploy": false,
-                "validated_on": {}
-            }
-        }
+                "1.0": {
+                        "ready_for_deploy": false,
+                        "id": "c857c729-4271-40b0-b721-28e4dbbd485d",
+                        "validated_on": {}
+                }
+        },
+        "contact": "cedric@isthegreatest.com",
+        "team": "boa"
     }
+

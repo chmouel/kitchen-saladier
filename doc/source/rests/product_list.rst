@@ -1,16 +1,17 @@
 GET /products/
 ==============
 
-List products available for the current users
-
+List available products for the current users
 
 Returns::
 
-    200 OK
+    200
+
     {
         "products": {
-            "product1": [
-                "1.0"
-            ]
+                "product1": [
+                        "1.0"
+                ]
         }
     }
+
