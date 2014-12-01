@@ -91,7 +91,7 @@ class ProductController(base.BaseRestController):
         p = ProductCollection(products)
         return p.as_dict()
 
-    @pecan.expose()
+    @pecan.expose('json')
     def post(self, name, team, contact):
         if not pecan.request.context.is_admin:
             return webob.exc.HTTPForbidden()

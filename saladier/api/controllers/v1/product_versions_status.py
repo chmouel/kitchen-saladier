@@ -30,7 +30,7 @@ class ProductVersionStatusCollection(base.APIBaseCollections):
 
 class ProductVersionsStatusController(base.BaseRestController):
 
-    @pecan.expose()
+    @pecan.expose('json')
     def post(self, platform_name, product_version_id, status, logs_location):
 
         platform = pecan.request.db_conn.get_platform_by_name(platform_name)

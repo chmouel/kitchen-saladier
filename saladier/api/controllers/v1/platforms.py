@@ -44,7 +44,7 @@ class PlatformController(base.BaseRestController):
         p = PlatformCollection(platforms)
         return p.as_dict()
 
-    @pecan.expose()
+    @pecan.expose('json')
     def post(self, name, location, contact, tenant_id):
         if not pecan.request.context.is_admin:
             return webob.exc.HTTPForbidden()

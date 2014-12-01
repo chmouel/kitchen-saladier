@@ -29,7 +29,7 @@ class ProductCollection(base.APIBaseCollections):
 
 
 class ProductVersionsController(base.BaseRestController):
-    @pecan.expose()
+    @pecan.expose('json')
     def post(self, product, version, url):
         if not pecan.request.context.is_admin:
             return webob.exc.HTTPForbidden()
