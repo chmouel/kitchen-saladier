@@ -3,17 +3,18 @@ GET /platforms/
 
 Show created platform
 
-
 Returns::
 
-    200 OK
+    200
+
     {
         "platforms": [
-            {
-                "contact": "thecedric@isthegreatest.com",
-                "location": "ParisEstMagique",
-                "name": "platform1",
-                "tenant_id": "0000101010101"
-            }
+                {
+                        "tenant_id": "0000101010101",
+                        "contact": "thecedric@isthegreatest.com",
+                        "name": "platform1",
+                        "location": "ParisEstMagique"
+                }
         ]
     }
+

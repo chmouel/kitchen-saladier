@@ -133,4 +133,12 @@ to communicate with the Saladier service itself.
 
 .. include:: rests/platform_delete.rst
 
+.. include:: rests/product_version_status_add.rst
+
+.. include:: rests/product_version_status_delete.rst
+
+.. include:: rests/product_version_status_get.rst
+
+.. include:: rests/product_version_status_update.rst
+
 .. _`Keystone policies`: https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux_OpenStack_Platform/4/html/Configuration_Reference_Guide/ch_configuring-openstack-identity.html#section_keystone-policy.json

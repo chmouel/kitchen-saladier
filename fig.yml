@@ -78,4 +78,4 @@ functional:
     - keystone
   volumes:
     - ./:/code
-  command: ./tools/container/functional/start.sh
+  command: ./tools/container/functional/start.py
