@@ -46,7 +46,7 @@ if ! keystone service-list|grep -q keystone; then
     /usr/bin/keystone service-create --name=saladier --type=ci --description="CI validation Service"
     # NOTE(chmou): we have to detect our own ip this sucks but fig don't expose it :(
     SALADIER_PORT_8777_TCP_ADDR=$(ip addr show eth0|sed -n '/inet / { s/.*inet //;s/\/.*//;p }')
-    export SALADIER_ENDPOINT_USER="http://${SALADIER_PORT_8777_TCP_ADDR}:8777/v1"
+    export SALADIER_ENDPOINT_USER="http://${SALADIER_PORT_8777_TCP_ADDR}:8777"
 
     /usr/bin/keystone endpoint-create \
                       --region RegionOne \
