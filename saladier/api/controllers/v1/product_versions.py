@@ -20,7 +20,7 @@ import saladier.common.exception as exception
 
 
 class ProductVersions(base.APIBase):
-    fields = ['id', 'product_name', 'version', 'uri']
+    fields = ['id', 'product_id', 'version', 'uri']
 
 
 class ProductCollection(base.APIBaseCollections):
@@ -30,22 +30,23 @@ class ProductCollection(base.APIBaseCollections):
 
 class ProductVersionsController(base.BaseRestController):
     @pecan.expose('json')
-    def post(self, product, version, url):
+    def post(self, product_id, version, url):
         if not pecan.request.context.is_admin:
             return webob.exc.HTTPForbidden()
 
         try:
-            pecan.request.db_conn.create_product_version(product, version, url)
+            pecan.request.db_conn.create_product_version(
+                product_id, version, url)
             pecan.response.status = 201
         except exception.ProductVersionAlreadyExists:
             pecan.response.status = 409
-            return "Product %s already exist" % product
+            return "Product %s already exist" % product_id
 
     @pecan.expose()
-    def delete(self, product, version):
+    def delete(self, product_id, version):
         if not pecan.request.context.is_admin:
             return webob.exc.HTTPForbidden()
 
         pecan.request.db_conn.delete_product_versions(
-            product, version)
+            product_id, version)
         pecan.response.status = 204

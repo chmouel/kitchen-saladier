@@ -18,20 +18,18 @@ import saladier.tests.api.v1.base as base
 
 class TestSubscriptions(base.V1FunctionalTest):
     def test_subscriptions_create(self):
-        product_name = "name1"
-        self._create_sample_product(name=product_name)
+        product_id = self._create_sample_product(name='name1')
 
-        subs_dict = dict(product_name=product_name,
+        subs_dict = dict(product_id=product_id,
                          tenant_id="0123456789")
         self.post_json("/subscriptions",
                        subs_dict,
                        status=201)
 
     def test_subscriptions_create_as_user_denied(self):
-        product_name = "name1"
-        self._create_sample_product(name=product_name)
+        product_id = self._create_sample_product(name='name1')
 
-        subs_dict = dict(product_name=product_name,
+        subs_dict = dict(product_id=product_id,
                          tenant_id="0123456789")
         self.post_json("/subscriptions",
                        subs_dict,
@@ -39,53 +37,49 @@ class TestSubscriptions(base.V1FunctionalTest):
                        status=403)
 
     def test_subscriptions_duplicate_error(self):
-        product_name = "name1"
-        self._create_sample_product(name=product_name)
+        product_id = self._create_sample_product(name='name1')
 
-        subs_dict = dict(product_name=product_name,
+        subs_dict = dict(product_id=product_id,
                          tenant_id="0123456789")
 
         self.post_json("/subscriptions", subs_dict, status=201)
         self.post_json("/subscriptions", subs_dict, status=409)
 
     def test_subscriptions_delete(self):
-        product_name = "name1"
         tenant_id = "0123456789"
 
-        self._create_sample_product(name=product_name)
+        product_id = self._create_sample_product(name='name1')
 
-        subs_dict = dict(product_name=product_name,
+        subs_dict = dict(product_id=product_id,
                          tenant_id=tenant_id)
         self.post_json("/subscriptions",
                        subs_dict,
                        status=201)
 
-        self.delete("/subscriptions/%s/%s/" % (product_name, tenant_id),
+        self.delete("/subscriptions/%s/%s/" % (product_id, tenant_id),
                     status=204)
 
     def test_subscriptions_delete_as_user_denied(self):
-        product_name = "name1"
         tenant_id = "0123456789"
 
-        self._create_sample_product(name=product_name)
+        product_id = self._create_sample_product(name='name1')
 
-        subs_dict = dict(product_name=product_name,
+        subs_dict = dict(product_id=product_id,
                          tenant_id=tenant_id)
         self.post_json("/subscriptions",
                        subs_dict,
                        status=201)
 
-        self.delete("/subscriptions/%s/%s/" % (product_name, tenant_id),
+        self.delete("/subscriptions/%s/%s/" % (product_id, tenant_id),
                     headers={'X-Auth-Token': utils.MEMBER_TOKEN},
                     status=403)
 
     def test_subscriptions_list(self):
-        product_name = "name1"
         tenant_id = "0123456789"
 
-        self._create_sample_product(name=product_name)
+        product_id = self._create_sample_product(name='name1')
 
-        subs_dict = dict(product_name=product_name,
+        subs_dict = dict(product_id=product_id,
                          tenant_id=tenant_id)
         self.post_json("/subscriptions",
                        subs_dict,
@@ -97,12 +91,11 @@ class TestSubscriptions(base.V1FunctionalTest):
     def test_subscriptions_list_user_denied(self):
         # FIXME(chmou): we have this but in the future this should be allowed
         # tailored to the user view permissions.
-        product_name = "name1"
         tenant_id = "0123456789"
 
-        self._create_sample_product(name=product_name)
+        product_id = self._create_sample_product(name='name1')
 
-        subs_dict = dict(product_name=product_name,
+        subs_dict = dict(product_id=product_id,
                          tenant_id=tenant_id)
         self.post_json("/subscriptions",
                        subs_dict,
@@ -113,16 +106,15 @@ class TestSubscriptions(base.V1FunctionalTest):
                       status=403)
 
     def test_product_list_only_for_certain_tenant(self):
-        product_name = 'name1'
         version = '1.0'
         tenant_id_owner = utils.MEMBER_TENANT_ID
 
-        self._create_sample_product(name=product_name)
+        product_id = self._create_sample_product(name='name1')
 
-        self._create_sample_product_version(product=product_name,
+        self._create_sample_product_version(product_id=product_id,
                                             version=version)
 
-        subs_dict = dict(product_name=product_name,
+        subs_dict = dict(product_id=product_id,
                          tenant_id=tenant_id_owner)
         self.post_json("/subscriptions", subs_dict, status=201)
 
@@ -132,59 +124,56 @@ class TestSubscriptions(base.V1FunctionalTest):
         self.assertNotIn('name1', data['products'])
 
     def test_product_directly_owner(self):
-        product_name = 'name1'
         version = '1.0'
         tenant_id_owner = utils.MEMBER_TENANT_ID
 
-        self._create_sample_product(name=product_name)
-        self._create_sample_product_version(product=product_name,
+        product_id = self._create_sample_product(name='name1')
+        self._create_sample_product_version(product_id=product_id,
                                             version=version)
 
-        subs_dict = dict(product_name=product_name,
+        subs_dict = dict(product_id=product_id,
                          tenant_id=tenant_id_owner)
         self.post_json("/subscriptions", subs_dict, status=201)
 
         # NOTE(chmou): 404 error cause it's not accessible to
         # MEMBER_OTHER_TOKEN
-        data = self.get_json('/products/%s' % (product_name),
+        data = self.get_json('/products/%s' % (product_id),
                              headers={'X-Auth-Token': utils.MEMBER_TOKEN},
                              status=200)
-        self.assertIn("1.0", data['versions'])
+        self.assertIn("1.0", sorted([x['version'] for x in data['versions']]))
 
     def test_product_directly_not_owner(self):
-        product_name = 'name1'
         version = '1.0'
         tenant_id_owner = utils.MEMBER_TENANT_ID
 
-        self._create_sample_product(name=product_name)
-        self._create_sample_product_version(product=product_name,
+        product_id = self._create_sample_product(name='name1')
+        self._create_sample_product_version(product_id=product_id,
                                             version=version)
 
-        subs_dict = dict(product_name=product_name,
+        subs_dict = dict(product_id=product_id,
                          tenant_id=tenant_id_owner)
         self.post_json("/subscriptions", subs_dict, status=201)
 
         # NOTE(chmou): 404 error cause it's not accessible to
         # MEMBER_OTHER_TOKEN
-        self.get_json('/products/%s' % (product_name),
+        self.get_json('/products/%s' % (product_id),
                       headers={'X-Auth-Token':
                                utils.MEMBER_OTHER_TOKEN}, status=404)
 
     def test_product_version_directly_not_owner(self):
-        product_name = 'name1'
         version = '1.0'
         tenant_id_owner = utils.MEMBER_TENANT_ID
 
-        self._create_sample_product(name=product_name)
-        self._create_sample_product_version(product=product_name,
+        product_id = self._create_sample_product(name='name1')
+        self._create_sample_product_version(product_id=product_id,
                                             version=version)
 
-        subs_dict = dict(product_name=product_name,
+        subs_dict = dict(product_id=product_id,
                          tenant_id=tenant_id_owner)
         self.post_json("/subscriptions", subs_dict, status=201)
 
         # NOTE(chmou): 404 error cause it's not accessible to
         # MEMBER_OTHER_TOKEN
-        self.get_json('/products/%s/%s' % (product_name, version),
+        self.get_json('/products/%s/%s' % (product_id, version),
                       headers={'X-Auth-Token':
                                utils.MEMBER_OTHER_TOKEN}, status=404)

@@ -20,7 +20,8 @@ import saladier.common.exception as exception
 
 
 class ProductVersionsStatus(base.APIBase):
-    fields = ['product_version_id', 'platform_name', 'status', 'logs_location']
+    fields = ['id', 'product_version_id', 'platform_id',
+              'status', 'logs_location']
 
 
 class ProductVersionStatusCollection(base.APIBaseCollections):
@@ -31,16 +32,16 @@ class ProductVersionStatusCollection(base.APIBaseCollections):
 class ProductVersionsStatusController(base.BaseRestController):
 
     @pecan.expose('json')
-    def post(self, platform_name, product_version_id, status, logs_location):
+    def post(self, platform_id, product_version_id, status, logs_location):
 
-        platform = pecan.request.db_conn.get_platform_by_name(platform_name)
+        platform = pecan.request.db_conn.get_platform(platform_id)
 
         if ((platform.tenant_id != pecan.request.context.tenant) and
                 not pecan.request.context.is_admin):
             return webob.exc.HTTPForbidden()
 
         try:
-            pecan.request.db_conn.add_version_status(platform_name,
+            pecan.request.db_conn.add_version_status(platform_id,
                                                      product_version_id,
                                                      status,
                                                      logs_location)
@@ -49,40 +50,40 @@ class ProductVersionsStatusController(base.BaseRestController):
             pecan.response.status = 409
 
     @pecan.expose()
-    def delete(self, platform_name, product_version_id):
-        platform = pecan.request.db_conn.get_platform_by_name(platform_name)
+    def delete(self, platform_id, product_version_id):
+        platform = pecan.request.db_conn.get_platform(platform_id)
 
         if ((platform.tenant_id != pecan.request.context.tenant) and
                 not pecan.request.context.is_admin):
             return webob.exc.HTTPForbidden()
 
-        pecan.request.db_conn.delete_version_status(platform_name,
+        pecan.request.db_conn.delete_version_status(platform_id,
                                                     product_version_id)
         pecan.response.status = 204
 
     @pecan.expose()
-    def put(self, platform_name, product_version_id, new_status,
-            new_logs_location):
-        platform = pecan.request.db_conn.get_platform_by_name(platform_name)
+    def put(self, platform_id, product_version_id, status,
+            logs_location):
+        platform = pecan.request.db_conn.get_platform(platform_id)
 
         if ((platform.tenant_id != pecan.request.context.tenant) and
                 not pecan.request.context.is_admin):
             return webob.exc.HTTPForbidden()
 
         try:
-            pecan.request.db_conn.update_version_status(platform_name,
+            pecan.request.db_conn.update_version_status(platform_id,
                                                         product_version_id,
-                                                        new_status,
-                                                        new_logs_location)
+                                                        status,
+                                                        logs_location)
             pecan.response.status = 204
         except exception.ProductVersionStatusNotFound:
             pecan.response.status = 404
 
     @pecan.expose('json')
-    def get(self, platform_name, product_version_id):
+    def get(self, platform_id, product_version_id):
         try:
-            platform = pecan.request.db_conn.get_platform_by_name(
-                platform_name)
+            platform = pecan.request.db_conn.get_platform(
+                platform_id)
         except exception.PlatformNotFound:
             pecan.response.status = 404
             return
@@ -93,7 +94,7 @@ class ProductVersionsStatusController(base.BaseRestController):
 
         try:
             pvs = ProductVersionsStatus(
-                pecan.request.db_conn.get_version_status(platform_name,
+                pecan.request.db_conn.get_version_status(platform_id,
                                                          product_version_id))
             pecan.response.status = 200
             return pvs.as_dict()

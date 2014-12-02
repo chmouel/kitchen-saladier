@@ -20,24 +20,32 @@ class ProductTestCase(base.DbTestCase):
     def test_create_product(self):
         self.dbapi.create_product(name="name1", team="team1",
                                   contact="contact1")
-        product = self.dbapi.get_product_by_name("name1",
-                                                 tenant_id='', admin=True)
+        product = self.dbapi.get_product("name1", tenant_id='', admin=True)
         self.assertEqual("name1", product["name"])
         self.assertEqual("team1", product["team"])
         self.assertEqual("contact1", product["contact"])
 
+    def test_get_product(self):
+        self.dbapi.create_product(name="name1", team="team1",
+                                  contact="contact1")
+        product_v1 = self.dbapi.get_product(
+            "name1", tenant_id='', admin=True)
+        product_v2 = self.dbapi.get_product(
+            product_v1.id, tenant_id='', admin=True)
+        self.assertEqual(product_v1.id, product_v2.id)
+
     def test_delete_product(self):
         self.dbapi.create_product(name="name1", team="team1",
                                   contact="contact1")
-        self.dbapi.delete_product_by_name("name1")
+        self.dbapi.delete_product("name1")
         self.assertRaises(exception.ProductNotFound,
-                          self.dbapi.get_product_by_name,
-                          "name1", tenant_id='', admin=True)
+                          self.dbapi.get_product,
+                          "fake_uuid", tenant_id='', admin=True)
 
     def test_get_product_notfound(self):
         self.assertRaises(exception.ProductNotFound,
-                          self.dbapi.get_product_by_name,
-                          "name2", tenant_id='', admin=True)
+                          self.dbapi.get_product,
+                          "fake_uuid", tenant_id='', admin=True)
 
     def test_create_product_conflict(self):
         self.dbapi.create_product(name="name1", team="team1",

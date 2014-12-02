@@ -20,34 +20,37 @@ import saladier.common.exception as exception
 
 
 class Product(base.APIBase):
-    fields = ['name', 'contact', 'team']
+    fields = ['id', 'name', 'contact', 'team']
     dict_field = 'versions'
 
-    def version_info(self, specific_version=None):
+    def version_info(self, product_version_id=None):
+        """Return the versions associated with the product.
+
+        :param product_version_id: only return a given version (optional)
+
+        """
         # NOTE(chmou): We have those pv_gad/pv_gas cause 80 lines sucks!
         pv_gad = pecan.request.db_conn.get_all_product_versions
         pv_gas = pecan.request.db_conn.get_all_status_by_version_id
-        ret = {}
-        for version in pv_gad(self.name):
-            ret[version.version] = {
+        ret = []
+        for version in pv_gad(self.id):
+            if product_version_id and version.id != product_version_id:
+                continue
+            ret.append({
                 'id': version.id,
+                'version': version.version,
                 # TODO(chmou): placeholder, we will need to have that updated
                 # properly when will have a decision maker API (tm)
                 'ready_for_deploy': False,
                 # TODO(chmou): placeholder we will add all the platforms here
                 # where that product_version has been validated on.
                 'validated_on': pv_gas(version.id)
-            }
-
-        if specific_version and specific_version in ret:
-            return ret[specific_version]
-        elif not specific_version:
-            return ret
-        else:
-            raise exception.ProductVersionNotFound(specific_version)
+            })
+        return ret
 
     def as_dict(self):
-        return dict(versions=self.version_info(),
+        return dict(id=self.id,
+                    versions=self.version_info(),
                     contact=self.contact,
                     team=self.team)
 
@@ -56,37 +59,32 @@ class ProductCollection(base.APIBaseCollections):
     _type = Product
     dict_field = 'products'
 
-    def as_dict(self):
-        # NOTE(chmou): We have that pv_gad cause 80 lines sucks big time!
-        pv_gad = pecan.request.db_conn.get_all_product_versions
-
-        # TODO(chmou): we may want to filter only for version when doing the
-        # get_all_product_versions call.
-        pv_fmt = lambda name: [v['version'] for v in pv_gad(name)]
-
-        return {self.dict_field:
-                dict((c.name, pv_fmt(c.name))
-                     for c in self.collections)}
-
 
 class ProductController(base.BaseRestController):
     @pecan.expose('json')
-    def get_one(self, name, *args):
+    def get_one(self, id, *args):
         try:
             p = Product(
-                pecan.request.db_conn.get_product_by_name(
-                    name, tenant_id=pecan.request.context.tenant,
+                pecan.request.db_conn.get_product(
+                    id, tenant_id=pecan.request.context.tenant,
                     admin=pecan.request.context.is_admin))
             # NOTE(chmou): This probably can be optimised in a nicer way, we
             # currently list everything in versions and filter manually in
             # python. There is many way to do that properly in sqla but since I
             # don't masterize let's keep it like that for now.
             if len(args) == 1:
-                return p.version_info(args[0])
+                version_id = args[0]
+                try:
+                    return p.version_info(version_id)[0]
+                except IndexError:
+                    pecan.response.status = 404
+                    return "Version %s of Product %s was not found" % (
+                        version_id, id)
             else:
                 return p.as_dict()
         except (exception.ProductNotFound, exception.ProductVersionNotFound):
             pecan.response.status = 404
+            return "Product %s was not found" % id
 
     @pecan.expose('json')
     def get_all(self):
@@ -110,8 +108,8 @@ class ProductController(base.BaseRestController):
             return "Product %s already exist" % name
 
     @pecan.expose()
-    def delete(self, name):
+    def delete(self, id):
         if not pecan.request.context.is_admin:
             return webob.exc.HTTPForbidden()
-        pecan.request.db_conn.delete_product_by_name(name=name)
+        pecan.request.db_conn.delete_product(id=id)
         pecan.response.status = 204

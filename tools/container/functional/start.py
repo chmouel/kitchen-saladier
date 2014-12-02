@@ -107,13 +107,21 @@ saladier_request("Create a product",
                       name="product1",
                       contact="cedric@isthegreatest.com"))
 
+resp = saladier_request("Get a product by name",
+                        "product_get",
+                        "/products/product1",
+                        ADMIN_TOKEN,
+                        "get",
+                        200)
+product_id = resp['id']
+
 saladier_request("Associate a product to a version",
                  "product_version_create",
                  "/versions",
                  ADMIN_TOKEN,
                  "post",
                  201,
-                 dict(product="product1",
+                 dict(product_id=product_id,
                       url="http://anywhereyoulike",
                       version="1.0"))
 
@@ -137,6 +145,7 @@ resp = saladier_request("Show created platform",
 if resp["platforms"][0]["contact"] != "thecedric@isthegreatest.com":
     print("Not expected created platform '%s'" % resp["platforms"][0])
     sys.exit(1)
+platform_id = resp["platforms"][0]["id"]
 
 saladier_request("Subscribe tenant '%s' to product" % USER_NAME,
                  "product_subscription_create",
@@ -144,7 +153,7 @@ saladier_request("Subscribe tenant '%s' to product" % USER_NAME,
                  ADMIN_TOKEN,
                  "post",
                  201,
-                 dict(product_name="product1",
+                 dict(product_id=product_id,
                       tenant_id=USER_TENANT_ID))
 
 resp = saladier_request("List available products for the current users",
@@ -153,24 +162,26 @@ resp = saladier_request("List available products for the current users",
                         USER_TOKEN,
                         "get",
                         200)
-if resp["products"] != dict(product1=['1.0']):
+
+if resp["products"][0]['versions'][0]['validated_on'] != []:
     print("Not expected products '%s'" % resp["products"])
     sys.exit(1)
+version_id = resp["products"][0]['versions'][0]['id']
 
 resp = saladier_request("Show specific product information",
                         "product_get",
-                        "/products/product1",
+                        "/products/%s" % product_id,
                         USER_TOKEN,
                         "get",
                         200)
-if (("1.0" not in resp["versions"]) or
+if (("1.0" not in resp["versions"][0]['version']) or
         (not resp["contact"] == "cedric@isthegreatest.com")):
     print("Not expected product information '%s'" % resp)
     sys.exit(1)
 
 resp = saladier_request("Show specific product/version information",
                         "product_get_version",
-                        "/products/product1/1.0",
+                        "/products/%s/%s" % (product_id, version_id),
                         USER_TOKEN,
                         "get",
                         200)
@@ -185,22 +196,22 @@ saladier_request("Add a status to a product version",
                  ADMIN_TOKEN,
                  "post",
                  201,
-                 dict(platform_name='platform1',
+                 dict(platform_id=platform_id,
                       product_version_id=product_version_id,
                       status="NOT_TESTED",
                       logs_location="swift://localhost/deploy"))
 
 resp = saladier_request("Show product version status",
                         "product_version_status_get",
-                        "/status/platform1/%s" % product_version_id,
+                        "/status/%s/%s" % (platform_id, product_version_id),
                         ADMIN_TOKEN,
                         "get",
                         200,
                         url_doc="/status/platform1/product_version_id")
-if ((resp["platform_name"] != "platform1") or
+if ((resp["platform_id"] != platform_id) or
         (resp["status"] != "NOT_TESTED") or
         (resp["logs_location"] != "swift://localhost/deploy")):
-    print("Not expect product version status '%s'" % resp)
+    print("Not expected product version status '%s'" % resp)
     sys.exit(1)
 
 saladier_request("Update the status of our product version",
@@ -209,14 +220,14 @@ saladier_request("Update the status of our product version",
                  ADMIN_TOKEN,
                  "put",
                  204,
-                 dict(platform_name='platform1',
+                 dict(platform_id=platform_id,
                       product_version_id=product_version_id,
-                      new_status="SUCCESS",
-                      new_logs_location="swift://localhost/deploy_new"))
+                      status="SUCCESS",
+                      logs_location="swift://localhost/deploy_new"))
 
 saladier_request("Delete status of our product",
                  "product_version_status_delete",
-                 "/status/platform1/%s" % product_version_id,
+                 "/status/%s/%s" % (platform_id, product_version_id),
                  ADMIN_TOKEN,
                  "delete",
                  204,
@@ -224,11 +235,11 @@ saladier_request("Delete status of our product",
 
 saladier_request("Delete subscription of '%s' to our product" % USER_NAME,
                  "product_subscription_delete",
-                 "/subscriptions/product1/%s" % USER_TENANT_ID,
+                 "/subscriptions/%s/%s" % (product_id, USER_TENANT_ID),
                  ADMIN_TOKEN,
                  "delete",
                  204,
-                 url_doc="/subscriptions/product1/tenant_id")
+                 url_doc="/subscriptions/%s/tenant_id" % product_id)
 
 saladier_request("Delete Association between product and version",
                  "product_version_delete",
@@ -239,14 +250,14 @@ saladier_request("Delete Association between product and version",
 
 saladier_request("Delete created product",
                  "product_delete",
-                 "/products/product1",
+                 "/products/%s" % product_id,
                  ADMIN_TOKEN,
                  "delete",
                  204)
 
 saladier_request("Delete created platform",
                  "platform_delete",
-                 "/platforms/platform1",
+                 "/platforms/%s" % platform_id,
                  ADMIN_TOKEN,
                  "delete",
                  204)

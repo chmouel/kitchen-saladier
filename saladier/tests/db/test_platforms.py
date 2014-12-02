@@ -20,23 +20,27 @@ class PlatformTestCase(base.DbTestCase):
     def test_create_platform(self):
         self.dbapi.create_platform(name="name1", location="location1",
                                    contact="contact1", tenant_id="tenant1")
-        platform = self.dbapi.get_platform_by_name("name1")
+        platform = self.dbapi.get_platform("name1")
         self.assertEqual("name1", platform["name"])
         self.assertEqual("location1", platform["location"])
         self.assertEqual("contact1", platform["contact"])
         self.assertEqual("tenant1", platform["tenant_id"])
+        self.assertEqual("name1",
+                         self.dbapi.get_platform(platform.id).name)
 
     def test_delete_platform(self):
-        self.dbapi.create_platform(name="name1", location="location1",
-                                   contact="contact1", tenant_id="tenant1")
-        self.dbapi.delete_platform_by_name("name1")
+        name = "name1"
+        platform = self.dbapi.create_platform(
+            name=name, location="location1",
+            contact="contact1", tenant_id="tenant1")
+        self.dbapi.delete_platform(platform.id)
         self.assertRaises(exception.PlatformNotFound,
-                          self.dbapi.get_platform_by_name,
-                          "name1")
+                          self.dbapi.get_platform,
+                          name)
 
     def test_get_platform_notfound(self):
         self.assertRaises(exception.PlatformNotFound,
-                          self.dbapi.get_platform_by_name,
+                          self.dbapi.get_platform,
                           "name2")
 
     def test_create_product_conflict(self):

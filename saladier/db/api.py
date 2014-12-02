@@ -109,12 +109,13 @@ class Connection(object):  # TODO(chmouel): base class
 
         try:
             product.save()
+            return product
         except db_exc.DBDuplicateEntry:
             raise exception.ProductAlreadyExists(name)
 
-    def delete_product_by_name(self, name):
-        # TODO(chmouel): Check that product is not used by something else
-        query = model_query(models.Product).filter_by(name=name)
+    def delete_product(self, id):
+        query = model_query(models.Product).filter(
+            (models.Product.id == id) | (models.Product.name == id))
         query.delete()
 
     # TODO(chmou): Make those filters working (they don't do anything yet)
@@ -122,9 +123,8 @@ class Connection(object):  # TODO(chmouel): base class
                          filters=None, limit=None,
                          marker=None, sort_key=None,
                          sort_dir=None):
-        sort_key = sort_key or 'name'  # TODO(chmouel): sort by ID
+        sort_key = sort_key or 'name'
         query = model_query(models.Product)
-
         # NOTE(chmou): This would list everthing when in admins
         if not admin:
             query = query.join(models.Subscriptions).filter(
@@ -132,8 +132,9 @@ class Connection(object):  # TODO(chmouel): base class
         return _paginate_query(models.Product, limit, marker,
                                sort_key, sort_dir, query)
 
-    def get_product_by_name(self, name, tenant_id, admin=False):
-        query = model_query(models.Product).filter_by(name=name)
+    def get_product(self, id, tenant_id, admin=False):
+        query = model_query(models.Product).filter(
+            (models.Product.id == id) | (models.Product.name == id))
 
         if not admin:
             query = query.join(models.Subscriptions).filter(
@@ -141,16 +142,15 @@ class Connection(object):  # TODO(chmouel): base class
         try:
             return query.one()
         except saladier.db.sqlalchemy.exc.NoResultFound:
-            raise exception.ProductNotFound(name=name)
+            raise exception.ProductNotFound(name=id)
 
-    # TODO(chmou): we are doing product_name thing for product_version but we
-    # really should switch to id soon!
-    def create_product_version(self, product_name, version, uri):
+    def create_product_version(self, product_id, version, uri):
         query = model_query(models.ProductVersion)
-        if query.filter_by(product_name=product_name, version=version).all():
-            raise exception.ProductVersionAlreadyExists(product_name)
+        if query.filter(models.Product.id == product_id).filter_by(
+                version=version).all():
+            raise exception.ProductVersionAlreadyExists(product_id)
         new = models.ProductVersion(version=version,
-                                    product_name=product_name,
+                                    product_id=product_id,
                                     uri=uri)
         new.save()
         return new
@@ -161,17 +161,17 @@ class Connection(object):  # TODO(chmouel): base class
         try:
             return query.one()
         except saladier.db.sqlalchemy.exc.NoResultFound:
-            raise exception.ProductVersionNotFound(id=id)
+            raise exception.ProductVersionNotFound(name=id)
 
-    def get_all_product_versions(self, product_name):
+    def get_all_product_versions(self, product_id):
         query = model_query(models.ProductVersion)
-        res = query.filter_by(product_name=product_name).all()
+        res = query.filter(models.Product.id == product_id).all()
         # TODO(chmou): filtering/paging and such
         return res
 
-    def delete_product_versions(self, product_name, version):
+    def delete_product_versions(self, product_id, version):
         query = model_query(models.ProductVersion).filter_by(
-            product_name=product_name, version=version)
+            product_id=product_id, version=version)
         query.delete()
 
     def create_platform(self, name, location, contact, tenant_id):
@@ -180,38 +180,42 @@ class Connection(object):  # TODO(chmouel): base class
 
         try:
             platform.save()
+            return platform
         except db_exc.DBDuplicateEntry:
             raise exception.PlatformAlreadyExists(name)
 
-    def delete_platform_by_name(self, name):
-        query = model_query(models.Platform).filter_by(name=name)
+    def delete_platform(self, id):
+        query = model_query(models.Platform).filter(
+            (models.Platform.id == id) | (models.Platform.name == id))
         query.delete()
 
     def get_all_platforms(self, filters=None, limit=None, marker=None,
                           sort_key=None, sort_dir=None):
         sort_key = sort_key or 'name'
+        query = model_query(models.Platform)
         return _paginate_query(models.Platform, limit, marker,
-                               sort_key, sort_dir)
+                               sort_key, sort_dir, query)
 
-    def get_platform_by_name(self, name):
-        query = model_query(models.Platform).filter_by(name=name)
+    def get_platform(self, id):
+        query = model_query(models.Platform).filter(
+            (models.Platform.id == id) | (models.Platform.name == id))
         try:
             return query.one()
         except saladier.db.sqlalchemy.exc.NoResultFound:
-            raise exception.PlatformNotFound(name=name)
+            raise exception.PlatformNotFound(name=id)
 
     # -*- Subscriptions -*-
-    def create_subscription(self, tenant_id, product_name):
+    def create_subscription(self, tenant_id, product_id):
         query = models.Subscriptions(tenant_id=tenant_id,
-                                     product_name=product_name)
+                                     product_id=product_id)
         try:
             query.save()
         except db_exc.DBDuplicateEntry:
-            raise exception.SubscriptionAlreadyExists(product_name)
+            raise exception.SubscriptionAlreadyExists(product_id)
 
-    def delete_subscription(self, product_name, tenant_id):
+    def delete_subscription(self, product_id, tenant_id):
         model = (model_query(models.Subscriptions).
-                 filter_by(product_name=product_name).
+                 filter_by(product_id=product_id).
                  filter_by(tenant_id=tenant_id))
         model.delete()
 
@@ -220,20 +224,20 @@ class Connection(object):  # TODO(chmouel): base class
             tenant_id=tenant_id)
         return query.all()
 
-    def add_version_status(self, platform_name, product_version_id, status,
+    def add_version_status(self, platform_id, product_version_id, status,
                            logs_location):
         versions_status = (model_query(models.ProductVersionStatus).
-                           filter_by(platform_name=platform_name).
+                           filter_by(platform_id=platform_id).
                            filter_by(product_version_id=product_version_id).
                            first())
 
         if versions_status:
             raise exception.ProductVersionStatusAlreadyExists(
-                "%s,%s" % (platform_name, product_version_id))
+                "%s,%s" % (platform_id, product_version_id))
 
         session = get_session()
         with session.begin(subtransactions=True):
-            platform = self.get_platform_by_name(platform_name)
+            platform = self.get_platform(platform_id)
             product_version = self.get_product_version_by_id(
                 product_version_id, session=session)
             product_version_status = models.ProductVersionStatus(
@@ -243,17 +247,18 @@ class Connection(object):  # TODO(chmouel): base class
             try:
                 product_version.save(session)
             except exception.SaladierFlushError:
+                # NOTE(Gonéri): I think this should never happend
                 raise exception.ProductVersionStatusAlreadyExists(
-                    name="%s, %s" % (platform_name, product_version_id))
+                    name="%s, %s" % (platform_id, product_version_id))
 
-    def get_version_status(self, platform_name, product_version_id):
+    def get_version_status(self, platform_id, product_version_id):
         query = model_query(models.ProductVersionStatus)
         try:
-            return query.filter_by(platform_name=platform_name,
+            return query.filter_by(platform_id=platform_id,
                                    product_version_id=product_version_id).one()
         except saladier.db.sqlalchemy.exc.NoResultFound:
             raise exception.ProductVersionStatusNotFound(
-                id="%s,%s" % (platform_name, product_version_id))
+                "name=%s,%s" % (platform_id, product_version_id))
 
     def get_all_status_by_version_id(self, product_version_id):
         query = model_query(models.ProductVersionStatus)
@@ -265,16 +270,16 @@ class Connection(object):  # TODO(chmouel): base class
     def get_all_versions_status(self):
         return model_query(models.ProductVersionStatus).all()
 
-    def update_version_status(self, platform_name, product_version_id,
-                              new_status, new_logs_location):
+    def update_version_status(self, platform_id, product_version_id,
+                              status, logs_location):
 
-        product_version_status = self.get_version_status(platform_name,
+        product_version_status = self.get_version_status(platform_id,
                                                          product_version_id)
-        product_version_status.status = new_status
-        product_version_status.logs_location = new_logs_location
+        product_version_status.status = status
+        product_version_status.logs_location = logs_location
         product_version_status.save()
 
-    def delete_version_status(self, platform_name, product_version_id):
+    def delete_version_status(self, platform_id, product_version_id):
         query = model_query(models.ProductVersionStatus).filter_by(
-            platform_name=platform_name, product_version_id=product_version_id)
+            platform_id=platform_id, product_version_id=product_version_id)
         query.delete()

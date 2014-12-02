@@ -104,11 +104,11 @@ class SubscriptionAlreadyExists(Conflict):
 
 
 class ProductVersionNotFound(Conflict):
-    message = "Version %(id)s is not found."
+    message = "Version %(name)s is not found."
 
 
 class ProductVersionStatusNotFound(Conflict):
-    message = "Product version status %(id)s is not found."
+    message = "Product version status %(name)s is not found."
 
 
 class ProductVersionStatusAlreadyExists(Conflict):

@@ -41,7 +41,8 @@ class Product(Base):
     __tablename__ = "products"
     __table_args__ = {'sqlite_autoincrement': True}
 
-    id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
+    id = sqlalchemy.Column(sqlalchemy.String(36), primary_key=True,
+                           default=lambda: str(uuid.uuid4()))
     name = sqlalchemy.Column(sqlalchemy.String(255), unique=True,
                              nullable=False)
     team = sqlalchemy.Column(sqlalchemy.String(255), nullable=False)
@@ -57,26 +58,30 @@ class ProductVersion(Base):
 
     id = sqlalchemy.Column(sqlalchemy.String(36), primary_key=True,
                            default=lambda: str(uuid.uuid4()))
+    # TODO(Gonéri): version should be called name for consistency
     version = sqlalchemy.Column(sqlalchemy.String(255))
-    product_name = sqlalchemy.Column(sqlalchemy.String(255),
-                                     sqlalchemy.ForeignKey('products.name'))
+    product_id = sqlalchemy.Column(sqlalchemy.String(36),
+                                   sqlalchemy.ForeignKey('products.id',
+                                                         ondelete='cascade'))
     uri = sqlalchemy.Column(sqlalchemy.String(255))
     platforms = orm.relationship("ProductVersionStatus")
 
     def __repr__(self):
-        return "<ProductVersion(product_name='%s', version='%s')>" % (
-            self.product_name, self.version)
+        return "<ProductVersion(product_id='%s', version='%s')>" % (
+            self.product_id, self.version)
 
 
 class Platform(Base):
     __tablename__ = "platforms"
 
+    id = sqlalchemy.Column(sqlalchemy.String(36), primary_key=True,
+                           default=lambda: str(uuid.uuid4()))
     name = sqlalchemy.Column(sqlalchemy.String(255), unique=True,
-                             nullable=False, primary_key=True)
+                             nullable=False)
     location = sqlalchemy.Column(sqlalchemy.String(255), nullable=False)
     contact = sqlalchemy.Column(sqlalchemy.String(255), nullable=False)
 
-    tenant_id = sqlalchemy.Column(sqlalchemy.String(255), nullable=False)
+    tenant_id = sqlalchemy.Column(sqlalchemy.String(36), nullable=False)
 
     def __repr__(self):
         return ("<Platform(name='%s', location='%s', contact='%s', "
@@ -87,20 +92,21 @@ class Platform(Base):
 class Subscriptions(Base):
     __tablename__ = "subscriptions"
     __table_args__ = (
-        sqlalchemy.schema.UniqueConstraint('product_name',
+        sqlalchemy.schema.UniqueConstraint('product_id',
                                            'tenant_id',
                                            name='uniq_tenantname@product'),
     )
     id = sqlalchemy.Column(sqlalchemy.String(36), primary_key=True,
                            default=lambda: str(uuid.uuid4()))
 
-    tenant_id = sqlalchemy.Column(sqlalchemy.String(255), nullable=False)
-    product_name = sqlalchemy.Column(sqlalchemy.String(255),
-                                     sqlalchemy.ForeignKey('products.name'))
+    tenant_id = sqlalchemy.Column(sqlalchemy.String(36), nullable=False)
+    product_id = sqlalchemy.Column(sqlalchemy.String(36),
+                                   sqlalchemy.ForeignKey('products.id',
+                                                         ondelete='cascade'))
 
     def __repr__(self):
-        str = "<Subscriptions(tenant_id='%s', product_name='%s')>"
-        return str % (self.tenant_id, self.product_name)
+        str = "<Subscriptions(tenant_id='%s', product_id='%s')>"
+        return str % (self.tenant_id, self.product_id)
 
 
 class Status:
@@ -112,13 +118,14 @@ class Status:
 class ProductVersionStatus(Base):
     __tablename__ = "product_versions_status"
 
+    id = sqlalchemy.Column(sqlalchemy.String(36), primary_key=True,
+                           default=lambda: str(uuid.uuid4()))
     product_version_id = sqlalchemy.Column(sqlalchemy.String(36),
                                            sqlalchemy.ForeignKey(
-                                               'product_versions.id'),
-                                           primary_key=True)
-    platform_name = sqlalchemy.Column(sqlalchemy.String(255),
-                                      sqlalchemy.ForeignKey('platforms.name'),
-                                      primary_key=True)
+                                               'product_versions.id'))
+    platform_id = sqlalchemy.Column(sqlalchemy.String(36),
+                                    sqlalchemy.ForeignKey('platforms.id',
+                                                          ondelete='cascade'))
     status = sqlalchemy.Column(sqlalchemy.String(255), nullable=False)
     logs_location = sqlalchemy.Column(sqlalchemy.String(255))
     platform = orm.relationship("Platform")

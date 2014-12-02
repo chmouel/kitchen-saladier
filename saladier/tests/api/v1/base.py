@@ -20,10 +20,53 @@ SAMPLE_JSON_PRODUCTS_NAME = {'contact': 'product@owner.org',
                                                   'validated_on': []},
                                           '1.1': {'ready_for_deploy': False,
                                                   'validated_on': {}}}}
-
-SAMPLE_JSON_PRODUCTS = {'products': {'name1': ['1.1', '1.0'],
-                                     'name2': ['2.0', '2.1']}}
-
+SAMPLE_JSON_PRODUCTS_INPUT = {'products': {'name1': ['1.1', '1.0'],
+                                           'name2': ['2.0', '2.1']}}
+SAMPLE_JSON_PRODUCTS_EXPECT = {
+    'products': [
+        {
+            'contact': 'product@owner.org',
+            'id': 'skip',
+            'team': 'team1',
+            'versions': [{'id': 'skip',
+                          'ready_for_deploy': False,
+                          'validated_on': [],
+                          'version': 'skip'},
+                         {'id': 'skip',
+                          'ready_for_deploy': False,
+                          'validated_on': [],
+                          'version': 'skip'},
+                         {'id': 'skip',
+                          'ready_for_deploy': False,
+                          'validated_on': [],
+                          'version': 'skip'},
+                         {'id': 'skip',
+                          'ready_for_deploy': False,
+                          'validated_on': [],
+                          'version': 'skip'}]},
+        {
+            'contact': 'product@owner.org',
+            'id': 'skip',
+            'team': 'team1',
+            'versions': [{'id': 'skip',
+                          'ready_for_deploy': False,
+                          'validated_on': [],
+                          'version': 'skip'},
+                         {'id': 'skip',
+                          'ready_for_deploy': False,
+                          'validated_on': [],
+                          'version': 'skip'},
+                         {'id': 'skip',
+                          'ready_for_deploy': False,
+                          'validated_on': [],
+                          'version': 'skip'},
+                         {'id': 'skip',
+                          'ready_for_deploy': False,
+                          'validated_on': [],
+                          'version': 'skip'}]
+        }
+    ]
+}
 SAMPLE_JSON_PLATFORM = {'contact': 'platform@owner.org',
                         'location': 'Paris',
                         'name': 'platform1',
@@ -41,19 +84,31 @@ class V1FunctionalTest(base.FunctionalTest):
                          team=team,
                          contact=contact)
         self.post_json("/products", prod_dict, status=201)
+        return self._get_product_id(name)
 
-    def _create_sample_product_version(self, product=None,
+    def _create_sample_product_version(self, product_id=None,
                                        url=None, version=None):
-        product = product or 'name1'
         url = url or 'http://sample_url'
         version = version or ''
 
-        version_dict = dict(product=product, url=url, version=version)
+        version_dict = dict(product_id=product_id, url=url, version=version)
         self.post_json("/versions", version_dict, status=201)
+        return self._get_product_version_id_by_version_name(product_id,
+                                                            version)
 
-    def _get_product_version_id(self, product_name, version):
-        data = self.get_json('/products/%s/%s' % (product_name, version))
-        return data["id"]
+    def _get_product_version_id_by_version_name(self, product_id, version):
+        data = self.get_json('/products/%s' % (product_id))
+        for v in data['versions']:
+            if v['version'] == version:
+                return(v['id'])
+
+    def _get_product_id(self, product_name):
+        data = self.get_json('/products/%s' % product_name)
+        return data['id']
+
+    def _get_platform_id(self, platform_name):
+        data = self.get_json('/platforms/%s' % platform_name)
+        return data['id']
 
     def _create_sample_platform(self, name=None, location=None, contact=None,
                                 tenant_id=None):
@@ -66,10 +121,11 @@ class V1FunctionalTest(base.FunctionalTest):
                          contact=contact,
                          tenant_id=tenant_id)
         self.post_json("/platforms", plat_dict, status=201)
+        return self._get_platform_id(name)
 
-    def _add_version_status(self, platform_name, product_version_id, status,
+    def _add_version_status(self, platform_id, product_version_id, status,
                             logs_location):
-        status_dict = dict(platform_name=platform_name,
+        status_dict = dict(platform=platform_id,
                            product_version_id=product_version_id,
                            status=status,
                            logs_location=logs_location)

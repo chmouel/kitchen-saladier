@@ -20,7 +20,7 @@ import saladier.common.exception as exception
 
 
 class Subscription(base.APIBase):
-    fields = ['tenant_id', 'product_name']
+    fields = ['id', 'tenant_id', 'product_id']
 
 
 class SubscriptionCollection(base.APIBaseCollections):
@@ -30,21 +30,21 @@ class SubscriptionCollection(base.APIBaseCollections):
 
 class SubscriptionController(base.BaseRestController):
     @pecan.expose('json')
-    def post(self, tenant_id, product_name):
+    def post(self, tenant_id, product_id):
         if not pecan.request.context.is_admin:
             return webob.exc.HTTPForbidden()
 
         try:
-            pecan.request.db_conn.create_subscription(tenant_id, product_name)
+            pecan.request.db_conn.create_subscription(tenant_id, product_id)
             pecan.response.status = 201
         except exception.SubscriptionAlreadyExists:
             pecan.response.status = 409
 
     @pecan.expose()
-    def delete(self, product_name, tenant_id):
+    def delete(self, product_id, tenant_id):
         if not pecan.request.context.is_admin:
             return webob.exc.HTTPForbidden()
-        pecan.request.db_conn.delete_subscription(product_name, tenant_id)
+        pecan.request.db_conn.delete_subscription(product_id, tenant_id)
         pecan.response.status = 204
 
     @pecan.expose('json')

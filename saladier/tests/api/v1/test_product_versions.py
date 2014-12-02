@@ -18,30 +18,31 @@ import saladier.tests.api.v1.base as base
 
 class TestProductVersions(base.V1FunctionalTest):
     def test_product_version_create(self):
-        self._create_sample_product(name='name1')
+        product_id = self._create_sample_product(name='name1')
+        self.assertTrue(product_id)
 
         for version in ['1.0', '1.1']:
-            self._create_sample_product_version(product='name1',
+            self._create_sample_product_version(product_id=product_id,
                                                 version=version)
 
     def test_product_version_delete(self):
-        self._create_sample_product(name='name1')
-        self._create_sample_product_version(product='name1',
+        product_id = self._create_sample_product(name='name1')
+        self._create_sample_product_version(product_id=product_id,
                                             version="1.0")
-        self.delete('/versions/name1/1.0', status=204)
+        self.delete('/versions/%s/1.0' % product_id, status=204)
 
     def test_product_version_delete_as_user(self):
-        self._create_sample_product(name='name1')
-        self._create_sample_product_version(product='name1',
+        product_id = self._create_sample_product(name='name1')
+        self._create_sample_product_version(product_id=product_id,
                                             version="1.0")
-        self.delete('/versions/name1/1.0',
+        self.delete('/versions/%s/1.0' % product_id,
                     headers={'X-Auth-Token': utils.MEMBER_TOKEN},
                     status=403)
 
     def test_product_version_create_user_denied(self):
-        self._create_sample_product(name='name1')
+        product_id = self._create_sample_product(name='name1')
 
-        version_dict = dict(product="name1",
+        version_dict = dict(product_id=product_id,
                             url="http://localhost/",
                             version="1.0")
         self.post_json("/versions",
@@ -50,9 +51,9 @@ class TestProductVersions(base.V1FunctionalTest):
                        status=403)
 
     def test_product_version_create_conflicts(self):
-        self._create_sample_product(name='name1')
+        product_id = self._create_sample_product(name='name1')
 
-        version_dict = dict(product="name1",
+        version_dict = dict(product_id=product_id,
                             url="http://localhost/",
                             version="1.0")
         self.post_json("/versions",

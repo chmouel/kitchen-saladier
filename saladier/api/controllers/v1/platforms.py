@@ -20,7 +20,7 @@ import saladier.common.exception as exception
 
 
 class Platform(base.APIBase):
-    fields = ['name', 'location', 'contact', 'tenant_id']
+    fields = ['id', 'name', 'location', 'contact', 'tenant_id']
 
 
 class PlatformCollection(base.APIBaseCollections):
@@ -30,13 +30,13 @@ class PlatformCollection(base.APIBaseCollections):
 
 class PlatformController(base.BaseRestController):
     @pecan.expose('json')
-    def get(self, name):
+    def get(self, id):
         try:
-            p = Platform(pecan.request.db_conn.get_platform_by_name(name))
+            p = Platform(pecan.request.db_conn.get_platform(id))
             return p.as_dict()
         except exception.PlatformNotFound:
             pecan.response.status = 404
-            return "Platform %s was not found" % name
+            return "Platform %s was not found" % id
 
     @pecan.expose('json')
     def get_all(self):
@@ -59,8 +59,8 @@ class PlatformController(base.BaseRestController):
             return "Platform %s already exist" % name
 
     @pecan.expose()
-    def delete(self, name):
+    def delete(self, id):
         if not pecan.request.context.is_admin:
             return webob.exc.HTTPForbidden()
-        pecan.request.db_conn.delete_platform_by_name(name=name)
+        pecan.request.db_conn.delete_platform(id=id)
         pecan.response.status = 204

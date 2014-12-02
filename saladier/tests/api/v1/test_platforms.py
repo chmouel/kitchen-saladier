@@ -12,11 +12,11 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-import saladier.tests.api.base as base
 from saladier.tests.api import utils
+import saladier.tests.api.v1.base as base
 
 
-class TestPlatforms(base.FunctionalTest):
+class TestPlatforms(base.V1FunctionalTest):
     def setUp(self):
         super(TestPlatforms, self).setUp()
 
@@ -43,18 +43,18 @@ class TestPlatforms(base.FunctionalTest):
                        headers={'X-Auth-Token': utils.MEMBER_TOKEN},
                        status=403)
 
-    def test_platform_get_by_name(self):
+    def test_platform_get_by_id(self):
         name = 'name1'
         platform_dict = dict(name=name,
                              location="location1",
                              contact="platform@owner.org",
                              tenant_id="clarasoft")
         self.post_json("/platforms", platform_dict)
-
-        data = self.get_json('/platforms/' + name)
+        platform_id = self._get_platform_id(name)
+        data = self.get_json('/platforms/' + platform_id)
 
         self.assertEqual('platform@owner.org', data['contact'])
-        self.assertEqual('name1', data['name'])
+        self.assertEqual(name, data['name'])
         self.assertEqual('location1', data['location'])
         self.assertEqual('clarasoft', data['tenant_id'])
 
@@ -72,13 +72,14 @@ class TestPlatforms(base.FunctionalTest):
         self.get_json('/platforms/random', status=404)
 
     def test_platform_delete(self):
-        platform_dict = dict(name="name1",
+        name = "name1"
+        platform_dict = dict(name=name,
                              location="location1",
                              contact="platform@owner.org",
                              tenant_id="clarasoft")
         self.post_json("/platforms", platform_dict, status=201)
-
-        status = self.delete('/platforms/name1', status=204)
+        platform_id = self._get_platform_id(name)
+        status = self.delete('/platforms/%s' % platform_id, status=204)
         self.assertEqual(204, status.status_int)
 
     def test_platform_delete_as_user(self):
