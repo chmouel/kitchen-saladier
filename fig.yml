@@ -76,6 +76,7 @@ functional:
   links:
     - saladier
     - keystone
+    - db
   volumes:
     - ./:/code
-  command: ./tools/container/functional/start.py
+  command: ./tools/container/functional/start.sh
