@@ -16,7 +16,6 @@ import itertools
 
 import saladier.api
 import saladier.common.exception
-import saladier.common.paths
 import saladier.openstack.common.log as log
 
 
