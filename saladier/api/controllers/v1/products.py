@@ -38,7 +38,13 @@ class Product(base.APIBase):
                 # where that product_version has been validated on.
                 'validated_on': pv_gas(version.id)
             }
-        return specific_version and ret[specific_version] or ret
+
+        if specific_version and specific_version in ret:
+            return ret[specific_version]
+        elif not specific_version:
+            return ret
+        else:
+            raise exception.ProductVersionNotFound(specific_version)
 
     def as_dict(self):
         return dict(versions=self.version_info(),
@@ -79,9 +85,8 @@ class ProductController(base.BaseRestController):
                 return p.version_info(args[0])
             else:
                 return p.as_dict()
-        except exception.ProductNotFound:
+        except (exception.ProductNotFound, exception.ProductVersionNotFound):
             pecan.response.status = 404
-            return "Product %s was not found" % name
 
     @pecan.expose('json')
     def get_all(self):

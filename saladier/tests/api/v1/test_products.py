@@ -76,6 +76,13 @@ class TestProducts(base.V1FunctionalTest):
                          result['ready_for_deploy'])
         self.assertEqual(ret_dict['validated_on'], result['validated_on'])
 
+    def test_product_get_by_name_and_non_existing_version(self):
+        name = 'name1'
+        version = 'None'
+
+        self._create_sample_product(name=name)
+        self.get_json('/products/%s/%s' % (name, version), status=404)
+
     def test_product_create_conflict(self):
         prod_dict = dict(name="name1",
                          team="team1",
