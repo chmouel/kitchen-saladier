@@ -52,6 +52,7 @@ class Product(base.APIBase):
         return dict(id=self.id,
                     versions=self.version_info(),
                     contact=self.contact,
+                    name=self.name,
                     team=self.team)
 
 

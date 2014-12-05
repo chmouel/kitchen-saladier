@@ -22,13 +22,18 @@ class TestProducts(base.V1FunctionalTest):
         super(TestProducts, self).setUp()
 
     def test_product_version_create_list(self):
-        product_id1 = self._create_sample_product(name='name1')
-        product_id2 = self._create_sample_product(name='name2')
+        product_name1 = 'name1'
+        product_name2 = 'name2'
 
-        for version in base.SAMPLE_JSON_PRODUCTS_INPUT['products']['name1']:
+        product_id1 = self._create_sample_product(name=product_name1)
+        product_id2 = self._create_sample_product(name=product_name2)
+
+        bs = base.SAMPLE_JSON_PRODUCTS_INPUT['products'][product_name1]
+        for version in bs:
             self._create_sample_product_version(product_id=product_id1,
                                                 version=version)
-        for version in base.SAMPLE_JSON_PRODUCTS_INPUT['products']['name2']:
+        bs2 = base.SAMPLE_JSON_PRODUCTS_INPUT['products'][product_name2]
+        for version in bs2:
             self._create_sample_product_version(product_id=product_id2,
                                                 version=version)
         result = self.get_json('/products/')
@@ -38,6 +43,14 @@ class TestProducts(base.V1FunctionalTest):
             for version in product['versions']:
                 version['id'] = 'skip'
                 version['version'] = 'skip'
+
+        # NOTE(chmou): set the first and second product names to what we have
+        # from the SAMPLE instead of what we define.
+        result['products'][0]['name'] = (
+            base.SAMPLE_JSON_PRODUCTS_EXPECT['products'][0]['name'])
+        result['products'][1]['name'] = (
+            base.SAMPLE_JSON_PRODUCTS_EXPECT['products'][1]['name'])
+
         self.assertEqual(base.SAMPLE_JSON_PRODUCTS_EXPECT,
                          result)
 
@@ -58,10 +71,12 @@ class TestProducts(base.V1FunctionalTest):
                                                  for x in result['versions']]))
 
     def test_product_get_by_name_no_version(self):
-        product_id = self._create_sample_product(name='name1')
+        product_name1 = 'name1'
+        product_id = self._create_sample_product(name=product_name1)
 
         ret_dict = {'id': product_id,
                     'versions': [],
+                    'name': product_name1,
                     'contact': base.SAMPLE_JSON_PRODUCTS_NAME['contact'],
                     'team': base.SAMPLE_JSON_PRODUCTS_NAME['team']}
         self.assertEqual(ret_dict, self.get_json('/products/%s' % product_id))
