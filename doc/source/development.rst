@@ -85,7 +85,7 @@ documentation, cf. http://docs.openstack.org/user-guide/content/cli_openrc.html
 
 .. code-block:: bash
 
-   $ export OS_AUTH_URL=http://192.168.122.71:5000/v2.0/
+   $ export OS_AUTH_URL=http://192.168.122.5:5000/v2.0/
    $ export OS_USERNAME=admin
    $ export OS_PASSWORD=password
    $ export OS_TENANT_NAME=demo
@@ -109,9 +109,28 @@ You development setup is done ! Congratulations :) !
 Unit Testing
 ------------
 
-The unit tests is by default tighted to the database so you need to have a
-mysql database running locally with the user root being able to access to
-the saladier database without password.
+The unit tests is by default using to the SQLite database so you don't
+need to have a mysql database running locally.
+
+You can run your test against a MySQL or PostgreSQL database. To do so, you
+need to adjust the `SALADIER_DATABASE_TEST_CONNECTION` variable.
+
+- MySQL
+
+    .. code-block:: bash
+
+        $ SALADIER_DATABASE_TEST_CONNECTION="mysql+pymysql://saladier:password@127.0.0.1/saladier" tox
+
+- PostgreSQL
+
+    .. code-block:: bash
+
+        $ export SALADIER_DATABASE_TEST_CONNECTION="postgres://postgres:password@127.0.0.1/saladier" tox
+
+.. note:: The `saladier` database must exist.
+
+Create your developer environment like a boss
+---------------------------------------------
 
 We have added a docker based container for our CI to make things very
 easy. We have as well added a run_tests.sh to make it easy to launch those,
@@ -129,8 +148,9 @@ This is the manual steps that the run_tests.sh script is doing
 
     fig run unittests
 
-It will setup a mysql and mount your saladier code as volume to launch the
-unittests with mysql. The first time should take a bit of time to construct the
-images but after that it should quick as the light :)
+This will setup a MySQL and PostgreSQL and mount your saladier code as volume
+to launch the unittests. The first time should take a bit of time to construct
+the images but after that it should quick as the light :)
 
- This is currently only run on py2
+.. note:: The functional tests are only run against Python 2. The unit tests
+   are run on both (2.7 and 3.4).
