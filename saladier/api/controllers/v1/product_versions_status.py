@@ -61,7 +61,7 @@ class ProductVersionsStatusController(base.BaseRestController):
                                                     product_version_id)
         pecan.response.status = 204
 
-    @pecan.expose()
+    @pecan.expose('json')
     def put(self, platform_id, product_version_id, status,
             logs_location):
         platform = pecan.request.db_conn.get_platform(platform_id)
