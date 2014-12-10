@@ -41,7 +41,7 @@ run_tox() {
 }
 
 source /virtualenv/bin/activate
-pip install -e.
+pip install -e. -rrequirements.txt -rtest-requirements.txt
 
 ### MySQL
 echo -e "${MAGENTA}Running tests under MySQL${NC}"

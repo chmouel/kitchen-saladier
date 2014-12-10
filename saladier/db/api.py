@@ -135,7 +135,6 @@ class Connection(object):  # TODO(chmouel): base class
     def get_product(self, id, tenant_id, admin=False):
         query = model_query(models.Product).filter(
             (models.Product.id == id) | (models.Product.name == id))
-
         if not admin:
             query = query.join(models.Subscriptions).filter(
                 tenant_id == models.Subscriptions.tenant_id)

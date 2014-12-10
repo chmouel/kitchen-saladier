@@ -1,7 +1,7 @@
 #!/bin/bash
 set -xe
 
-pip install -e .
+pip install -e. -rrequirements.txt -rtest-requirements.txt
 
 export SERVICE_ENDPOINT="http://${KEYSTONE_PORT_35357_TCP_ADDR}:35357/v2.0"
 export SERVICE_TOKEN=${KEYSTONE_ENV_KEYSTONE_ADMIN_TOKEN}
@@ -42,18 +42,6 @@ if ! keystone service-list|grep -q keystone; then
                       --publicurl=${SERVICE_ENDPOINT_USER} \
                       --internalurl=${SERVICE_ENDPOINT_USER} \
                       --adminurl=${SERVICE_ENDPOINT_ADMIN}
-
-    /usr/bin/keystone service-create --name=saladier --type=ci --description="CI validation Service"
-    # NOTE(chmou): we have to detect our own ip this sucks but fig don't expose it :(
-    SALADIER_PORT_8777_TCP_ADDR=$(ip addr show eth0|sed -n '/inet / { s/.*inet //;s/\/.*//;p }')
-    export SALADIER_ENDPOINT_USER="http://${SALADIER_PORT_8777_TCP_ADDR}:8777"
-
-    /usr/bin/keystone endpoint-create \
-                      --region RegionOne \
-                      --service-id=`keystone service-list | grep saladier | tr -s ' ' | cut -d \  -f 2` \
-                      --publicurl=${SALADIER_ENDPOINT_USER} \
-                      --internalurl=${SALADIER_ENDPOINT_USER} \
-                      --adminurl=${SALADIER_ENDPOINT_USER}
 
     # Create an admin that we will use for admin stuff and for validating token
     /usr/bin/keystone tenant-create --name service
