@@ -65,8 +65,8 @@ saladier-dbsync --config-file /tmp/saladier.conf upgrade
 run_tox MySQL runonly_pythontest_formysql
 
 ### PostgresSQL
-if [[ -n ${POSTGRES} ]];then
-        echo -e "${MAGENTA}Running tests under PostgresSQL${NC}"
+if [[ -n ${POSTGRES_PORT_5432_TCP_ADDR} ]];then
+    echo -e "${MAGENTA}Running tests under PostgresSQL${NC}"
     export SALADIER_DATABASE_TEST_CONNECTION="postgres://postgres:${SALADIER_DB_PASSWORD}@${POSTGRES_PORT_5432_TCP_ADDR}/saladier"
 
     PGPASSWORD=${SALADIER_DB_PASSWORD} dropdb --if-exists -U postgres -h${POSTGRES_PORT_5432_TCP_ADDR} saladier

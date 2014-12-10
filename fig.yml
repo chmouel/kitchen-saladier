@@ -35,7 +35,7 @@ keystone:
     ADMIN_TENANT_NAME: admin
 
 saladier:
-  build: ./
+  build: chmouel/cuisineoriental
   user: root
   links:
     - keystone
@@ -62,7 +62,6 @@ unittests:
   user: root
   links:
     - db
-    - postgres
 
   volumes:
     - ./:/code
