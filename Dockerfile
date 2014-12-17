@@ -5,23 +5,30 @@
 # and inside container just do a pip install -e. to install saladier properly.
 # really the best is to use fig which would build you a keystone+mariadb and connect
 # the saladier to it
-FROM fedora:20
+FROM fedora:21
 MAINTAINER Chmouel Boudjnah <chmouel@enovance.com>
 EXPOSE 8777
 
 RUN useradd -s /bin/bash -G adm,wheel,systemd-journal -m saladier
-RUN sed -i.bak -n -e '/^Defaults.*requiretty/ { s/^/# /;};/^%wheel.*ALL$/ { s/^/# / ;} ;/^#.*wheel.*NOPASSWD/ { s/^#[ ]*//;};p' /etc/sudoers
 
 RUN yum -y groupinstall 'Development Tools'
-RUN yum -y install openssl python-keystoneclient python-virtualenv libxslt-devel mysql python-tox dnf-plugins-core graphviz postgresql python-psycopg2 python3-psycopg2 postgresql-devel
+RUN yum -y install openssl
+RUN yum -y install python-keystoneclient
+RUN yum -y install python-virtualenv
+RUN yum -y install libxslt-devel
+RUN yum -y install mysql
+RUN yum -y install python-tox
+RUN yum -y install dnf-plugins-core
+RUN yum -y install graphviz
+RUN yum -y install postgresql
+RUN yum -y install python-psycopg2
+RUN yum -y install python3-psycopg2
+RUN yum -y install postgresql-devel
+RUN yum -y install python3-devel
 
-RUN dnf -y copr enable hguemar/python34-fedora20
-RUN yum -y install python34-devel
-
-RUN virtualenv /virtualenv 
+RUN virtualenv /virtualenv
 RUN chown -R saladier: /virtualenv
 RUN mkdir -p /code
-
 
 ADD requirements.txt /code/
 ADD test-requirements.txt /code/
