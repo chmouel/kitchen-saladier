@@ -116,3 +116,6 @@ class TestFullScenario(base.Base):
                                                       product_version_id)
         self.assertEqual(new_status_dict['status'],
                          new_status_resp.status)
+
+        # product_version_status_delete
+        self.admin_client.status.delete(platform_id, product_version_id)
