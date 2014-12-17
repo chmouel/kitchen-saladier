@@ -23,6 +23,7 @@ pip install -U fig
 
 # NOTE(chmou): launch unittests at the end this is needed for condition to success
 clean_repo
+
 fig ps -q|xargs -r docker stop || :
 fig ps -q|xargs -r docker rm || :
 fig run --rm unittests

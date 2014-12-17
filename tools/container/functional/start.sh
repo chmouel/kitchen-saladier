@@ -1,5 +1,9 @@
 #!/bin/bash
-export SALADIER_INTEG_CONF=/tmp/saladier-integration.conf
+TOX_TARGET=integration
+# TODO(chmou): get that from .gitreview file instead
+GERRIT_BASE_URL=http://gerrit.sf.ring.enovance.com
+
+export SALADIER_INTEG_CONF=/tmp/saladier-${TOX_TARGET}.conf
 
 export SERVICE_ENDPOINT="http://${KEYSTONE_PORT_35357_TCP_ADDR}:35357/v2.0"
 export SERVICE_TOKEN=${KEYSTONE_ENV_KEYSTONE_ADMIN_TOKEN}
@@ -93,12 +97,44 @@ user_password = ${SALADIER_USER_PASSWORD}
 EOF
 }
 
+# Update saladierclient to master unless we have the tag Saladierclient-Review
+# see developer doc for more information about how it work.
+function saladierclient_git_update() {
+    local review_number=$(git log -n1|sed -n '/SaladierClient-Review/ {s/.*: \([0-9]*\)/\1/;p ;}')
+
+    # It would only work on second run when the tox is already populated, sorry!
+    if [[ ! -d .tox/${TOX_TARGET}/src/saladierclient ]];then
+        return
+    fi
+
+    pushd .tox/${TOX_TARGET}/src/saladierclient >/dev/null
+    git reset --hard
+    git clean -ffdx -e .tox
+
+    if [[ ${review_number} ]];then
+        REF_ID=$(curl -s -L \
+                      "${GERRIT_BASE_URL}/changes/?q=${review_number}&o=CURRENT_REVISION&o=CURRENT_COMMIT" |
+                        sed '1d' | # NOTE(chmou): gerrit rest come back with some garbage as first line
+                        python -c "import sys, json; a=json.load(sys.stdin);print a[0]['revisions'].items()[0][1]['fetch'].items()[0][1]['ref']")
+        git fetch --all
+        git fetch ${GERRIT_BASE_URL}/r/python-saladierclient ${REF_ID}
+        git checkout -B review/${review_number} FETCH_HEAD
+    else
+        git checkout master
+        git pull
+    fi
+
+    popd >/dev/null
+}
+set -fex
+
 check_up saladier ${SALADIER_PORT_8777_TCP_ADDR} 8777
 check_up keystone ${KEYSTONE_PORT_35357_TCP_ADDR} 35357
 
 reprovision_virtualenv
+saladierclient_git_update
 update_keystone_endpoint
 recreate_configure_database
 
 configure_functional_tests
-tox -e integration
+tox -e ${TOX_TARGET}
