@@ -122,3 +122,8 @@ class TestFullScenario(base.Base):
 
         # product_subscription_delete
         self.admin_client.subscriptions.delete(product_id, user_tenant_id)
+
+        # product_version_delete
+        self.admin_client.product_versions.delete(
+            product_version_dict['product_id'],
+            product_version_dict['version'])
