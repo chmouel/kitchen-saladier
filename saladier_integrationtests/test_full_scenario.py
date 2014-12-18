@@ -130,3 +130,6 @@ class TestFullScenario(base.Base):
 
         # product_delete
         self.admin_client.products.delete(product_version_dict['product_id'])
+
+        # platform_delete
+        self.admin_client.platforms.delete(platform_id)
