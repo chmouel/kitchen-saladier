@@ -111,8 +111,8 @@ def load_app():
     return deploy.loadapp("config:" + os.path.abspath(cfg_file))
 
 
-def build_server():
-    app = load_app()
+def build_server(app=None):
+    app = app or load_app()
     # Create the WSGI server and start it
     # host, port = cfg.CONF.api.host, cfg.CONF.api.port
     host, port = cfg.CONF.api.host, cfg.CONF.api.port
