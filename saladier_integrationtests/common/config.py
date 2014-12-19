@@ -41,6 +41,10 @@ IntegrationTestGroup = [
     cfg.StrOpt('auth_url',
                default=os.environ.get('SALADIER_AUTH_URL'),
                help="Full URI of the OpenStack Identity API (Keystone), v2"),
+    cfg.StrOpt('documentation_output_dir',
+               default=os.environ.get('SALADIER_DOCUMENTATION_OUTPUT_DIR',
+                                      '/tmp'),
+               help="output directory where documentation will be generated."),
 ]
 
 

@@ -20,8 +20,14 @@ class ClientManager(object):
 
     def __init__(self, conf):
         self.conf = conf
+
         self.user_client = self._get_user_saladier_client()
+        x = self.user_client.http_client.auth_ref
+        self.user_tenant_id = x['token']['tenant']['id']
+
         self.admin_client = self._get_admin_saladier_client()
+        x = self.admin_client.http_client.auth_ref
+        self.admin_tenant_id = x['token']['tenant']['id']
 
     def _get_user_saladier_client(self):
         return saladierclient.client.get_client(
