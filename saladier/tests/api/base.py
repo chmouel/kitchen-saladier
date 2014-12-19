@@ -37,9 +37,8 @@ class FunctionalTest(base.DbTestCase):
     def setUp(self):
         super(FunctionalTest, self).setUp()
 
-        cfg.CONF.set_override(
-            'cache', 'fake.cache',
-            group='keystone_authtoken')
+        cfg.CONF.set_override('cache', 'fake.cache',
+                              group='keystone_authtoken')
         self.environ = {'fake.cache': utils.FakeMemcache()}
 
         self.app = self._make_app()

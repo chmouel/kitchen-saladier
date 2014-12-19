@@ -1,10 +1,11 @@
+-e git+http://gerrit.sf.ring.enovance.com/r/p/python-saladierclient.git#egg=saladierclient
+
 pbr>=0.6,!=0.7,<1.0
+keystonemiddleware
 
 pecan>=0.4.5
 PasteDeploy>=1.5.0
 netaddr>=0.7.6
--e git+git://github.com/openstack/keystonemiddleware.git@6266ed437d454a95bbd002234f94e646e45b29a7#egg=keystonemiddleware
--e git+http://gerrit.sf.ring.enovance.com/r/p/python-saladierclient.git#egg=saladierclient
 
 sqlalchemy>=0.9.4
 PyMySQL>=0.6.2

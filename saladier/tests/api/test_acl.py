@@ -15,6 +15,8 @@
 Tests for ACL. Checks whether certain kinds of requests
 are blocked or allowed to be processed.
 """
+import keystonemiddleware.auth_token
+import mock
 
 # NOTE(deva): import auth_token so we can override a config option
 from keystonemiddleware import auth_token  # noqa
@@ -24,7 +26,9 @@ from saladier.tests.api import utils
 
 
 class TestACL(base.FunctionalTest):
-    def test_non_authenticated(self):
+    @mock.patch.object(keystonemiddleware.auth_token.AuthProtocol,
+                       '_reject_auth_headers', return_value=())
+    def test_non_authenticated(self, m):
         response = self.get_json('/products/',
                                  headers={'X-Auth-Token': ''},
                                  expect_errors=True)
