@@ -42,6 +42,7 @@ class Product(base.APIBase):
                 # TODO(chmou): placeholder, we will need to have that updated
                 # properly when will have a decision maker API (tm)
                 'ready_for_deploy': False,
+                'uri': version.uri,
                 # TODO(chmou): placeholder we will add all the platforms here
                 # where that product_version has been validated on.
                 'validated_on': pv_gas(version.id)

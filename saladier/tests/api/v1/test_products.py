@@ -96,6 +96,7 @@ class TestProducts(base.V1FunctionalTest):
         self.assertEqual(ret_dict['ready_for_deploy'],
                          result['ready_for_deploy'])
         self.assertEqual(ret_dict['validated_on'], result['validated_on'])
+        self.assertEqual(ret_dict['uri'], result['uri'])
 
     def test_product_get_by_name_bad_version(self):
         product_id = self._create_sample_product(name='name1')
