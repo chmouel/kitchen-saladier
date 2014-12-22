@@ -54,7 +54,7 @@ class TestProducts(base.V1FunctionalTest):
         self.assertEqual(base.SAMPLE_JSON_PRODUCTS_EXPECT,
                          result)
 
-    def test_product_get_by_name_has_versions(self):
+    def test_product_get_by_id_has_versions(self):
         product_id = self._create_sample_product(name='name1')
 
         self._create_sample_product_version(
@@ -70,7 +70,7 @@ class TestProducts(base.V1FunctionalTest):
         self.assertEqual(["1.0", "1.1"], sorted([x['version']
                                                  for x in result['versions']]))
 
-    def test_product_get_by_name_no_version(self):
+    def test_product_get_by_id_no_version(self):
         product_name1 = 'name1'
         product_id = self._create_sample_product(name=product_name1)
 
@@ -81,7 +81,7 @@ class TestProducts(base.V1FunctionalTest):
                     'team': base.SAMPLE_JSON_PRODUCTS_NAME['team']}
         self.assertEqual(ret_dict, self.get_json('/products/%s' % product_id))
 
-    def test_product_get_by_name_and_version(self):
+    def test_product_get_by_id_and_version_name(self):
         version = '1.0'
 
         product_id = self._create_sample_product(name='name1')
@@ -93,6 +93,42 @@ class TestProducts(base.V1FunctionalTest):
         ret_dict = base.SAMPLE_JSON_PRODUCTS_NAME['versions'][version]
         result = self.get_json('/products/%s/%s' % (product_id,
                                                     product_version_id))
+        self.assertEqual(ret_dict['ready_for_deploy'],
+                         result['ready_for_deploy'])
+        self.assertEqual(ret_dict['validated_on'], result['validated_on'])
+        self.assertEqual(ret_dict['uri'], result['uri'])
+
+    def test_product_get_by_name_and_version_name(self):
+        version = '1.0'
+        product_name = 'name1'
+
+        product_id = self._create_sample_product(name=product_name)
+        for version in base.SAMPLE_JSON_PRODUCTS_INPUT['products']['name1']:
+            self._create_sample_product_version(
+                product_id=product_id,
+                version=version)
+
+        ret_dict = base.SAMPLE_JSON_PRODUCTS_NAME['versions'][version]
+        result = self.get_json('/products/%s/%s' % (product_name,
+                                                    version))
+        self.assertEqual(ret_dict['ready_for_deploy'],
+                         result['ready_for_deploy'])
+        self.assertEqual(ret_dict['validated_on'], result['validated_on'])
+        self.assertEqual(ret_dict['uri'], result['uri'])
+
+    def test_product_get_by_name_and_version_id(self):
+        version = '1.0'
+        product_name = 'name1'
+
+        product_id = self._create_sample_product(name=product_name)
+        for version in base.SAMPLE_JSON_PRODUCTS_INPUT['products']['name1']:
+            version_id = self._create_sample_product_version(
+                product_id=product_id,
+                version=version)
+
+        ret_dict = base.SAMPLE_JSON_PRODUCTS_NAME['versions'][version]
+        result = self.get_json('/products/%s/%s' % (product_name,
+                                                    version_id))
         self.assertEqual(ret_dict['ready_for_deploy'],
                          result['ready_for_deploy'])
         self.assertEqual(ret_dict['validated_on'], result['validated_on'])

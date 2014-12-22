@@ -23,7 +23,7 @@ class Product(base.APIBase):
     fields = ['id', 'name', 'contact', 'team']
     dict_field = 'versions'
 
-    def version_info(self, product_version_id=None):
+    def version_info(self, product_version=None):
         """Return the versions associated with the product.
 
         :param product_version_id: only return a given version (optional)
@@ -34,19 +34,20 @@ class Product(base.APIBase):
         pv_gas = pecan.request.db_conn.get_all_status_by_version_id
         ret = []
         for version in pv_gad(self.id):
-            if product_version_id and version.id != product_version_id:
-                continue
             ret.append({
                 'id': version.id,
                 'version': version.version,
-                # TODO(chmou): placeholder, we will need to have that updated
-                # properly when will have a decision maker API (tm)
                 'ready_for_deploy': False,
                 'uri': version.uri,
-                # TODO(chmou): placeholder we will add all the platforms here
-                # where that product_version has been validated on.
                 'validated_on': pv_gas(version.id)
             })
+
+        # Allow version_id or version_name if we choose so, make the filtering
+        # easier then in the for loop (but that make us to do one db query
+        # more)
+        if product_version:
+            ret = [x for x in ret if x['id'] == product_version or
+                   x['version'] == product_version]
         return ret
 
     def as_dict(self):
@@ -76,9 +77,10 @@ class ProductController(base.BaseRestController):
             # don't masterize let's keep it like that for now.
             if len(args) == 1:
                 version_id = args[0]
-                try:
-                    return p.version_info(version_id)[0]
-                except IndexError:
+                version_info = p.version_info(version_id)
+                if version_info:
+                    return version_info[0]
+                else:
                     pecan.response.status = 404
                     return "Version %s of Product %s was not found" % (
                         version_id, id)
