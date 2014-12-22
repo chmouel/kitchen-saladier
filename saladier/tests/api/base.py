@@ -32,8 +32,6 @@ class FunctionalTest(base.DbTestCase):
     framework.
     """
 
-    SOURCE_DATA = {'test_source': {'somekey': '666'}}
-
     def setUp(self):
         super(FunctionalTest, self).setUp()
 
