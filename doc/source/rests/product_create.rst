@@ -1,14 +1,17 @@
 POST /products
 ==============
 
-Create a product
+Get saladier public URL with version and location public.
+
+This will create a product that will be handled by a `team` with a
+`contact`.
 
 Arguments::
 
     {
-        "contact": "cedric@isthegreatest.com",
+        "contact": "blah@blah.com",
         "name": "product1",
-        "team": "boa"
+        "team": "thebestone"
     }
 
 Returns::

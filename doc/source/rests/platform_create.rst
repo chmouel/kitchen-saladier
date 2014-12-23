@@ -1,15 +1,15 @@
 POST /platforms
 ===============
 
-Create platform
+Create Platform.
 
 Arguments::
 
     {
-        "tenant_id": "0000101010101",
-        "contact": "thecedric@isthegreatest.com",
-        "location": "ParisEstMagique",
-        "name": "platform1"
+        "tenant_id": "c6a5e4afc26b472ba8a548d0dca64f95",
+        "contact": "thebest@contactever",
+        "location": "Kurzistan",
+        "name": "Platform1"
     }
 
 Returns::

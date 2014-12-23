@@ -1,14 +1,14 @@
 POST /versions
 ==============
 
-Associate a product to a version
+Associate a product to a version.
 
 Arguments::
 
     {
-        "url": "http://anywhereyoulike",
-        "product": "product1",
-        "version": "1.0"
+        "url": "http://somewhereoutthere",
+        "version": "1.0",
+        "product_id": "d6c308c9-20bd-4160-bf62-041b7031187c"
     }
 
 Returns::

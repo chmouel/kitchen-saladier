@@ -1,7 +1,7 @@
-GET /platforms/
-===============
+GET /platforms
+==============
 
-Show created platform
+List Platforms.
 
 Returns::
 
@@ -10,10 +10,11 @@ Returns::
     {
         "platforms": [
                 {
-                        "tenant_id": "0000101010101",
-                        "contact": "thecedric@isthegreatest.com",
-                        "name": "platform1",
-                        "location": "ParisEstMagique"
+                        "tenant_id": "c6a5e4afc26b472ba8a548d0dca64f95",
+                        "contact": "thebest@contactever",
+                        "location": "Kurzistan",
+                        "name": "Platform1",
+                        "id": "8b903162-97cf-4ec3-83e2-e719ff604afa"
                 }
         ]
     }

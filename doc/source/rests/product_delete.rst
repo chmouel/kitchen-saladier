@@ -1,7 +1,10 @@
-DELETE /products/product1
-=========================
+DELETE /products/product_name_or_id
+===================================
 
-Delete created product
+Delete Product.
+
+Make sure all the associations to the product is already deleted before
+doing this operation or this will conflict.
 
 Returns::
 
