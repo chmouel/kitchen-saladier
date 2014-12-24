@@ -51,7 +51,7 @@ class ProductShow(b.Base):
     method = "GET"
     url = "products/" + f.CREATE_PRODUCT['name']
     documentation_type = "product_get"
-    admin = False
+    admin = True
 
 
 class ProductShowVersion(b.Base):
