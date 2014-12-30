@@ -35,7 +35,7 @@ OPTS = [
                help='The listen IP for the saladier API server.',
                ),
     cfg.StrOpt('api_paste_config',
-               default="api_paste.ini",
+               default="/etc/saladier/api_paste.ini",
                help="Configuration file for WSGI definition of API."
                ),
 ]
