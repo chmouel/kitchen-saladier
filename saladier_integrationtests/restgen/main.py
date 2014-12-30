@@ -57,10 +57,6 @@ class RestGen(object):
         st.generate()
 
         #
-        pl = m.ProductList(self.manager)
-        pl.generate()
-
-        #
         pversion = m.ProductShowVersion(self.manager)
         pversion.dynamic_url = (f.CREATE_PRODUCT['name'] + "/" +
                                 f.CREATE_PRODUCT_VERSIONS['version'])
@@ -84,6 +80,16 @@ class RestGen(object):
         status_update.data['product_version_id'] = product_version_id
         status_update.data['status'] = "SUCCESS"
         status_update.generate()
+
+        # NOTE(chmou): We keep those at the end so we can see the full API
+        # reply with the status, platforms etc...
+        pl = m.ProductList(self.manager)
+        pl.generate()
+
+        #
+        pn = m.ProductShow(self.manager)
+        pn.admin = False
+        pn.generate()
 
         #
         status_delete = m.StatusDelete(self.manager)
