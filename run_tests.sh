@@ -13,13 +13,10 @@ trap exit_it EXIT
 
 set -ex
 
-if [[ ! -d .tox/run_tests ]];then
-    mkdir -p .tox
-    virtualenv .tox/run_tests
-fi
-
-source .tox/run_tests/bin/activate
-pip install -U fig
+type -p fig >/dev/null || {
+    echo "You need to have fig installed. Just yum -y install fig"
+    exit 1
+}
 
 # NOTE(chmou): launch unittests at the end this is needed for condition to success
 clean_repo
