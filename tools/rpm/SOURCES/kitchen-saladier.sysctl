@@ -1,0 +1,2 @@
+# Saladier port
+net.ipv4.ip_local_reserved_ports = 8777

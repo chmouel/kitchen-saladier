@@ -30,3 +30,7 @@ clean_repo
 fig ps -q|xargs -r docker stop || :
 fig ps -q|xargs -r docker rm || :
 fig run functional
+
+# Build rpms
+clean_repo
+./tools/rpm/build.sh

@@ -1,0 +1,11 @@
+[Unit]
+Description=Kitchen Control Server (code-named Saladier)
+After=syslog.target network.target
+
+[Service]
+Type=simple
+User=saladier
+ExecStart=/usr/bin/saladier-api
+
+[Install]
+WantedBy=multi-user.target
