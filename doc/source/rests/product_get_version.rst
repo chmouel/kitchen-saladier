@@ -1,7 +1,7 @@
-GET /products/product1/1.0
-==========================
+GET /products/product_name_or_id/version_name_or_id
+===================================================
 
-Show specific product/version information
+Show specific product/version information.
 
 Returns::
 
@@ -9,7 +9,10 @@ Returns::
 
     {
         "ready_for_deploy": false,
-        "id": "c857c729-4271-40b0-b721-28e4dbbd485d",
-        "validated_on": {}
+        "version": "1.0",
+        "id": "badde9a4-d86e-442a-9d4a-8686c65036ec",
+        "validated_on": [],
+        "uri": "http://somewhereoutthere"
     }
 
+.. note:: This call needs to be made with the admin rights.

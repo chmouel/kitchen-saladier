@@ -1,16 +1,18 @@
 GET /
 =====
 
-Get saladier public URL with version and location
+Show information about the saladier server.
+
+.. note:: This call does not need authentication and can be used for
+          healthchecking.
 
 Returns::
 
     200
 
     {
-        "version": "2151071",
+        "version": "0.0.0.189",
         "location": "Paris",
         "provider": "eNovance"
     }
 
-.. note:: This call needs to be made with the admin rights.

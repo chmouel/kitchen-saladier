@@ -1,10 +1,9 @@
-DELETE /status/platform1/product_version_id
-===========================================
+DELETE /status/PLATFORM_ID/PRODUCT_VERSION_ID
+=============================================
 
-Delete status of our product
+Delete a status.
 
 Returns::
 
     204
 
-.. note:: This call needs to be made with the admin rights.

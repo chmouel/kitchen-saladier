@@ -1,7 +1,7 @@
-DELETE /platforms/platform1
-===========================
+DELETE /platforms/platform_id
+=============================
 
-Delete created platform
+Delete a platform.
 
 Returns::
 

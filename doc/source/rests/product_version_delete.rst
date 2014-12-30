@@ -1,7 +1,7 @@
-DELETE /versions/product1/1.0
-=============================
+DELETE /versions/product_name_or_id/version_name_or_id
+======================================================
 
-Delete Association between product and version
+Delete an association between a product to a version.
 
 Returns::
 

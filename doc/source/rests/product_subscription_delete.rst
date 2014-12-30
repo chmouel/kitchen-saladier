@@ -1,7 +1,7 @@
-DELETE /subscriptions/product1/tenant_id
-========================================
+DELETE /subscriptions/product_name_or_id/tenant_id
+==================================================
 
-Delete subscription of 'saladier_user1' to our product
+Delete a subscription of a tenant to a product.
 
 Returns::
 

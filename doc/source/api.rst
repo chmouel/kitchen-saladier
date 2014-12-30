@@ -137,7 +137,7 @@ to communicate with the Saladier service itself.
 
 .. include:: rests/product_version_status_delete.rst
 
-.. include:: rests/product_version_status_get.rst
+.. include:: rests/product_version_status_show.rst
 
 .. include:: rests/product_version_status_update.rst
 

@@ -1,13 +1,13 @@
 POST /subscriptions
 ===================
 
-Subscribe tenant 'saladier_user1' to product
+Subscribe a tenant to a product.
 
 Arguments::
 
     {
-        "tenant_id": "7fec2eb671cf495db011c4869b1b8ff4",
-        "product_name": "product1"
+        "tenant_id": "c6a5e4afc26b472ba8a548d0dca64f95",
+        "product_id": "d6c308c9-20bd-4160-bf62-041b7031187c"
     }
 
 Returns::

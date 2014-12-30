@@ -1,19 +1,18 @@
 PUT /status
 ===========
 
-Update the status of our product version
+Update a status.
 
 Arguments::
 
     {
-        "platform_name": "platform1",
-        "new_logs_location": "swift://localhost/deploy_new",
-        "new_status": "SUCCESS",
-        "product_version_id": "c857c729-4271-40b0-b721-28e4dbbd485d"
+        "platform_id": "8b903162-97cf-4ec3-83e2-e719ff604afa",
+        "status": "SUCCESS",
+        "logs_location": "swift://localhost/deploy_new",
+        "product_version_id": "badde9a4-d86e-442a-9d4a-8686c65036ec"
     }
 
 Returns::
 
     204
 
-.. note:: This call needs to be made with the admin rights.
