@@ -1,3 +1,5 @@
+-e git+http://gerrit.sf.ring.enovance.com/r/p/python-saladierclient.git#egg=saladierclient
+
 hacking>=0.9.2,<0.10
 doc8
 
