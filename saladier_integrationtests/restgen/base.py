@@ -14,6 +14,7 @@
 # under the License.
 import inspect
 import json
+import re
 
 API_VERSION = 'v1'
 
@@ -53,6 +54,21 @@ class Base(object):
             self.json_resp = json.loads(body)
         self._generate_rest()
 
+    def _convert_json_and_adjust(self, data):
+        ret = ""
+        if data:
+            data = json.dumps(data, indent=8)[:-1] + "    }"
+            # UUID
+            ret = re.sub(r'(\w{8}(-\w{4}){3}-\w{12}?)',
+                         'GENERATED_UUID', data)
+            # Tenant_ID
+            ret = re.sub(r'[a-z0-9]{32}', 'TENANT_ID', ret)
+
+            # DATETIME
+            ret = re.sub("\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}",
+                         'DATETIME', ret)
+        return "    " + ret.replace(" \n", "\n") + "\n\n"
+
     # TODO(chmou): use a proper templates instead
     def _generate_rest(self):
         documentation = inspect.getdoc(self)
@@ -67,16 +83,11 @@ class Base(object):
             f.write(documentation + "\n\n")
             if self.data:
                 f.write("Arguments::\n\n")
-                j_dumps = self._json_pp(self.data)
-                f.write("    " + j_dumps.replace(" \n", "\n") + "\n\n")
+                f.write(self._convert_json_and_adjust(self.data))
             f.write("Returns::\n\n")
             f.write("    %s\n\n" % self.response.status)
             if self.method.upper() == "GET":
-                j_dumps = self._json_pp(self.json_resp)
-                f.write("    " + j_dumps.replace(" \n", "\n") + "\n\n")
+                f.write(self._convert_json_and_adjust(self.json_resp))
             if self.admin:
                 f.write(".. note:: This call needs to be made with the admin"
                         " rights.\n")
-
-    def _json_pp(self, d):
-        return json.dumps(d, indent=8)[:-1] + "    }"

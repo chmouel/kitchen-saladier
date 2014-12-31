@@ -8,7 +8,7 @@ Arguments::
     {
         "url": "http://somewhereoutthere",
         "version": "1.0",
-        "product_id": "d6c308c9-20bd-4160-bf62-041b7031187c"
+        "product_id": "GENERATED_UUID"
     }
 
 Returns::

@@ -10,11 +10,11 @@ Returns::
     {
         "platforms": [
                 {
-                        "tenant_id": "c6a5e4afc26b472ba8a548d0dca64f95",
+                        "tenant_id": "TENANT_ID",
                         "contact": "thebest@contactever",
                         "location": "Kurzistan",
                         "name": "Platform1",
-                        "id": "8b903162-97cf-4ec3-83e2-e719ff604afa"
+                        "id": "GENERATED_UUID"
                 }
         ]
     }

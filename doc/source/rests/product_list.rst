@@ -12,25 +12,25 @@ Returns::
                 {
                         "versions": [
                                 {
+                                        "url": "http://somewhereoutthere",
                                         "ready_for_deploy": false,
                                         "version": "1.0",
-                                        "id": "badde9a4-d86e-442a-9d4a-8686c65036ec",
+                                        "id": "GENERATED_UUID",
                                         "validated_on": [
                                                 {
                                                         "status": "SUCCESS",
-                                                        "product_version_id": "badde9a4-d86e-442a-9d4a-8686c65036ec",
-                                                        "created_at": "2014-12-18 15:47:27",
+                                                        "product_version_id": "GENERATED_UUID",
+                                                        "created_at": "DATETIME",
                                                         "updated_at": null,
-                                                        "platform_id": "8b903162-97cf-4ec3-83e2-e719ff604afa",
+                                                        "platform_id": "GENERATED_UUID",
                                                         "logs_location": "swift://localhost/deploy_new",
-                                                        "id": "093076d6-c53d-4e99-a15c-ee8330132e29"
+                                                        "id": "GENERATED_UUID"
                                                 }
-                                        ],
-                                        "uri": "http://somewhereoutthere"
+                                        ]
                                 }
                         ],
                         "contact": "blah@blah.com",
-                        "id": "d6c308c9-20bd-4160-bf62-041b7031187c",
+                        "id": "GENERATED_UUID",
                         "name": "product1",
                         "team": "thebestone"
                 }
