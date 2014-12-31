@@ -20,7 +20,7 @@ import saladier.common.exception as exception
 
 
 class ProductVersions(base.APIBase):
-    fields = ['id', 'product_id', 'version', 'uri']
+    fields = ['id', 'product_id', 'version', 'url']
 
 
 class ProductCollection(base.APIBaseCollections):

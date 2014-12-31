@@ -88,7 +88,7 @@ class TestFullScenario(base.Base):
 
         version_dict = dict(
             id=version_id, version=product_version_dict['version'],
-            ready_for_deploy=False, uri='http://blah.com', validated_on=[])
+            ready_for_deploy=False, url='http://blah.com', validated_on=[])
         self.assertDictEqual(version_dict, products_resp.to_dict())
 
         # product_version_status_add

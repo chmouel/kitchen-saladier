@@ -21,12 +21,12 @@ class ProductVersionStatusTestCase(base.DbTestCase):
 
     version_status_deps = {"prod_name": "product1", "team": "team1",
                            "prod_contact": "contact1", "version": "1.0",
-                           "uri": "http://localhost/", "plat_name": "name1",
+                           "url": "http://localhost/", "plat_name": "name1",
                            "location": "location1", "plat_contact": "contact1",
                            "tenant_id": "tenant1"}
 
     def _create_product_version_status_deps(self, prod_name, team,
-                                            prod_contact, version, uri,
+                                            prod_contact, version, url,
                                             plat_name, location, plat_contact,
                                             tenant_id):
         self.dbapi.create_product(
@@ -34,7 +34,7 @@ class ProductVersionStatusTestCase(base.DbTestCase):
         self.my_product_id = self.dbapi.get_product(
             prod_name, tenant_id=tenant_id, admin=True).id
         self.my_product_version_id = self.dbapi.create_product_version(
-            product_id=self.my_product_id, version=version, uri=uri).id
+            product_id=self.my_product_id, version=version, url=url).id
         self.dbapi.create_platform(
             name='choucou', location=location,
             contact=plat_contact, tenant_id=tenant_id)

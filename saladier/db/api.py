@@ -143,14 +143,14 @@ class Connection(object):  # TODO(chmouel): base class
         except saladier.db.sqlalchemy.exc.NoResultFound:
             raise exception.ProductNotFound(name=id)
 
-    def create_product_version(self, product_id, version, uri):
+    def create_product_version(self, product_id, version, url):
         query = model_query(models.ProductVersion)
         if query.filter(models.Product.id == product_id).filter_by(
                 version=version).all():
             raise exception.ProductVersionAlreadyExists(product_id)
         new = models.ProductVersion(version=version,
                                     product_id=product_id,
-                                    uri=uri)
+                                    url=url)
         new.save()
         return new
 

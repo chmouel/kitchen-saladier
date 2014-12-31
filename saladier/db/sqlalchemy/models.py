@@ -63,7 +63,7 @@ class ProductVersion(Base):
     product_id = sqlalchemy.Column(sqlalchemy.String(36),
                                    sqlalchemy.ForeignKey('products.id',
                                                          ondelete='cascade'))
-    uri = sqlalchemy.Column(sqlalchemy.String(255))
+    url = sqlalchemy.Column(sqlalchemy.String(255))
     platforms = orm.relationship("ProductVersionStatus")
 
     def __repr__(self):

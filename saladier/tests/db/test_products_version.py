@@ -23,7 +23,7 @@ class ProductVersionTestCase(base.DbTestCase):
         for version in ["1.0", "1.1"]:
             self.dbapi.create_product_version(product.id,
                                               version=version,
-                                              uri="http://localhost/")
+                                              url="http://localhost/")
 
         all_versions = [d.version for d in
                         self.dbapi.get_all_product_versions(product.id)]
@@ -34,7 +34,7 @@ class ProductVersionTestCase(base.DbTestCase):
             name="product1", team="team1", contact="contact1")
         self.dbapi.create_product_version(product.id,
                                           "1.0",
-                                          uri="http://localhost/")
+                                          url="http://localhost/")
         self.assertRaises(exception.ProductVersionAlreadyExists,
                           self.dbapi.create_product_version,
                           product.id,
@@ -46,7 +46,7 @@ class ProductVersionTestCase(base.DbTestCase):
             name="product1", team="team1", contact="contact1")
         self.dbapi.create_product_version(product.id,
                                           "1.0",
-                                          uri="http://localhost/")
+                                          url="http://localhost/")
         self.dbapi.delete_product_versions(product.id,
                                            "1.0")
 

@@ -38,7 +38,7 @@ class Product(base.APIBase):
                 'id': version.id,
                 'version': version.version,
                 'ready_for_deploy': False,
-                'uri': version.uri,
+                'url': version.url,
                 'validated_on': pv_gas(version.id)
             })
 
