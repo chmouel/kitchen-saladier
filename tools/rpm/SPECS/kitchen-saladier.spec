@@ -7,9 +7,10 @@ Summary:        Kitchen Saladier
 
 License:        ASL 2.0
 Source0:        %{name}-%{version}.tar.gz
-Source1:        kitchen-saladier.logrotate
-Source2:        kitchen-saladier.service
-Source3:        kitchen-saladier.sysctl
+Source1:         saladier.conf.sample
+Source100:      kitchen-saladier.logrotate
+Source101:      kitchen-saladier.service
+Source102:      kitchen-saladier.sysctl
 
 BuildArch:      noarch
 
@@ -21,7 +22,6 @@ BuildRequires:  systemd-units
 BuildRequires:  python-pbr
 BuildRequires:  python-d2to1
 BuildRequires:  python-mock
-BuildRequires:  python-oslo-config >= 1:1.2.0
 
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
@@ -84,13 +84,6 @@ find saladier -name \*.py -exec sed -i '/\/usr\/bin\/env python/d' {} \;
 %build
 %{__python} setup.py build
 
-oslo-config-generator --output-file etc/saladier/saladier.conf \
-               --namespace saladier \
-               --namespace keystonemiddleware.auth_token \
-               --namespace oslo.db
-
-sed -i 's,^#connection = ,connection=mysql://saladier:password@localhost/saladier,' etc/saladier/saladier.conf
-
 %install
 %{__python} setup.py install --skip-build --root %{buildroot}
 
@@ -98,13 +91,13 @@ sed -i 's,^#connection = ,connection=mysql://saladier:password@localhost/saladie
 rm -fr %{buildroot}%{python_sitelib}/saladier/tests
 
 install -d -m 755 %{buildroot}%{_sysconfdir}/saladier
-install -p -D -m 640 etc/saladier/saladier.conf %{buildroot}%{_sysconfdir}/saladier/
+install -p -D -m 640 %{SOURCE1} %{buildroot}%{_sysconfdir}/saladier/saladier.conf
 install -p -D -m 644 etc/saladier/api_paste.ini %{buildroot}%{_sysconfdir}/saladier/
 
-install -p -D -m 644 %{SOURCE1} %{buildroot}%{_sysconfdir}/logrotate.d/kitchen-saladier
-install -p -D -m 644 %{SOURCE2} %{buildroot}%{_unitdir}/kitchen-saladier.service
+install -p -D -m 644 %{SOURCE100} %{buildroot}%{_sysconfdir}/logrotate.d/kitchen-saladier
+install -p -D -m 644 %{SOURCE101} %{buildroot}%{_unitdir}/kitchen-saladier.service
 install -d -m 755 %{buildroot}%{_sysctldir}
-install -p -D -m 644 %{SOURCE3} %{buildroot}%{_sysctldir}/kitchen-saladier.conf
+install -p -D -m 644 %{SOURCE102} %{buildroot}%{_sysctldir}/kitchen-saladier.conf
 
 install -d -m 755 %{buildroot}%{_sharedstatedir}/saladier
 install -d -m 755 %{buildroot}%{_localstatedir}/log/saladier

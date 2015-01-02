@@ -11,6 +11,14 @@ cp -r ${CURDIR}/SOURCES ${CURDIR}/.build/rpm
 pushd ${TOPDIR} >/dev/null
 python setup.py sdist --dist-dir ${CURDIR}/.build/rpm/SOURCES/
 SALADIER_VERSION=$(sed -n '/^Version/ { s/.* //; p}' kitchen_saladier.egg-info/PKG-INFO)
+
+[[ -e etc/saladier/saladier.conf.sample ]] || {
+    echo "You need to generate the sample first with tox -egenconfig so we can copy it"
+    exit 1
+}
+
+cp etc/saladier/saladier.conf.sample ${CURDIR}/.build/rpm/SOURCES/saladier.conf.sample
+
 popd >/dev/null
 
 sed -e "s/%define _version.*/%define _version ${SALADIER_VERSION}/" ${CURDIR}/SPECS/kitchen-saladier.spec > \
