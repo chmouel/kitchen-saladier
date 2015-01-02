@@ -10,19 +10,15 @@ RUN sed -i.bak -n -e '/^Defaults.*requiretty/ { s/^/# /;};/^%wheel.*ALL$/ { s/^/
 
 RUN yum install -y https://rdo.fedorapeople.org/rdo-release.rpm
 
-# This is an optimisation for caching, since using the auto generated one will
-# make docker always run the builddep steps since new file
-ADD SPECS/kitchen-saladier.spec /tmp/
-RUN yum-builddep -y /tmp/kitchen-saladier.spec
-
-ADD bin/start.sh /start.sh
-
 RUN useradd -s /bin/bash -G adm,wheel,systemd-journal -m saladier
 
 WORKDIR /home/saladier
 CMD /start.sh
 
+ADD bin/start.sh /start.sh
+
 ADD .build/rpm/ /home/saladier/rpmbuild/
 RUN chown -R saladier: /home/saladier
+RUN yum-builddep -y rpmbuild/SPECS/kitchen-saladier.spec
 
 USER saladier
