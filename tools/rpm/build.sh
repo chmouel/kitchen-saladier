@@ -3,14 +3,19 @@ set -exf
 
 CURDIR=$(dirname $(readlink -f $0))
 TOPDIR=$(git rev-parse --show-toplevel 2>/dev/null)
+DATE_VERSION="0.0.$(date +%Y%m%d)git"
 
 rm -rf ${CURDIR}/.build/rpm
 mkdir -p ${CURDIR}/.build/rpm/{BUILD,SRPMS,SPECS,RPMS/noarch}
 cp -r ${CURDIR}/SOURCES ${CURDIR}/.build/rpm
 
 pushd ${TOPDIR} >/dev/null
-python setup.py sdist --dist-dir ${CURDIR}/.build/rpm/SOURCES/
-SALADIER_VERSION=$(sed -n '/^Version/ { s/.* //; p}' kitchen_saladier.egg-info/PKG-INFO)
+
+COMMIT_VERSION=$(git rev-parse --short HEAD)
+
+export PBR_VERSION=${DATE_VERSION}${COMMIT_VERSION}
+
+python setup.py sdist --dist-dir ${CURDIR}/.build/rpm/SOURCES/ >/dev/null
 
 [[ -e etc/saladier/saladier.conf.sample ]] || {
     echo "You need to generate the sample first with tox -egenconfig so we can copy it"
@@ -21,7 +26,7 @@ cp etc/saladier/saladier.conf.sample ${CURDIR}/.build/rpm/SOURCES/saladier.conf.
 
 popd >/dev/null
 
-sed -e "s/%define _version.*/%define _version ${SALADIER_VERSION}/" ${CURDIR}/SPECS/kitchen-saladier.spec > \
+sed -e "s/%define _version.*/%define _version ${PBR_VERSION}/" ${CURDIR}/SPECS/kitchen-saladier.spec > \
         ${CURDIR}/.build/rpm/SPECS/kitchen-saladier.spec
 
 docker build -t chmouel/buildrpm ${CURDIR}
