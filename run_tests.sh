@@ -18,17 +18,22 @@ type -p fig >/dev/null || {
     exit 1
 }
 
-# NOTE(chmou): launch unittests at the end this is needed for condition to success
+# Clean as much as possible before starting
 clean_repo
-
 fig ps -q|xargs -r docker stop || :
 fig ps -q|xargs -r docker rm || :
+{ docker images -q --filter "dangling=true" | xargs docker rmi ;} || true
+
+# Unittests
 fig run --rm unittests
 
-# stupid testr (2)
+# clean again cause without it we end up in a world of pain of conflicts and
+# races.
 clean_repo
 fig ps -q|xargs -r docker stop || :
 fig ps -q|xargs -r docker rm || :
+
+# Functional
 fig run functional
 
 # Build rpms
