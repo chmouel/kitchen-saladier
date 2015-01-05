@@ -2,8 +2,8 @@
 set -xefu
 
 # You definitively want to change those
-export PUBLIC_IP=localhost
-export PASSWORD=password
+export PUBLIC_IP=${PUBLIC_IP:-localhost}
+export PASSWORD=${PASSWORD:-password}
 
 # You may want to change those
 export SALADIER_ENDPOINT_USER="http://${PUBLIC_IP}:8777"
